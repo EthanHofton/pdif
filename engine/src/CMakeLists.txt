@@ -25,7 +25,7 @@ add_library(${LIBRARY_NAME} ${PDIF_SOURCES})
 set_target_properties(${LIBRARY_NAME} PROPERTIES OUTPUT_NAME "pdif")
 
 set_target_properties(${LIBRARY_NAME} PROPERTIES
-    VERSION ${ENGINE_VERSION}
+    VERSION ${PDIF_ENGINE_VERSION}
     FRAMEWORK FALSE
 )
 

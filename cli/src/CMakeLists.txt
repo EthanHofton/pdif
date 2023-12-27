@@ -23,7 +23,7 @@ add_executable(${EXE_NAME} ${PDIF_CLI_SOURCES})
 set_target_properties(${EXE_NAME} PROPERTIES OUTPUT_NAME "pdif")
 
 set_target_properties(${EXE_NAME} PROPERTIES
-    VERSION ${CLI_VERSION}
+    VERSION ${PDIF_CLI_VERSION}
     FRAMEWORK FALSE
 )
 
