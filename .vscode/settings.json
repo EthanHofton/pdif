@@ -1,5 +1,11 @@
 {
     "files.associations": {
-        "*.in": "cpp"
-    }
+        "*.in": "cpp",
+        "functional": "cpp",
+        "iosfwd": "cpp",
+        "vector": "cpp"
+    },
+    "cSpell.words": [
+        "PDIF"
+    ]
 }

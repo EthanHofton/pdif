@@ -20,7 +20,7 @@ set(CMAKE_MACOSX_RPATH ON)
 
 enable_testing()
 
-option(BUILD_CLI "Build the command line interface" ON)
+option(BUILD_CLI "Build the command line interface" OFF)
 
 add_subdirectory(engine)
 

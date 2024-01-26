@@ -14,7 +14,7 @@ FetchContent_MakeAvailable(util)
 
 # set sources
 set(PDIF_SOURCES
-    test.cpp
+    stream_elem.cpp
 )
 
 set(LIBRARY_NAME pdif_engine)
