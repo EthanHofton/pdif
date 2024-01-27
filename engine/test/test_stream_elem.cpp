@@ -1,28 +1,49 @@
 #include <gtest/gtest.h>
 #include <pdif/stream_elem.hpp>
 
-TEST(PDIF, TestTextElemText) {
-    pdif::text_elem elem("Hello, World!");
-    ASSERT_EQ(elem.text(), "Hello, World!");
+TEST(PDIFStreamElem, TestType) {
+    pdif::rstream_elem elem = pdif::stream_elem::create<pdif::text_elem>("Hello, World!");
+    ASSERT_EQ(elem->type(), pdif::stream_type::text);
 }
 
-TEST(PDIF, TestTextElemCompareText) {
-    pdif::text_elem elem1("Hello, World!");
-    pdif::text_elem elem2("Hello, World!");
+TEST(PDIFStreamElem, TestCreate) {
+    pdif::rstream_elem elem = pdif::stream_elem::create<pdif::text_elem>("Hello, World!");
+    ASSERT_EQ(elem->type(), pdif::stream_type::text);
+    ASSERT_EQ(elem->as<pdif::text_elem>()->text(), "Hello, World!");
+}
+
+TEST(PDIFStreamElem, TestAs) {
+    pdif::rstream_elem elem = pdif::stream_elem::create<pdif::text_elem>("Hello, World!");
+    ASSERT_EQ(elem->as<pdif::text_elem>()->text(), "Hello, World!");
+}
+
+TEST(PDIFStreamElem, TestAsInvalid) {
+    pdif::rstream_elem elem = pdif::stream_elem::create<pdif::text_elem>("Hello, World!");
+    ASSERT_THROW({elem->as<pdif::binary_elem>();}, pdif::pdif_invalid_conversion);
+}
+
+TEST(PDIFTextElem, TestText) {
+    pdif::rtext_elem elem = pdif::stream_elem::create<pdif::text_elem>("Hello, World!")->as<pdif::text_elem>();
+    ASSERT_EQ(elem->text(), "Hello, World!");
+}
+
+TEST(PDIFTextElem, TestCompareText) {
+    pdif::rtext_elem elem1 = pdif::stream_elem::create<pdif::text_elem>("Hello, World!")->as<pdif::text_elem>();
+    pdif::rtext_elem elem2 = pdif::stream_elem::create<pdif::text_elem>("Hello, World!")->as<pdif::text_elem>();
     
-    ASSERT_TRUE(elem1.compare(elem2));
+    ASSERT_TRUE(elem1->compare(elem2));
 }
 
-TEST(PDIF, TestTextElemCompareBinary) {
-    pdif::text_elem elem1("Hello, World!");
-    pdif::binary_elem elem2(std::vector<char>{'H', 'e', 'l', 'l', 'o', ',', ' ', 'W', 'o', 'r', 'l', 'd', '!'});
+TEST(PDIFTextElem, TestCompareBinary) {
+    pdif::rtext_elem elem1 = pdif::stream_elem::create<pdif::text_elem>("Hello, World!")->as<pdif::text_elem>();
+    pdif::rbinary_elem elem2 = pdif::stream_elem::create<pdif::binary_elem>(std::vector<char>{'H', 'e', 'l', 'l', 'o', ',', ' ', 'W', 'o', 'r', 'l', 'd', '!'})->as<pdif::binary_elem>();
     
-    ASSERT_FALSE(elem1.compare(elem2));
+    ASSERT_FALSE(elem1->compare(elem2));
 }
 
-TEST(PDIF, TestBinaryElemBinary) {
-    pdif::binary_elem elem(std::vector<char>{'H', 'e', 'l', 'l', 'o', ',', ' ', 'W', 'o', 'r', 'l', 'd', '!'});
-    ASSERT_EQ(elem.binary(), std::vector<char>({'H', 'e', 'l', 'l', 'o', ',', ' ', 'W', 'o', 'r', 'l', 'd', '!'}));
+TEST(PDIFBinaryElem, TestBinary) {
+    pdif::rbinary_elem elem = pdif::stream_elem::create<pdif::binary_elem>(std::vector<char>{'H', 'e', 'l', 'l', 'o', ',', ' ', 'W', 'o', 'r', 'l', 'd', '!'})->as<pdif::binary_elem>();
+    ASSERT_EQ(elem->binary(), std::vector<char>({'H', 'e', 'l', 'l', 'o', ',', ' ', 'W', 'o', 'r', 'l', 'd', '!'}));
 }
 
 int main(int argc, char** argv) {

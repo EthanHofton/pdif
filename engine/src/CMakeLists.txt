@@ -15,6 +15,8 @@ FetchContent_MakeAvailable(util)
 # set sources
 set(PDIF_SOURCES
     stream_elem.cpp
+    stream.cpp
+    logger.cpp
 )
 
 set(LIBRARY_NAME pdif_engine)
