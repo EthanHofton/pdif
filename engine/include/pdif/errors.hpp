@@ -90,6 +90,35 @@ private:
     std::string m_msg;
 };
 
+/**
+ * @brief pdif_invalid_argment is thrown when an invalid argument is passed to a function.
+ * 
+ */
+class pdif_invalid_argment : public std::exception {
+public:
+
+    /**
+     * @brief Construct a new pdif invalid argment object
+     * 
+     * @param t_msg the message to be displayed
+     */
+    pdif_invalid_argment(const std::string& t_msg) : m_msg(t_msg) {m_msg = "PDIF Invalid Argument: " + m_msg;}
+
+    /**
+     * @brief override of std::exception::what()
+     * 
+     * @return const char* the message to be displayed
+     */
+    virtual const char* what() const noexcept override {
+        return m_msg.c_str();
+    }
+
+private:
+
+    std::string m_msg;
+
+};
+
 }
 
 #endif // __PDIF_ERRORS_HPP__

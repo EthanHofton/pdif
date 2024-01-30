@@ -14,6 +14,7 @@ FetchContent_MakeAvailable(util)
 
 # set sources
 set(PDIF_SOURCES
+    edit_op.cpp
     stream_elem.cpp
     stream.cpp
     logger.cpp

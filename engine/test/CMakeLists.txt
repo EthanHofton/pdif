@@ -22,3 +22,7 @@ add_test(NAME gtest_stream_elem COMMAND test_stream_elem WORKING_DIRECTORY ${CMA
 add_executable(test_stream test_stream.cpp)
 target_link_libraries(test_stream PRIVATE GTest::GTest pdif_engine)
 add_test(NAME gtest_stream COMMAND test_stream WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
+
+add_executable(test_edit_op test_edit_op.cpp)
+target_link_libraries(test_edit_op PRIVATE GTest::GTest pdif_engine)
+add_test(NAME gtest_edit_op COMMAND test_edit_op WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
