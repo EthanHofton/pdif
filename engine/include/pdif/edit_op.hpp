@@ -15,10 +15,9 @@ namespace pdif {
  * 
  */
 enum class edit_op_type {
-    INSERT,
-    DELETE,
-    EQ,
-    META,
+    DELETE = 0,
+    EQ = 1,
+    INSERT = 2,
 };
 
 /**
@@ -38,9 +37,6 @@ inline std::ostream& operator<<(std::ostream& os, const edit_op_type& type) {
             break;
         case edit_op_type::EQ:
             os << "EQ";
-            break;
-        case edit_op_type::META:
-            os << "META";
             break;
     }
     return os;
