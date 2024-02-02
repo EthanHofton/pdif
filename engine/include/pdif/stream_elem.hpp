@@ -76,6 +76,11 @@ public:
     * this constructor is private to prevent the creation of stream_elem objects, only allow creation through the create function
     */
     stream_elem(private_tag, stream_type t_type);
+    /**
+     * @brief Destroy the stream elem object with a virtual destructor
+     * 
+     */
+    virtual ~stream_elem() = default;
 
     /**
      * @brief compare this stream_elem to another stream_elem
