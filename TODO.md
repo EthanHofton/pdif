@@ -12,8 +12,8 @@
 - [x] add meta edit command to pdif::edit_op_type
 - [x] add meta edit command to pdif::edit_op
 - [x] write tests for meta edit command
-- [ ] add types of meta edit command (META_ADD, META_DELETE, META_UPDATE)
-- [ ] updated unit tests for meta edit command
+- [x] add types of meta edit command (META_ADD, META_DELETE, META_UPDATE)
+- [x] updated unit tests for meta edit command
 
 #### meta stream
 

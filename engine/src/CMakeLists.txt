@@ -14,6 +14,7 @@ FetchContent_MakeAvailable(util)
 
 # set sources
 set(PDIF_SOURCES
+    meta_edit_op.cpp
     edit_op.cpp
     stream_elem.cpp
     stream.cpp

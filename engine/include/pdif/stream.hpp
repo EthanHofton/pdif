@@ -20,94 +20,6 @@ class stream {
 public:
 
     /**
-     * @brief an iterator for the stream class
-     * 
-     */
-    class iterator {
-    public:
-        // iterator traits
-        using iterator_category = std::random_access_iterator_tag;
-        using value_type = rstream_elem;
-        using difference_type = std::ptrdiff_t;
-        using pointer = rstream_elem*;
-        using reference = rstream_elem&;
-
-        /**
-         * @brief Construct a new iterator object
-         * 
-         * @param stream the stream to iterate over
-         * @param index the index to start at
-         */
-        iterator(stream& stream, size_t index);
-        /**
-         * @brief Construct a new iterator object
-         * 
-         * @param other the iterator to copy
-         */
-        iterator(const iterator&) = default;
-
-        /**
-         * @brief return the current element
-         * 
-         * @return rstream_elem& the current element
-         */
-        reference operator*();
-        /**
-         * @brief return the current element
-         * 
-         * @return rstream_elem& the current element
-         */
-        value_type operator->();
-
-        /**
-         * @brief return the current element and increment
-         * 
-         * @return rstream_elem& the current element
-         */
-        iterator& operator++();
-        /**
-         * @brief return the current element and increment
-         * 
-         * @return rstream_elem& the current element
-         */
-        iterator operator++(int);
-        /**
-         * @brief return the current element and decrement
-         * 
-         * @return rstream_elem& the current element
-         */
-        iterator& operator--();
-        /**
-         * @brief return the current element and decrement
-         * 
-         * @return rstream_elem& the current element
-         */
-        iterator operator--(int);
-
-        /**
-         * @brief check for equality
-         * 
-         * @param other the other iterator to compare to
-         * @return true the iterators are equal
-         * @return false otherwise
-         */
-        bool operator==(const iterator& other) const;
-        /**
-         * @brief check for inequality
-         * 
-         * @param other the other iterator to compare to
-         * @return true if the iterators are not equal
-         * @return false otherwise
-         */
-        bool operator!=(const iterator& other) const;
-        
-    private:
-
-        stream& m_stream;
-        size_t m_index;
-    };
-
-    /**
      * @brief Construct a new stream object
      * 
      */
@@ -170,20 +82,6 @@ public:
      * @param index the index to pop the element from
      */
     void pop(size_t index);
-
-    // iterators
-    /**
-     * @brief return an iterator to the beginning of the stream
-     * 
-     * @return iterator an iterator to the beginning of the stream
-     */
-    iterator begin();
-    /**
-     * @brief return an iterator to the end of the stream
-     * 
-     * @return iterator an iterator to the end of the stream
-     */
-    iterator end();
 
     /**
      * @brief size of the stream

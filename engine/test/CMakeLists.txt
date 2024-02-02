@@ -30,3 +30,7 @@ add_test(NAME gtest_edit_op COMMAND test_edit_op WORKING_DIRECTORY ${CMAKE_BINAR
 add_executable(test_diff test_diff.cpp)
 target_link_libraries(test_diff PRIVATE GTest::GTest pdif_engine)
 add_test(NAME gtest_diff COMMAND test_diff WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
+
+add_executable(test_meta_edit_op test_meta_edit_op.cpp)
+target_link_libraries(test_meta_edit_op PRIVATE GTest::GTest pdif_engine)
+add_test(NAME gtest_meta_edit_op COMMAND test_meta_edit_op WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
