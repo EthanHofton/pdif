@@ -2,40 +2,40 @@
 
 namespace pdif {
 
-stream::iterator::iterator(pdif::stream& stream, size_t index) : stream(stream), index(index) {}
+stream::iterator::iterator(pdif::stream& stream, size_t index) : m_stream(stream), m_index(index) {}
 
 stream::iterator::reference stream::iterator::operator*() {
-    return stream[index];
+    return m_stream[m_index];
 }
 
 stream::iterator::value_type stream::iterator::operator->() {
-    return stream[index];
+    return m_stream[m_index];
 }
 
 stream::iterator& stream::iterator::operator++() {
-    ++index;
+    ++m_index;
     return *this;
 }
 
 stream::iterator stream::iterator::operator++(int) {
     auto copy = *this;
-    ++index;
+    ++m_index;
     return copy;
 }
 
 stream::iterator& stream::iterator::operator--() {
-    --index;
+    --m_index;
     return *this;
 }
 
 stream::iterator stream::iterator::operator--(int) {
     auto copy = *this;
-    --index;
+    --m_index;
     return copy;
 }
 
 bool stream::iterator::operator==(const stream::iterator& other) const {
-    return index == other.index && &stream == &other.stream;
+    return m_index == other.m_index && &m_stream == &other.m_stream;
 }
 
 bool stream::iterator::operator!=(const stream::iterator& other) const {

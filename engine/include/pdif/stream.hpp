@@ -103,8 +103,8 @@ public:
         
     private:
 
-        stream& stream;
-        size_t index;
+        stream& m_stream;
+        size_t m_index;
     };
 
     /**
