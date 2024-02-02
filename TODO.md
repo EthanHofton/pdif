@@ -52,3 +52,5 @@ When applying a diff to a stream, when each edit operation (EQ, DELETE, INSERT, 
 - [ ] update unit tests for diff::apply to use callback function
 - [ ] fix diff::to_json. (maybe use a json library like nlohmann::json)
 - [ ] fix diff::from_json. (maybe use a json library like nlohmann::json)
+**!important!**
+- [ ] diff apply meta commands should not increase the index of the stream
