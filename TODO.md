@@ -1,5 +1,13 @@
 ### TODO
 
+#### code base
+
+- [ ] add README.md
+- [ ] add LICENSE
+- [ ] add CONTRIBUTING.md
+- [x] add -wall -werror to CMakeLists.txt
+- [x] fix all warnings
+
 #### meta edit command
 - [x] add meta edit command to pdif::edit_op_type
 - [x] add meta edit command to pdif::edit_op
