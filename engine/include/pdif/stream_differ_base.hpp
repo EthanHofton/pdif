@@ -6,6 +6,8 @@
 
 #include <pdif/stream.hpp>
 #include <pdif/errors.hpp>
+#include <pdif/edit_op.hpp>
+#include <pdif/diff.hpp>
 
 namespace pdif {
 
@@ -33,9 +35,12 @@ public:
     virtual ~stream_differ_base() = default;
     
 
-    virtual void diff() = 0;
-
-    void meta_diff();
+    /**
+     * @brief diff the two streams
+     * 
+     * @return pdif::diff the edit script between the two streams 
+     */
+    virtual pdif::diff diff() = 0;
 
 private:
 

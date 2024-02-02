@@ -207,7 +207,8 @@ public:
 
 private:
 
-    void check_index(size_t index) const;
+    void check_index_read(size_t index) const;
+    void check_index_write(size_t index) const;
     void check_empty() const;
 
 private:

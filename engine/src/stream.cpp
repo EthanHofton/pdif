@@ -42,20 +42,27 @@ bool stream::iterator::operator!=(const stream::iterator& other) const {
     return !(*(this) == other);
 }
 
-void stream::check_index(size_t index) const {
+void stream::check_index_read(size_t index) const {
     if (index >= size()) {
         PDIF_LOG_ERROR("Index out of bounds: {}", index);
         throw pdif_out_of_bounds("Index out of bounds: " + std::to_string(index));
     }
 }
 
+void stream::check_index_write(size_t index) const {
+    if (index > size()) {
+        PDIF_LOG_ERROR("Index out of bounds: {}", index);
+        throw pdif_out_of_bounds("Index out of bounds: " + std::to_string(index));
+    }
+}
+
 rstream_elem& stream::operator[](size_t index) {
-    check_index(index);
+    check_index_read(index);
     return elems[index];
 }
 
 const rstream_elem& stream::operator[](size_t index) const {
-    check_index(index);
+    check_index_read(index);
     return elems[index];
 }
 
@@ -68,22 +75,22 @@ void stream::push_front(const rstream_elem& elem) {
 }
 
 void stream::push(size_t index, const rstream_elem& elem) {
-    check_index(index);
+    check_index_write(index);
     elems.insert(elems.begin() + index, elem);
 }
 
 void stream::pop_back() {
-    check_index(0);
+    check_index_read(size() - 1);
     elems.pop_back();
 }
 
 void stream::pop_front() {
-    check_index(0);
+    check_index_read(0);
     elems.erase(elems.begin());
 }
 
 void stream::pop(size_t index) {
-    check_index(index);
+    check_index_read(index);
     elems.erase(elems.begin() + index);
 }
 

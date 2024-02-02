@@ -18,7 +18,33 @@ enum class edit_op_type {
     INSERT,
     DELETE,
     EQ,
+    META,
 };
+
+/**
+ * @brief << operator for edit_op_type
+ * 
+ * @param os the ostream to write to
+ * @param type the edit_op_type to write
+ * @return std::ostream& the ostream
+ */
+inline std::ostream& operator<<(std::ostream& os, const edit_op_type& type) {
+    switch (type) {
+        case edit_op_type::INSERT:
+            os << "INSERT";
+            break;
+        case edit_op_type::DELETE:
+            os << "DELETE";
+            break;
+        case edit_op_type::EQ:
+            os << "EQ";
+            break;
+        case edit_op_type::META:
+            os << "META";
+            break;
+    }
+    return os;
+}
 
 /**
  * @brief a class to represent a singular edit operation

@@ -34,6 +34,11 @@ TEST(PDIFTextElem, TestCompareText) {
     ASSERT_TRUE(elem1->compare(elem2));
 }
 
+TEST(PDIFTextElem, TestToString) {
+    pdif::rtext_elem elem = pdif::stream_elem::create<pdif::text_elem>("Hello, World!")->as<pdif::text_elem>();
+    ASSERT_EQ(elem->to_string(), "Hello, World!");
+}
+
 TEST(PDIFTextElem, TestCompareBinary) {
     pdif::rtext_elem elem1 = pdif::stream_elem::create<pdif::text_elem>("Hello, World!")->as<pdif::text_elem>();
     pdif::rbinary_elem elem2 = pdif::stream_elem::create<pdif::binary_elem>(std::vector<char>{'H', 'e', 'l', 'l', 'o', ',', ' ', 'W', 'o', 'r', 'l', 'd', '!'})->as<pdif::binary_elem>();
@@ -44,6 +49,10 @@ TEST(PDIFTextElem, TestCompareBinary) {
 TEST(PDIFBinaryElem, TestBinary) {
     pdif::rbinary_elem elem = pdif::stream_elem::create<pdif::binary_elem>(std::vector<char>{'H', 'e', 'l', 'l', 'o', ',', ' ', 'W', 'o', 'r', 'l', 'd', '!'})->as<pdif::binary_elem>();
     ASSERT_EQ(elem->binary(), std::vector<char>({'H', 'e', 'l', 'l', 'o', ',', ' ', 'W', 'o', 'r', 'l', 'd', '!'}));
+}
+
+TEST(PDIFBinaryElem, TestToString) {
+    // TODO: This
 }
 
 int main(int argc, char** argv) {

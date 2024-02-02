@@ -18,6 +18,7 @@ set(PDIF_SOURCES
     stream_elem.cpp
     stream.cpp
     logger.cpp
+    diff.cpp
 )
 
 set(LIBRARY_NAME pdif_engine)

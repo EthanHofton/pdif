@@ -19,6 +19,25 @@ enum class stream_type {
     binary = 1,
 };
 
+/**
+ * @brief << operator for stream_type
+ * 
+ * @param os the ostream to write to
+ * @param type the stream_type to write
+ * @return std::ostream& the ostream
+ */
+inline std::ostream& operator<<(std::ostream& os, const stream_type& type) {
+    switch (type) {
+        case stream_type::text:
+            os << "text";
+            break;
+        case stream_type::binary:
+            os << "binary";
+            break;
+    }
+    return os;
+}
+
 // forward declarations
 class stream_elem;
 class text_elem;
@@ -72,6 +91,13 @@ public:
      * @return stream_type the type of the stream_elem
      */
     stream_type type() const;
+
+    /**
+     * @brief stringify the stream_elem
+     * 
+     * @return std::string the stringified stream_elem
+     */
+    virtual std::string to_string() const = 0;
 
     /**
      * @brief 
@@ -150,6 +176,13 @@ public:
      */
     virtual bool compare(rstream_elem t_other) override;
 
+    /**
+     * @brief return the stringified text_elem
+     * 
+     * @return std::string the stringified text_elem
+     */
+    virtual std::string to_string() const override;
+
 private:
 
     std::string m_text;
@@ -191,6 +224,13 @@ public:
      * @return false otherwise
      */
     virtual bool compare(rstream_elem t_other) override;
+
+    /**
+     * @brief return the stringified binary_elem
+     * 
+     * @return std::string the stringified binary_elem
+     */
+    virtual std::string to_string() const override;
 
 private:
 

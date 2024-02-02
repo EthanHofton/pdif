@@ -142,6 +142,24 @@ TEST(PDIFStream, TestPush) {
     ASSERT_EQ(stream[2]->as<pdif::text_elem>()->text(), "!");
 }
 
+TEST(PDIFSteam, TestPushToBack) {
+    pdif::stream stream;
+    stream.push_back(pdif::stream_elem::create<pdif::text_elem>("Hello,"));
+    stream.push_back(pdif::stream_elem::create<pdif::text_elem>("!"));
+    ASSERT_NO_THROW({stream.push(2, pdif::stream_elem::create<pdif::text_elem>("World"));});
+
+    ASSERT_EQ(stream[0]->type(), pdif::stream_type::text);
+    ASSERT_EQ(stream[0]->as<pdif::text_elem>()->text(), "Hello,");
+
+    ASSERT_EQ(stream[1]->type(), pdif::stream_type::text);
+    ASSERT_EQ(stream[1]->as<pdif::text_elem>()->text(), "!");
+
+    ASSERT_EQ(stream[2]->type(), pdif::stream_type::text);
+    ASSERT_EQ(stream[2]->as<pdif::text_elem>()->text(), "World");
+
+    ASSERT_EQ(stream.size(), 3);
+}
+
 TEST(PDIFStream, TestPushInvalid) {
     pdif::stream stream;
     ASSERT_THROW({stream.push(1, pdif::stream_elem::create<pdif::text_elem>("Hello,"));}, pdif::pdif_out_of_bounds);

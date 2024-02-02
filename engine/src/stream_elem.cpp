@@ -22,6 +22,10 @@ bool text_elem::compare(rstream_elem t_other) {
     return m_text == t_other->as<text_elem>()->text();
 }
 
+std::string text_elem::to_string() const {
+    return m_text;
+}
+
 binary_elem::binary_elem(stream_elem::private_tag t, const std::vector<char>& t_binary) :
     stream_elem(t, stream_type::binary),
     m_binary(t_binary) {}
@@ -36,6 +40,10 @@ bool binary_elem::compare(rstream_elem t_other) {
     }
 
     return m_binary == t_other->as<binary_elem>()->binary();
+}
+
+std::string binary_elem::to_string() const {
+    throw pdif::pdif_not_implemented("binary_elem::to_string");
 }
 
 }
