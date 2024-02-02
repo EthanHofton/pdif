@@ -3,7 +3,7 @@
 
 namespace pdif {
 
-stream_elem::stream_elem(private_tag t, stream_type t_type) : m_type(t_type) {}
+stream_elem::stream_elem(private_tag, stream_type t_type) : m_type(t_type) {}
 stream_type stream_elem::type() const { return m_type; }
 
 text_elem::text_elem(stream_elem::private_tag t, const std::string& t_text) :

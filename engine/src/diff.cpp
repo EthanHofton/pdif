@@ -77,7 +77,7 @@ std::string diff::to_json() const {
     return json.str();
 } 
 
-void diff::from_json(const std::string& json) {
+void diff::from_json(const std::string&) {
     throw pdif::pdif_not_implemented("pdif::diff::from_json - not implemented");
 }
 
