@@ -119,6 +119,92 @@ private:
 
 };
 
+/**
+ * @brief pdif_invalid_key is thrown when an invalid key is passed to a function.
+ * 
+ */
+class pdif_invalid_key : public std::exception {
+public:
+
+    /**
+     * @brief Construct a new pdif invalid key object
+     * 
+     * @param t_msg the message to be displayed
+     */
+    pdif_invalid_key(const std::string& t_msg) : m_msg(t_msg) {m_msg = "PDIF Invalid Key: " + m_msg;}
+
+    /**
+     * @brief override of std::exception::what()
+     * 
+     * @return const char* the message to be displayed
+     */
+    virtual const char* what() const noexcept override {
+        return m_msg.c_str();
+    }
+
+private:
+
+    std::string m_msg;
+
+};
+
+/**
+ * @brief pdif_error_in_callback is thrown when an error occurs in a callback.
+ * 
+ */
+class pdif_error_in_callback : public std::exception {
+public:
+
+    /**
+     * @brief Construct a new pdif error in callback object
+     * 
+     * @param t_msg the message to be displayed
+     */
+    pdif_error_in_callback(const std::string& t_msg) : m_msg(t_msg) {m_msg = "PDIF Error In Callback: " + m_msg;}
+
+    /**
+     * @brief override of std::exception::what()
+     * 
+     * @return const char* the message to be displayed
+     */
+    virtual const char* what() const noexcept override {
+        return m_msg.c_str();
+    }
+
+private:
+
+    std::string m_msg;
+
+};
+
+/**
+ * @brief pdif_invalid_operation is thrown when an invalid operation is attempted.
+ * 
+ */
+class pdif_invalid_operation : public std::exception {
+public:
+
+    /**
+     * @brief Construct a new pdif inavlid operation object
+     * 
+     * @param t_msg the message to be displayed
+     */
+    pdif_invalid_operation(const std::string& t_msg) : m_msg(t_msg) {m_msg = "PDIF Invalid Operation: " + m_msg;}
+
+    /**
+     * @brief override of std::exception::what()
+     * 
+     * @return const char* the message to be displayed
+     */
+    virtual const char* what() const noexcept override {
+        return m_msg.c_str();
+    }
+
+private:
+
+    std::string m_msg;
+
+};
 }
 
 #endif // __PDIF_ERRORS_HPP__

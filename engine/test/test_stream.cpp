@@ -1,5 +1,7 @@
 #include <gtest/gtest.h>
 #include <pdif/stream.hpp>
+#include <pdif/edit_op.hpp>
+#include <pdif/meta_edit_op.hpp>
 
 TEST(PDIFStream, TestIndex) {
     pdif::stream stream;
@@ -146,6 +148,153 @@ TEST(PDIFStream, TestClear) {
     stream.push(1, pdif::stream_elem::create<pdif::text_elem>("World"));
     stream.clear();
     ASSERT_TRUE(stream.empty());
+}
+
+TEST(PDIFStream, TestAddMetadata) {
+    pdif::stream stream;
+    
+    ASSERT_NO_THROW({stream.add_metadata("key", "value");});
+
+    ASSERT_EQ(stream.get_metadata("key"), "value");
+    ASSERT_EQ(stream.has_key("key"), true);
+}
+
+TEST(PDIFStream, TestAddMetadataInvalid) {
+    pdif::stream stream;
+    stream.add_metadata("key", "value");
+    ASSERT_THROW({stream.add_metadata("key", "value");}, pdif::pdif_invalid_key);
+}
+
+TEST(PDIFStream, TestRemoveMetadata) {
+    pdif::stream stream;
+    stream.add_metadata("key", "value");
+    ASSERT_NO_THROW({stream.remove_metadata("key");});
+
+    ASSERT_EQ(stream.has_key("key"), false);
+}
+
+TEST(PDIFStream, TestRemoveMetadataInvalid) {
+    pdif::stream stream;
+    ASSERT_THROW({stream.remove_metadata("key");}, pdif::pdif_invalid_key);
+}
+
+TEST(PDIFStream, TestUpdateMetadata) {
+    pdif::stream stream;
+    stream.add_metadata("key", "value");
+
+    ASSERT_EQ(stream.get_metadata("key"), "value");
+
+    ASSERT_NO_THROW({stream.update_metadata("key", "new_value");});
+
+    ASSERT_EQ(stream.get_metadata("key"), "new_value");
+}
+
+TEST(PDIFStream, TestUpdateMetadataInvalid) {
+    pdif::stream stream;
+    ASSERT_THROW({stream.update_metadata("key", "value");}, pdif::pdif_invalid_key);
+}
+
+TEST(PDIFStream, TestGetMetadata) {
+    pdif::stream stream;
+    stream.add_metadata("key", "value");
+    ASSERT_EQ(stream.get_metadata("key"), "value");
+}
+
+TEST(PDIFStream, TestGetMetadataInvalid) {
+    pdif::stream stream;
+    ASSERT_THROW({stream.get_metadata("key");}, pdif::pdif_invalid_key);
+}
+
+TEST(PDIFStream, TestHasKey) {
+    pdif::stream stream;
+
+    ASSERT_NO_THROW({stream.has_key("key");});
+    ASSERT_EQ(stream.has_key("key"), false);
+
+    stream.add_metadata("key", "value");
+
+    ASSERT_NO_THROW({stream.has_key("key");});
+    ASSERT_EQ(stream.has_key("key"), true);
+}
+
+TEST(PDIFStream, TestSetStreamCallback) {
+    pdif::stream stream;
+    ASSERT_NO_THROW({stream.set_stream_callback([](const pdif::edit_op&){});});
+}
+
+TEST(PDIFStream, TestHasStreamCallback) {
+    pdif::stream stream;
+    ASSERT_EQ(stream.has_stream_callback(), false);
+    stream.set_stream_callback([](const pdif::edit_op&){});
+    ASSERT_EQ(stream.has_stream_callback(), true);
+}
+
+TEST(PDIFStream, TestSetMetaCallback) {
+    pdif::stream stream;
+    ASSERT_NO_THROW({stream.set_meta_callback([](const pdif::meta_edit_op&){});});
+}
+
+TEST(PDIFStream, TestHasMetaCallback) {
+    pdif::stream stream;
+    ASSERT_EQ(stream.has_meta_callback(), false);
+    stream.set_meta_callback([](const pdif::meta_edit_op&){});
+    ASSERT_EQ(stream.has_meta_callback(), true);
+}
+
+TEST(PDIFStream, TestStreamCallback) {
+    int i = 0;
+    pdif::stream::stream_callback_f callback = [&i](const pdif::edit_op&){i++;};
+
+    pdif::stream stream;
+    stream.set_stream_callback(callback);
+
+    ASSERT_EQ(i, 0);
+
+    ASSERT_NO_THROW({stream.stream_callback(pdif::edit_op(pdif::edit_op_type::DELETE));});
+
+    ASSERT_EQ(i, 1);
+}
+
+TEST(PDIFStream, TestStreamCallbackInvalidNoCallback) {
+    pdif::stream stream;
+    ASSERT_THROW({stream.stream_callback(pdif::edit_op(pdif::edit_op_type::DELETE));}, pdif::pdif_invalid_operation);
+}
+
+TEST(PDIFStream, TestStreamCallbackInvalidErrorInCallback) {
+    pdif::stream stream;
+    pdif::stream::stream_callback_f callback = [](const pdif::edit_op&){ throw std::exception(); };
+
+    stream.set_stream_callback(callback);
+
+    ASSERT_THROW({stream.stream_callback(pdif::edit_op(pdif::edit_op_type::DELETE));}, pdif::pdif_error_in_callback);
+}
+
+TEST(PDIFStream, TestMetaCallback) {
+    int i = 0;
+    pdif::stream::meta_callback_f callback = [&i](const pdif::meta_edit_op&){i++;};
+
+    pdif::stream stream;
+    stream.set_meta_callback(callback);
+
+    ASSERT_EQ(i, 0);
+
+    ASSERT_NO_THROW({stream.meta_callback(pdif::meta_edit_op(pdif::meta_edit_op_type::META_DELETE, "key"));});
+
+    ASSERT_EQ(i, 1);
+}
+
+TEST(PDIFStream, TestMetaCallbackInvalidNoCallback) {
+    pdif::stream stream;
+    ASSERT_THROW({stream.meta_callback(pdif::meta_edit_op(pdif::meta_edit_op_type::META_DELETE, "key"));}, pdif::pdif_invalid_operation);
+}
+
+TEST(PDIFStream, TestMetaCallbackInvalidErrorInCallback) {
+    pdif::stream stream;
+    pdif::stream::meta_callback_f callback = [](const pdif::meta_edit_op&){ throw std::exception(); };
+
+    stream.set_meta_callback(callback);
+
+    ASSERT_THROW({stream.meta_callback(pdif::meta_edit_op(pdif::meta_edit_op_type::META_DELETE, "key"));}, pdif::pdif_error_in_callback);
 }
 
 int main(int argc, char** argv) {

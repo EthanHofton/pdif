@@ -9,8 +9,15 @@
 
 #include <algorithm>
 #include <vector>
+#include <map>
+#include <functional>
 
 namespace pdif {
+
+// edit_op forward declare
+class edit_op;
+// meta_edit_op forward declare
+class meta_edit_op;
 
 /**
  * @brief a stream is a container for stream_elem objects
@@ -18,6 +25,17 @@ namespace pdif {
  */
 class stream {
 public:
+
+    /**
+     * @brief the callback function to be used when executing an edit operation
+     * 
+     */
+    using stream_callback_f = std::function<void(const edit_op&)>;
+    /**
+     * @brief the callback function to be used when executing a meta edit operation
+     * 
+     */
+    using meta_callback_f = std::function<void(const meta_edit_op&)>;
 
     /**
      * @brief Construct a new stream object
@@ -103,6 +121,82 @@ public:
      */
     void clear();
 
+    /**
+     * @brief add metadata to the stream
+     * 
+     * @param t_key the key of the metadata
+     * @param t_value the value of the metadata
+     */
+    void add_metadata(const std::string& t_key, const std::string& t_value);
+    /**
+     * @brief remove metadata
+     * 
+     * @param t_key the key to remove
+     */
+    void remove_metadata(const std::string& t_key);
+    /**
+     * @brief update metadata
+     * 
+     * @param t_key the key of the field to update
+     * @param t_value the value to update
+     */
+    void update_metadata(const std::string& t_key, const std::string& t_value);
+
+    /**
+     * @brief Get the metadata object
+     * 
+     * @param t_key the key
+     * @return std::string the value
+     */
+    std::string get_metadata(const std::string& t_key) const;
+
+    /**
+     * @brief check if the stream has a key
+     * 
+     * @param t_key the key to check for
+     * @return true if the key exists
+     * @return false otherwise
+     */
+    bool has_key(const std::string& t_key) const;
+
+    /**
+     * @brief Set the stream callback object
+     * 
+     * @param callback the callback to be run when applying an edit script
+     */
+    inline void set_stream_callback(stream_callback_f callback) { m_stream_callback = callback; }
+    /**
+     * @brief check if a stream callback has been set
+     * 
+     * @return true if the callback has been set
+     * @return false otherwise
+     */
+    inline bool has_stream_callback() const { return m_stream_callback.has_value(); }
+    /**
+     * @brief Set the meta callback object
+     * 
+     * @param callback the callback to be run when applying an edit script
+     */
+    inline void set_meta_callback(meta_callback_f callback) { m_meta_callback = callback; }
+    /**
+     * @brief check if a meta callback has been set
+     * 
+     * @return true if the callback has been set
+     * @return false otherwise
+     */
+    inline bool has_meta_callback() const { return m_meta_callback.has_value(); }
+
+    /**
+     * @brief return the callback of the stream
+     * 
+     */
+    void stream_callback(const edit_op&) const;
+    /**
+     * @brief return the meta callback
+     * 
+     */
+    void meta_callback(const meta_edit_op&) const;
+
 private:
 
     void check_index_read(size_t index) const;
@@ -112,6 +206,10 @@ private:
 private:
 
     std::vector<rstream_elem> elems;
+    std::map<std::string, std::string> m_metadata;
+
+    std::optional<stream_callback_f> m_stream_callback;
+    std::optional<meta_callback_f> m_meta_callback;
 
 };
 
