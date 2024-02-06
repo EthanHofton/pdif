@@ -11,6 +11,7 @@
 #include <vector>
 #include <map>
 #include <functional>
+#include <optional>
 
 namespace pdif {
 
