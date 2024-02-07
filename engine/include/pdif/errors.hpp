@@ -205,6 +205,37 @@ private:
     std::string m_msg;
 
 };
+
+
+/**
+ * @brief pdif_invalid_json is thrown when an invalid json is attempted.
+ * 
+ */
+class pdif_invalid_json : public std::exception {
+public:
+
+    /**
+     * @brief Construct a new pdif invalid json object
+     * 
+     * @param t_msg the message to be displayed
+     */
+    pdif_invalid_json(const std::string& t_msg) : m_msg(t_msg) {m_msg = "PDIF Invalid JSON: " + m_msg;}
+
+    /**
+     * @brief override of std::exception::what()
+     * 
+     * @return const char* the message to be displayed
+     */
+    virtual const char* what() const noexcept override {
+        return m_msg.c_str();
+    }
+
+private:
+
+    std::string m_msg;
+
+};
+
 }
 
 #endif // __PDIF_ERRORS_HPP__

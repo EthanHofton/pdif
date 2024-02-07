@@ -61,3 +61,9 @@ When applying a diff to a stream, when each edit operation (EQ, DELETE, INSERT, 
 - [ ] fix diff::from_json. (maybe use a json library like nlohmann::json)
 **!important!**
 - [x] diff apply meta commands should not increase the index of the stream
+
+
+#### misc
+
+- [ ] nlohmann::json very slow on download. Look into speeding this up (maybe use fetch content with zip instead of repo or use a different json library)
+- [ ] test diff::from_json and diff::to_json

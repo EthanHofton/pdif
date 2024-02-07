@@ -38,6 +38,22 @@ inline std::ostream& operator<<(std::ostream& os, const stream_type& type) {
     return os;
 }
 
+inline std::istream& operator>>(std::istream& is, stream_type& type) {
+    std::string str;
+    is >> str;
+
+    if (str == "text") {
+        type = stream_type::text;
+    } else if (str == "binary") {
+        type = stream_type::binary;
+    } else {
+        PDIF_LOG_ERROR("stream_type::operator>> - invalid stream_type");
+        throw pdif::pdif_invalid_argment("stream_type::operator>> - invalid stream_type");
+    }
+
+    return is;
+}
+
 // forward declarations
 class stream_elem;
 class text_elem;

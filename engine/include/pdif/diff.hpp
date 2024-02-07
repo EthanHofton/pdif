@@ -6,7 +6,12 @@
 #include <pdif/edit_op.hpp>
 #include <pdif/meta_edit_op.hpp>
 #include <pdif/logger.hpp>
+
+#include <nlohmann/json.hpp>
+
 #include <sstream>
+
+using json = nlohmann::json;
 
 namespace pdif {
 
@@ -88,6 +93,12 @@ private:
 
     void check_edit_index(size_t index) const;
     void check_meta_index(size_t index) const;
+    
+    json edit_op_to_json(const edit_op& op) const;
+    json meta_edit_op_to_json(const meta_edit_op& op) const;
+
+    edit_op edit_op_from_json(const json& j) const;
+    meta_edit_op meta_edit_op_from_json(const json& j) const;
 
 private:
 

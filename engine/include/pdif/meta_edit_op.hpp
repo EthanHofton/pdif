@@ -41,6 +41,24 @@ inline std::ostream& operator<<(std::ostream& os, const meta_edit_op_type& type)
     return os;
 }
 
+inline std::istream& operator>>(std::istream& is, meta_edit_op_type& type) {
+    std::string str;
+    is >> str;
+
+    if (str == "META_ADD") {
+        type = meta_edit_op_type::META_ADD;
+    } else if (str == "META_DELETE") {
+        type = meta_edit_op_type::META_DELETE;
+    } else if (str == "META_UPDATE") {
+        type = meta_edit_op_type::META_UPDATE;
+    } else {
+        PDIF_LOG_ERROR("meta_edit_op_type::operator>> - invalid meta_edit_op_type");
+        throw pdif::pdif_invalid_argment("meta_edit_op_type::operator>> - invalid meta_edit_op_type");
+    }
+
+    return is;
+}
+
 class meta_edit_op {
 public:
 

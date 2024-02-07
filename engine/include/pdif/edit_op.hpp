@@ -42,6 +42,24 @@ inline std::ostream& operator<<(std::ostream& os, const edit_op_type& type) {
     return os;
 }
 
+inline std::istream& operator>>(std::istream& is, edit_op_type& type) {
+    std::string str;
+    is >> str;
+
+    if (str == "INSERT") {
+        type = edit_op_type::INSERT;
+    } else if (str == "DELETE") {
+        type = edit_op_type::DELETE;
+    } else if (str == "EQ") {
+        type = edit_op_type::EQ;
+    } else {
+        PDIF_LOG_ERROR("edit_op_type::operator>> - invalid edit_op_type");
+        throw pdif::pdif_invalid_argment("edit_op_type::operator>> - invalid edit_op_type");
+    }
+
+    return is;
+}
+
 /**
  * @brief a class to represent a singular edit operation
  * 
