@@ -4,6 +4,7 @@
 #include <pdif/errors.hpp>
 #include <pdif/stream_elem.hpp>
 #include <pdif/edit_op.hpp>
+#include <pdif/meta_edit_op.hpp>
 #include <pdif/logger.hpp>
 #include <sstream>
 
@@ -17,26 +18,44 @@ class diff {
 public:
 
     /**
-     * @brief add an edit operation to the edit script
+     * @brief add an edit op to the edit script
      * 
-     * @param op 
+     * @param op the operation to add
      */
     void add_edit_op(const edit_op& op);
-    
     /**
-     * @brief get the edit operation at the given index
+     * @brief Get the edit op object
      * 
-     * @param index the index of the edit operation
-     * @return edit_op the edit operation at the given index
+     * @param index the index of the edit op
+     * @return edit_op the edit op at that index
      */
-    edit_op operator[](size_t index) const;
-    
+    edit_op get_edit_op(size_t index) const;
     /**
-     * @brief the size of the edit script
+     * @brief get the size of the edit op edit script
      * 
-     * @return size_t the size of the edit script
+     * @return size_t the size
      */
-    size_t size() const;
+    size_t edit_op_size() const;
+
+    /**
+     * @brief add a meta edit op to the meta edit script
+     * 
+     * @param op the operation to add
+     */
+    void add_meta_edit_op(const meta_edit_op& op);
+    /**
+     * @brief Get the meta edit op object
+     * 
+     * @param index the index of the meta edit op
+     * @return meta_edit_op 
+     */
+    meta_edit_op get_meta_edit_op(size_t index) const;
+    /**
+     * @brief the size of the meta edit op script
+     * 
+     * @return size_t 
+     */
+    size_t meta_edit_op_size() const;
 
     /**
      * @brief convert the edit script to a json string
@@ -56,7 +75,14 @@ public:
      * 
      * @param stream the stream to apply the edit script to
      */
-    void apply(stream& stream) const;
+    void apply_edit_script(stream& stream) const;
+
+    /**
+     * @brief apply the meta edit script to the given stream
+     * 
+     * @param stream the stream to apply the meta edit script to
+     */
+    void apply_meta_edit_script(stream& stream) const;
 
 private:
 
@@ -65,6 +91,7 @@ private:
 private:
 
     std::vector<edit_op> m_edit_script;
+    std::vector<meta_edit_op> m_meta_edit_script;
 };
 
 }

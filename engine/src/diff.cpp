@@ -81,12 +81,20 @@ void diff::from_json(const std::string&) {
     throw pdif::pdif_not_implemented("pdif::diff::from_json - not implemented");
 }
 
-void diff::apply(stream& stream) const {
+void diff::apply_edit_script(stream& stream) const {
     size_t index = 0;
     for (const edit_op& op : m_edit_script) {
         op.execute(stream, index);
+        // add try catch for invalid op (no callback set) or error in callback
+        stream.stream_callback(op);
+    }
+}
 
-        // TODO: Add a callback for each edit operation
+void diff::apply_meta_edit_script(stream& stream) const {
+    for (const meta_edit_op& op : m_meta_edit_script) {
+        op.execute(stream);
+        // add try catch for invalid op (no callback set) or error in callback
+        stream.meta_callback(op);
     }
 }
 

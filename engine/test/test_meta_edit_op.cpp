@@ -78,7 +78,65 @@ TEST(PDIFMetaEditOp, TestHasMetaVal) {
     ASSERT_FALSE(op.has_meta_val());
 }
 
-TEST(PDIFMetaEditOp, DISABLED_TestExecute) {}
+TEST(PDIFMetaEditOp, TestExecuteMetaAdd) {
+    pdif::meta_edit_op op = pdif::meta_edit_op(pdif::meta_edit_op_type::META_ADD, "test_key", "test_val");
+    pdif::stream stream;
+
+    ASSERT_NO_THROW({op.execute(stream);});
+
+    ASSERT_EQ(stream.get_metadata("test_key"), "test_val");
+}
+
+TEST(PDIFMetaEditOp, TestExecuteMetaDelete) {
+    pdif::stream stream;
+    stream.add_metadata("test_key", "test_val");
+
+    ASSERT_TRUE(stream.has_key("test_key"));
+
+    pdif::meta_edit_op op = pdif::meta_edit_op(pdif::meta_edit_op_type::META_DELETE, "test_key");
+
+    ASSERT_NO_THROW({op.execute(stream);});
+
+    ASSERT_FALSE(stream.has_key("test_key"));
+}
+
+TEST(PDIFMetaEditOp, TestExecuteMetaUpdate) {
+    pdif::stream stream;
+    stream.add_metadata("test_key", "test_val");
+
+    ASSERT_TRUE(stream.has_key("test_key"));
+
+    pdif::meta_edit_op op = pdif::meta_edit_op(pdif::meta_edit_op_type::META_UPDATE, "test_key", "new_val");
+
+    ASSERT_NO_THROW({op.execute(stream);});
+
+    ASSERT_EQ(stream.get_metadata("test_key"), "new_val");
+}
+
+TEST(PDIFMetaEditOp, TestExecuteMetaUpdateInvalid) {
+    pdif::stream stream;
+
+    pdif::meta_edit_op op = pdif::meta_edit_op(pdif::meta_edit_op_type::META_UPDATE, "test_key", "new_val");
+
+    ASSERT_THROW({op.execute(stream);}, pdif::pdif_invalid_operation);
+}
+
+TEST(PDIFMetaEditOp, TestExecuteMetaAddInvalid) {
+    pdif::stream stream;
+    stream.add_metadata("test_key", "test_val");
+
+    pdif::meta_edit_op op = pdif::meta_edit_op(pdif::meta_edit_op_type::META_ADD, "test_key", "new_val");
+
+    ASSERT_THROW({op.execute(stream);}, pdif::pdif_invalid_operation);
+}
+
+TEST(PDIFMetaEditOp, TestExecuteMetaDeleteInvalid) {
+    pdif::stream stream;
+
+    pdif::meta_edit_op op = pdif::meta_edit_op(pdif::meta_edit_op_type::META_DELETE, "test_key");
+
+    ASSERT_THROW({op.execute(stream);}, pdif::pdif_invalid_operation);
+}
 
 int main(int argc, char** argv) {
     ::testing::InitGoogleTest(&argc, argv);

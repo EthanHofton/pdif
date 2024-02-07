@@ -3,130 +3,194 @@
 #include <pdif/edit_op.hpp>
 #include <pdif/stream.hpp>
 #include <pdif/stream_elem.hpp>
+#include <pdif/meta_edit_op.hpp>
 
 TEST(PDIFDiff, TestAddEditOp) {
     pdif::diff diff;
-    pdif::edit_op op2(pdif::edit_op_type::DELETE);
-    pdif::edit_op op(pdif::edit_op_type::INSERT, pdif::stream_elem::create<pdif::text_elem>("test"));
-
+    pdif::edit_op op(pdif::edit_op_type::INSERT, pdif::stream_elem::create<pdif::text_elem>("Inserted"));
     ASSERT_NO_THROW({diff.add_edit_op(op);});
-    ASSERT_NO_THROW({diff.add_edit_op(op2);});
-
-    ASSERT_EQ(diff.size(), 2);
-
-    ASSERT_EQ(diff[0].get_type(), pdif::edit_op_type::INSERT);
-    ASSERT_EQ(diff[0].get_arg()->type(), pdif::stream_type::text);
-    ASSERT_EQ(diff[0].get_arg()->as<pdif::text_elem>()->text(), "test");
-
-    ASSERT_EQ(diff[1].get_type(), pdif::edit_op_type::DELETE);
+    ASSERT_EQ(diff.edit_op_size(), 1);
 }
 
-TEST(PDIFDiff, TestBracketOperator) {
+TEST(PDIFDiff, TestGetEditOp) {
     pdif::diff diff;
-    pdif::edit_op op2(pdif::edit_op_type::DELETE);
-    pdif::edit_op op(pdif::edit_op_type::INSERT, pdif::stream_elem::create<pdif::text_elem>("test"));
+    pdif::edit_op op(pdif::edit_op_type::INSERT, pdif::stream_elem::create<pdif::text_elem>("Inserted"));
     diff.add_edit_op(op);
-    diff.add_edit_op(op2);
 
-    ASSERT_NO_THROW({diff[0];});
-    ASSERT_EQ(diff[0].get_type(), pdif::edit_op_type::INSERT);
-    ASSERT_EQ(diff[0].get_arg()->type(), pdif::stream_type::text);
-    ASSERT_EQ(diff[0].get_arg()->as<pdif::text_elem>()->text(), "test");
-
-    ASSERT_NO_THROW({diff[1];});
-    ASSERT_EQ(diff[1].get_type(), pdif::edit_op_type::DELETE);
-    ASSERT_FALSE(diff[1].has_arg());
+    ASSERT_EQ(diff.get_edit_op(0).get_type(), pdif::edit_op_type::INSERT);
+    ASSERT_EQ(diff.get_edit_op(0).has_arg(), true);
+    ASSERT_EQ(diff.get_edit_op(0).get_arg()->as<pdif::text_elem>()->text(), "Inserted");
 }
 
-TEST(PDIFDiff, TestBracketOperatorInvalid) {
+TEST(PDIFDiff, TestGetEditOpFront) {
     pdif::diff diff;
-    pdif::edit_op op2(pdif::edit_op_type::DELETE);
-    pdif::edit_op op(pdif::edit_op_type::INSERT, pdif::stream_elem::create<pdif::text_elem>("test"));
-    diff.add_edit_op(op);
-    diff.add_edit_op(op2);
 
-    ASSERT_THROW({diff[2];}, pdif::pdif_out_of_bounds);
+    pdif::edit_op op1(pdif::edit_op_type::INSERT, pdif::stream_elem::create<pdif::text_elem>("Inserted"));
+    pdif::edit_op op2(pdif::edit_op_type::DELETE);
+    pdif::edit_op op3(pdif::edit_op_type::EQ);
+
+    diff.add_edit_op(op1);
+    diff.add_edit_op(op2);
+    diff.add_edit_op(op3);
+
+    ASSERT_EQ(diff.get_edit_op(0).get_type(), pdif::edit_op_type::INSERT);
+    ASSERT_EQ(diff.get_edit_op(0).has_arg(), true);
+    ASSERT_EQ(diff.get_edit_op(0).get_arg()->as<pdif::text_elem>()->text(), "Inserted");
 }
 
-TEST(PDIFDiff, TestBracketOperatorFront) {
+TEST(PDIFDiff, TestGetEditOpBack) {
     pdif::diff diff;
-    pdif::edit_op op2(pdif::edit_op_type::DELETE);
-    pdif::edit_op op(pdif::edit_op_type::INSERT, pdif::stream_elem::create<pdif::text_elem>("test"));
-    diff.add_edit_op(op);
-    diff.add_edit_op(op2);
 
-    ASSERT_NO_THROW({diff[0];});
-    ASSERT_EQ(diff[0].get_type(), pdif::edit_op_type::INSERT);
-    ASSERT_EQ(diff[0].get_arg()->type(), pdif::stream_type::text);
-    ASSERT_EQ(diff[0].get_arg()->as<pdif::text_elem>()->text(), "test");
+    pdif::edit_op op1(pdif::edit_op_type::INSERT, pdif::stream_elem::create<pdif::text_elem>("Inserted"));
+    pdif::edit_op op2(pdif::edit_op_type::DELETE);
+    pdif::edit_op op3(pdif::edit_op_type::EQ);
+
+    diff.add_edit_op(op1);
+    diff.add_edit_op(op2);
+    diff.add_edit_op(op3);
+
+    ASSERT_EQ(diff.get_edit_op(2).get_type(), pdif::edit_op_type::EQ);
+    ASSERT_EQ(diff.get_edit_op(2).has_arg(), false);
 }
 
-TEST(PDIFDiff, TestBracketOperatorBack) {
+TEST(PDIFDiff, TestGetEditOpInvalid) {
     pdif::diff diff;
-    pdif::edit_op op2(pdif::edit_op_type::DELETE);
-    pdif::edit_op op(pdif::edit_op_type::INSERT, pdif::stream_elem::create<pdif::text_elem>("test"));
-    diff.add_edit_op(op);
-    diff.add_edit_op(op2);
 
-    ASSERT_NO_THROW({diff[1];});
-    ASSERT_EQ(diff[1].get_type(), pdif::edit_op_type::DELETE);
-    ASSERT_FALSE(diff[1].has_arg());
+    pdif::edit_op op1(pdif::edit_op_type::INSERT, pdif::stream_elem::create<pdif::text_elem>("Inserted"));
+    pdif::edit_op op2(pdif::edit_op_type::DELETE);
+    pdif::edit_op op3(pdif::edit_op_type::EQ);
+
+    diff.add_edit_op(op1);
+    diff.add_edit_op(op2);
+    diff.add_edit_op(op3);
+
+    ASSERT_THROW(diff.get_edit_op(3), pdif::pdif_out_of_bounds);
 }
 
-TEST(PDIFDiff, TestSize) {
+TEST(PDIFDiff, TestEditOpSize) {
     pdif::diff diff;
+
+    pdif::edit_op op1(pdif::edit_op_type::INSERT, pdif::stream_elem::create<pdif::text_elem>("Inserted"));
     pdif::edit_op op2(pdif::edit_op_type::DELETE);
-    pdif::edit_op op(pdif::edit_op_type::INSERT, pdif::stream_elem::create<pdif::text_elem>("test"));
+    pdif::edit_op op3(pdif::edit_op_type::EQ);
 
-    ASSERT_EQ(diff.size(), 0);
-
-    diff.add_edit_op(op);
-
-    ASSERT_EQ(diff.size(), 1);
-
+    diff.add_edit_op(op1);
     diff.add_edit_op(op2);
+    diff.add_edit_op(op3);
 
-    ASSERT_EQ(diff.size(), 2);
+    ASSERT_EQ(diff.edit_op_size(), 3);
 }
 
-// disabled until json is properly implemented
-TEST(PDIFDiff, DISABLED_TestToJson) {
+TEST(PDIFDiff, TestAddMetaEditOp) {
     pdif::diff diff;
-    pdif::edit_op op(pdif::edit_op_type::INSERT, pdif::stream_elem::create<pdif::text_elem>("test"));
-    pdif::edit_op op2(pdif::edit_op_type::DELETE);
-    diff.add_edit_op(op);
-    diff.add_edit_op(op2);
 
-std::string json = "{\n    \"edit_script\": [\n        {            \"type\": \"INSERT\",\n            \"arg\": {                \"type\": \"text\",\n                \"val\": \"test\"\n            }\n        },\n        {            \"type\": \"DELETE\",\n        }\n    ]\n}";
+    pdif::meta_edit_op op1(pdif::meta_edit_op_type::META_ADD, "key", "value");
+    pdif::meta_edit_op op2(pdif::meta_edit_op_type::META_DELETE, "key");
+    pdif::meta_edit_op op3(pdif::meta_edit_op_type::META_UPDATE, "key", "value");
 
-    ASSERT_EQ(diff.to_json(), json);
+    ASSERT_NO_THROW({diff.add_meta_edit_op(op1);});
+    ASSERT_NO_THROW({diff.add_meta_edit_op(op2);});
+    ASSERT_NO_THROW({diff.add_meta_edit_op(op3);});
+
+    ASSERT_EQ(diff.meta_edit_op_size(), 3);
 }
 
-// disabled until json is properly implemented
-TEST(PDIFDiff, DISABLED_TestFromJson) {
+TEST(PDIFDiff, TestGetMetaEditOp) {
     pdif::diff diff;
-    pdif::edit_op op(pdif::edit_op_type::INSERT, pdif::stream_elem::create<pdif::text_elem>("test"));
-    pdif::edit_op op2(pdif::edit_op_type::DELETE);
-    diff.add_edit_op(op);
-    diff.add_edit_op(op2);
 
-std::string json = "{\n    \"edit_script\": [\n        {            \"type\": \"INSERT\",\n            \"arg\": {                \"type\": \"text\",\n                \"val\": \"test\"\n            }\n        },\n        {            \"type\": \"DELETE\",\n        }\n    ]\n}";
+    pdif::meta_edit_op op1(pdif::meta_edit_op_type::META_ADD, "key", "value");
+    pdif::meta_edit_op op2(pdif::meta_edit_op_type::META_DELETE, "key");
+    pdif::meta_edit_op op3(pdif::meta_edit_op_type::META_UPDATE, "key", "value");
 
-    pdif::diff diff2;
-    ASSERT_NO_THROW({diff2.from_json(json);});
+    diff.add_meta_edit_op(op1);
+    diff.add_meta_edit_op(op2);
+    diff.add_meta_edit_op(op3);
+
+    ASSERT_EQ(diff.get_meta_edit_op(0).get_type(), pdif::meta_edit_op_type::META_ADD);
+    ASSERT_EQ(diff.get_meta_edit_op(0).get_meta_key(), "key");
+    ASSERT_EQ(diff.get_meta_edit_op(0).has_meta_val(), true);
+    ASSERT_EQ(diff.get_meta_edit_op(0).get_meta_val(), "value");
+
+    ASSERT_EQ(diff.get_meta_edit_op(1).get_type(), pdif::meta_edit_op_type::META_DELETE);
+    ASSERT_EQ(diff.get_meta_edit_op(1).get_meta_key(), "key");
+    ASSERT_FALSE(diff.get_meta_edit_op(1).has_meta_val());
+
+    ASSERT_EQ(diff.get_meta_edit_op(2).get_type(), pdif::meta_edit_op_type::META_UPDATE);
+    ASSERT_EQ(diff.get_meta_edit_op(2).get_meta_key(), "key");
+    ASSERT_TRUE(diff.get_meta_edit_op(2).has_meta_val());
+    ASSERT_EQ(diff.get_meta_edit_op(2).get_meta_val(), "value");
+}
+
+TEST(PDIFDiff, TestGetMetaEditOpFront) {
+    pdif::diff diff;
+
+    pdif::meta_edit_op op1(pdif::meta_edit_op_type::META_ADD, "key", "value");
+    pdif::meta_edit_op op2(pdif::meta_edit_op_type::META_DELETE, "key");
+    pdif::meta_edit_op op3(pdif::meta_edit_op_type::META_UPDATE, "key", "value");
+
+    diff.add_meta_edit_op(op1);
+    diff.add_meta_edit_op(op2);
+    diff.add_meta_edit_op(op3);
+
+    ASSERT_EQ(diff.get_meta_edit_op(0).get_type(), pdif::meta_edit_op_type::META_ADD);
+    ASSERT_EQ(diff.get_meta_edit_op(0).get_meta_key(), "key");
+    ASSERT_EQ(diff.get_meta_edit_op(0).has_meta_val(), true);
+    ASSERT_EQ(diff.get_meta_edit_op(0).get_meta_val(), "value");
+}
+
+
+TEST(PDIFDiff, TestGetMetaEditOpBack) {
+    pdif::diff diff;
+
+    pdif::meta_edit_op op1(pdif::meta_edit_op_type::META_ADD, "key", "value");
+    pdif::meta_edit_op op2(pdif::meta_edit_op_type::META_DELETE, "key");
+    pdif::meta_edit_op op3(pdif::meta_edit_op_type::META_UPDATE, "key", "value");
+
+    diff.add_meta_edit_op(op1);
+    diff.add_meta_edit_op(op2);
+    diff.add_meta_edit_op(op3);
+
+    ASSERT_EQ(diff.get_meta_edit_op(2).get_type(), pdif::meta_edit_op_type::META_UPDATE);
+    ASSERT_EQ(diff.get_meta_edit_op(2).get_meta_key(), "key");
+    ASSERT_TRUE(diff.get_meta_edit_op(2).has_meta_val());
+    ASSERT_EQ(diff.get_meta_edit_op(2).get_meta_val(), "value");
+}
+
+TEST(PDIFDiff, TestGetMetaEditOpInvalid) {
+    pdif::diff diff;
+
+    pdif::meta_edit_op op1(pdif::meta_edit_op_type::META_ADD, "key", "value");
+    pdif::meta_edit_op op2(pdif::meta_edit_op_type::META_DELETE, "key");
+    pdif::meta_edit_op op3(pdif::meta_edit_op_type::META_UPDATE, "key", "value");
+
+    diff.add_meta_edit_op(op1);
+    diff.add_meta_edit_op(op2);
+    diff.add_meta_edit_op(op3);
+
+    ASSERT_THROW(diff.get_meta_edit_op(3), pdif::pdif_out_of_bounds);
+}
+
+TEST(PDIFDiff, TestMetaEditOpSize) {
+    pdif::diff diff;
+
+    pdif::meta_edit_op op1(pdif::meta_edit_op_type::META_ADD, "key", "value");
+    pdif::meta_edit_op op2(pdif::meta_edit_op_type::META_DELETE, "key");
+    pdif::meta_edit_op op3(pdif::meta_edit_op_type::META_UPDATE, "key", "value");
+
+    diff.add_meta_edit_op(op1);
+    diff.add_meta_edit_op(op2);
+    diff.add_meta_edit_op(op3);
     
-    ASSERT_EQ(diff2.size(), 2);
-
-    ASSERT_TRUE(diff2[0].has_arg());
-    ASSERT_EQ(diff2[0].get_type(), pdif::edit_op_type::INSERT);
-    ASSERT_EQ(diff2[0].get_arg()->type(), pdif::stream_type::text);
-    ASSERT_EQ(diff2[0].get_arg()->as<pdif::text_elem>()->text(), "test");
-
-    ASSERT_FALSE(diff2[1].has_arg());
-    ASSERT_EQ(diff2[1].get_type(), pdif::edit_op_type::DELETE); 
+    ASSERT_EQ(diff.meta_edit_op_size(), 3);
 }
 
-TEST(PDIFDiff, TestApply) {
+// disabled until json is properly implemented
+TEST(PDIFDiff, DISABLED_TestToJson) {}
+
+// disabled until json is properly implemented
+TEST(PDIFDiff, DISABLED_TestFromJson) {}
+
+TEST(PDIFDiff, TestApplyEditScript) {
     pdif::diff diff;
     pdif::edit_op op2(pdif::edit_op_type::DELETE);
     pdif::edit_op op(pdif::edit_op_type::INSERT, pdif::stream_elem::create<pdif::text_elem>("Inserted"));
@@ -141,7 +205,7 @@ TEST(PDIFDiff, TestApply) {
     stream.push(1, pdif::stream_elem::create<pdif::text_elem>("test2"));
     stream.push(2, pdif::stream_elem::create<pdif::text_elem>("test3"));
 
-    ASSERT_NO_THROW({diff.apply(stream);});
+    ASSERT_NO_THROW({diff.apply_edit_script(stream);});
 
     ASSERT_EQ(stream.size(), 3);
 
@@ -154,6 +218,72 @@ TEST(PDIFDiff, TestApply) {
     ASSERT_EQ(stream[2]->type(), pdif::stream_type::text);
     ASSERT_EQ(stream[2]->as<pdif::text_elem>()->text(), "test3");
 }
+
+TEST(PDIFDiff, TestApplyEditScriptInsert) {
+    pdif::diff diff;
+    pdif::edit_op op(pdif::edit_op_type::INSERT, pdif::stream_elem::create<pdif::text_elem>("Inserted"));
+
+    diff.add_edit_op(op);
+
+    pdif::stream stream;
+
+    ASSERT_NO_THROW({diff.apply_edit_script(stream);});
+
+    ASSERT_EQ(stream.size(), 1);
+}
+
+TEST(PDIFDiff, TestApplyEditScriptDelete) {
+    pdif::diff diff;
+    pdif::edit_op op(pdif::edit_op_type::DELETE);
+
+    diff.add_edit_op(op);
+
+    pdif::stream stream;
+    stream.push(0, pdif::stream_elem::create<pdif::text_elem>("test"));
+
+    ASSERT_EQ(stream.size(), 1);
+
+    ASSERT_NO_THROW({diff.apply_edit_script(stream);});
+
+    ASSERT_EQ(stream.size(), 0);
+}
+
+TEST(PDIFDiff, TestApplyEditScriptDeleteInvalid) {
+    pdif::diff diff;
+    pdif::edit_op op(pdif::edit_op_type::DELETE);
+
+    diff.add_edit_op(op);
+
+    pdif::stream stream;
+
+    ASSERT_THROW(diff.apply_edit_script(stream), pdif::pdif_out_of_bounds);
+}
+
+TEST(PDIFDiff, TestApplyEditScriptEq) {
+    pdif::diff diff;
+    pdif::edit_op op(pdif::edit_op_type::EQ);
+
+    diff.add_edit_op(op);
+
+    pdif::stream stream;
+    stream.push(0, pdif::stream_elem::create<pdif::text_elem>("test"));
+
+    ASSERT_NO_THROW({diff.apply_edit_script(stream);});
+
+    ASSERT_EQ(stream.size(), 1);
+}
+
+TEST(PDIFDiff, TestApplyEditScriptStreamCallback) {}
+
+TEST(PDIFDiff, TestApplyMetaEditScript) {}
+TEST(PDIFDiff, TestApplyMetaEditScriptAdd) {}
+TEST(PDIFDiff, TestApplyMetaEditScriptAddInvalid) {}
+TEST(PDIFDiff, TestApplyMetaEditScriptDelete) {}
+TEST(PDIFDiff, TestApplyMetaEditScriptDeleteInvalid) {}
+TEST(PDIFDiff, TestApplyMetaEditScriptUpdate) {}
+TEST(PDIFDiff, TestApplyMetaEditScriptUpdateInvalid) {}
+
+TEST(PDIFDiff, TestApplyMetaEditScriptStreamCallback) {}
 
 int main(int argc, char **argv) {
     ::testing::InitGoogleTest(&argc, argv);
