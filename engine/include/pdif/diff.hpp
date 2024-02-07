@@ -86,7 +86,8 @@ public:
 
 private:
 
-    void check_index(size_t index) const;
+    void check_edit_index(size_t index) const;
+    void check_meta_index(size_t index) const;
 
 private:
 

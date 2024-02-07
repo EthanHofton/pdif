@@ -273,17 +273,172 @@ TEST(PDIFDiff, TestApplyEditScriptEq) {
     ASSERT_EQ(stream.size(), 1);
 }
 
-TEST(PDIFDiff, TestApplyEditScriptStreamCallback) {}
+TEST(PDIFDiff, TestApplyEditScriptStreamCallback) {
+    int i = 0;
+    pdif::stream::stream_callback_f callback = [&i](const pdif::edit_op& op) {
+        ASSERT_EQ(op.get_type(), pdif::edit_op_type::INSERT);
+        ASSERT_EQ(op.has_arg(), true);
+        ASSERT_EQ(op.get_arg()->as<pdif::text_elem>()->text(), "Inserted");
+        i++;
+    };
 
-TEST(PDIFDiff, TestApplyMetaEditScript) {}
-TEST(PDIFDiff, TestApplyMetaEditScriptAdd) {}
-TEST(PDIFDiff, TestApplyMetaEditScriptAddInvalid) {}
-TEST(PDIFDiff, TestApplyMetaEditScriptDelete) {}
-TEST(PDIFDiff, TestApplyMetaEditScriptDeleteInvalid) {}
-TEST(PDIFDiff, TestApplyMetaEditScriptUpdate) {}
-TEST(PDIFDiff, TestApplyMetaEditScriptUpdateInvalid) {}
+    pdif::diff diff;
+    pdif::edit_op op(pdif::edit_op_type::INSERT, pdif::stream_elem::create<pdif::text_elem>("Inserted"));
 
-TEST(PDIFDiff, TestApplyMetaEditScriptStreamCallback) {}
+    diff.add_edit_op(op);
+
+    pdif::stream stream;
+    stream.set_stream_callback(callback);
+
+    ASSERT_EQ(i, 0);
+    ASSERT_NO_THROW({diff.apply_edit_script(stream);});
+    ASSERT_EQ(i, 1);
+
+    ASSERT_EQ(stream.size(), 1);
+
+    ASSERT_EQ(stream[0]->type(), pdif::stream_type::text);
+    ASSERT_EQ(stream[0]->as<pdif::text_elem>()->text(), "Inserted");
+}
+
+TEST(PDIFDiff, TestApplyMetaEditScript) {
+    pdif::diff diff;
+    pdif::meta_edit_op op1(pdif::meta_edit_op_type::META_ADD, "key", "value");
+    pdif::meta_edit_op op2(pdif::meta_edit_op_type::META_UPDATE, "ex1", "new_value");
+    pdif::meta_edit_op op3(pdif::meta_edit_op_type::META_DELETE, "ex2");
+
+    diff.add_meta_edit_op(op1);
+    diff.add_meta_edit_op(op2);
+    diff.add_meta_edit_op(op3);
+
+    pdif::stream stream;
+    stream.add_metadata("ex1", "old_value");
+    stream.add_metadata("ex2", "value");
+
+    ASSERT_NO_THROW({diff.apply_meta_edit_script(stream);});
+
+    ASSERT_EQ(stream.get_metadata("key"), "value");
+    ASSERT_EQ(stream.get_metadata("ex1"), "new_value");
+    ASSERT_FALSE(stream.has_key("ex2"));
+}
+
+TEST(PDIFDiff, TestApplyMetaEditScriptAdd) {
+    pdif::diff diff;
+    pdif::meta_edit_op op1(pdif::meta_edit_op_type::META_ADD, "key", "value");
+
+    diff.add_meta_edit_op(op1);
+
+    pdif::stream stream;
+
+    ASSERT_NO_THROW({diff.apply_meta_edit_script(stream);});
+
+    ASSERT_EQ(stream.get_metadata("key"), "value");
+}
+
+TEST(PDIFDiff, TestApplyMetaEditScriptAddInvalid) {
+    pdif::diff diff;
+    pdif::meta_edit_op op1(pdif::meta_edit_op_type::META_ADD, "key", "value");
+
+    diff.add_meta_edit_op(op1);
+
+    pdif::stream stream;
+    stream.add_metadata("key", "old_value");
+
+    ASSERT_THROW({diff.apply_meta_edit_script(stream);}, pdif::pdif_invalid_operation);
+
+    ASSERT_EQ(stream.get_metadata("key"), "old_value");
+}
+
+TEST(PDIFDiff, TestApplyMetaEditScriptDelete) {
+    pdif::diff diff;
+    pdif::meta_edit_op op1(pdif::meta_edit_op_type::META_DELETE, "key");
+
+    diff.add_meta_edit_op(op1);
+
+    pdif::stream stream;
+    stream.add_metadata("key", "value");
+
+    ASSERT_NO_THROW({diff.apply_meta_edit_script(stream);});
+
+    ASSERT_FALSE(stream.has_key("key"));
+}
+
+TEST(PDIFDiff, TestApplyMetaEditScriptDeleteInvalid) {
+    pdif::diff diff;
+    pdif::meta_edit_op op1(pdif::meta_edit_op_type::META_DELETE, "key");
+
+    diff.add_meta_edit_op(op1);
+
+    pdif::stream stream;
+
+    ASSERT_THROW({diff.apply_meta_edit_script(stream);}, pdif::pdif_invalid_operation);
+}
+
+TEST(PDIFDiff, TestApplyMetaEditScriptUpdate) {
+    pdif::diff diff;
+    pdif::meta_edit_op op1(pdif::meta_edit_op_type::META_UPDATE, "key", "value");
+
+    diff.add_meta_edit_op(op1);
+
+    pdif::stream stream;
+    stream.add_metadata("key", "old_value");
+
+    ASSERT_NO_THROW({diff.apply_meta_edit_script(stream);});
+
+    ASSERT_EQ(stream.get_metadata("key"), "value");
+}
+
+TEST(PDIFDiff, TestApplyMetaEditScriptUpdateInvalid) {
+    pdif::diff diff;
+    pdif::meta_edit_op op1(pdif::meta_edit_op_type::META_UPDATE, "key", "value");
+
+    diff.add_meta_edit_op(op1);
+
+    pdif::stream stream;
+
+    ASSERT_THROW({diff.apply_meta_edit_script(stream);}, pdif::pdif_invalid_operation);
+}
+
+TEST(PDIFDiff, TestApplyMetaEditScriptStreamCallback) {
+    int i = 0;
+    pdif::stream::meta_callback_f callback = [&i](const pdif::meta_edit_op& op) {
+        ASSERT_EQ(op.get_type(), pdif::meta_edit_op_type::META_ADD);
+        ASSERT_EQ(op.get_meta_key(), "key");
+        ASSERT_EQ(op.has_meta_val(), true);
+        ASSERT_EQ(op.get_meta_val(), "value");
+        i++;
+    };
+
+    pdif::meta_edit_op op(pdif::meta_edit_op_type::META_ADD, "key", "value");
+
+    pdif::diff diff;
+    diff.add_meta_edit_op(op);
+
+    pdif::stream stream;
+    stream.set_meta_callback(callback);
+
+    ASSERT_EQ(i, 0);
+    ASSERT_NO_THROW({diff.apply_meta_edit_script(stream);});
+    ASSERT_EQ(i, 1);
+
+    ASSERT_EQ(stream.get_metadata("key"), "value");
+}
+
+TEST(PDIFDiff, TestApplyMetaEditScriptStreamCallbackErrorInCallback) {
+    pdif::stream::meta_callback_f callback = [](const pdif::meta_edit_op&) {
+        throw std::exception();
+    };
+
+    pdif::meta_edit_op op(pdif::meta_edit_op_type::META_ADD, "key", "value");
+
+    pdif::diff diff;
+    diff.add_meta_edit_op(op);
+
+    pdif::stream stream;
+
+    stream.set_meta_callback(callback);
+
+    ASSERT_THROW({diff.apply_meta_edit_script(stream);}, pdif::pdif_error_in_callback);
+}
 
 int main(int argc, char **argv) {
     ::testing::InitGoogleTest(&argc, argv);
