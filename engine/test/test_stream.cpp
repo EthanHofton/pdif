@@ -297,6 +297,18 @@ TEST(PDIFStream, TestMetaCallbackInvalidErrorInCallback) {
     ASSERT_THROW({stream.meta_callback(pdif::meta_edit_op(pdif::meta_edit_op_type::META_DELETE, "key"));}, pdif::pdif_error_in_callback);
 }
 
+TEST(PDIFStream, TestGetMetadataDict) {
+    pdif::stream stream;
+    stream.add_metadata("key1", "value1");
+    stream.add_metadata("key2", "value2");
+
+    auto dict = stream.get_metadata();
+
+    ASSERT_EQ(dict.size(), 2);
+    ASSERT_EQ(dict.at("key1"), "value1");
+    ASSERT_EQ(dict.at("key2"), "value2");
+}
+
 int main(int argc, char** argv) {
     ::testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();

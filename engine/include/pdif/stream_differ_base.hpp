@@ -40,7 +40,14 @@ public:
      * 
      * @return pdif::diff the edit script between the two streams 
      */
-    virtual pdif::diff diff() = 0;
+    virtual void diff(pdif::diff&) = 0;
+
+    /**
+     * @brief do the meta diff between one stream to another
+     * 
+     * @param d the diff to be modified
+     */
+    void meta_diff(pdif::diff& d);
 
 private:
 

@@ -198,6 +198,13 @@ public:
      */
     void meta_callback(const meta_edit_op&) const;
 
+    /**
+     * @brief Get the metadata object
+     * 
+     * @return std::map<std::string, std::string> 
+     */
+    inline std::map<std::string, std::string> get_metadata() const { return m_metadata; }
+
 private:
 
     void check_index_read(size_t index) const;
