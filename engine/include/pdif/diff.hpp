@@ -67,12 +67,14 @@ public:
      * 
      * @return std::string the json string
      */
+    [[deprecated("this function has not been tested. Do not use it")]]
     std::string to_json() const;
     /**
      * @brief read the edit script from a json string
      * 
      * @param json the json string
      */
+    [[deprecated("this function has not been tested. Do not use it")]]
     void from_json(const std::string& json);
 
     /**
