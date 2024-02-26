@@ -124,7 +124,7 @@ void diff::apply_edit_script(stream& stream) const {
     }
 }
 
-void diff::apply_meta_edit_script(stream& stream) const {
+void diff::apply_meta_edit_script(stream_meta& stream) const {
     for (const meta_edit_op& op : m_meta_edit_script) {
         op.execute(stream);
         

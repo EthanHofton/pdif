@@ -7,8 +7,9 @@ set(PDIF_CLI_VERSION_MINOR "1")
 set(PDIF_CLI_VERSION_PATCH "0")
 set(PDIF_CLI_VERSION ${PDIF_CLI_VERSION_MAJOR}.${PDIF_CLI_VERSION_MINOR}.${PDIF_CLI_VERSION_PATCH})
 
-enable_testing()
-
 add_subdirectory(include)
 add_subdirectory(src)
-add_subdirectory(test)
+
+if (PDIF_BUILD_CLI_TESTS)
+    add_subdirectory(test)
+endif() # PDIF_BUILD_CLI_TESTS
