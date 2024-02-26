@@ -7,6 +7,7 @@
 - [ ] add CONTRIBUTING.md
 - [x] add -wall -werror to CMakeLists.txt
 - [x] fix all warnings
+- [ ] add doxygen documentation
 
 #### meta edit command
 - [x] add meta edit command to pdif::edit_op_type
@@ -37,7 +38,7 @@ There is no need to create a new stream elem for metadata since they will be kep
 
 The stream_differ_base should contain the functionallity to generate a pdif::diff for 2 streams metadata. The stream_differ_base should have an abstract function diff that will be implamented by the stream_differ subclasses.
 
-- [ ] write meta stream differ + unit tests
+- [x] write meta stream differ + unit tests
 
 #### lcs_stream_differ
 

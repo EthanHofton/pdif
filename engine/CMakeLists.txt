@@ -10,4 +10,7 @@ set(PDIF_ENGINE_VERSION ${PDIF_ENGINE_VERSION_MAJOR}.${PDIF_ENGINE_VERSION_MINOR
 
 add_subdirectory(include)
 add_subdirectory(src)
-add_subdirectory(test)
+
+if (PDIF_BUILD_ENGINE_TESTS)
+    add_subdirectory(test)
+endif() # PDIF_BUILD_ENGINE_TESTS
