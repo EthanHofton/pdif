@@ -23,6 +23,10 @@ add_executable(test_stream test_stream.cpp)
 target_link_libraries(test_stream PRIVATE GTest::GTest pdif_engine)
 add_test(NAME gtest_stream COMMAND test_stream WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
 
+add_executable(test_stream_meta test_stream_meta.cpp)
+target_link_libraries(test_stream_meta PRIVATE GTest::GTest pdif_engine)
+add_test(NAME gtest_stream_meta COMMAND test_stream_meta WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
+
 add_executable(test_edit_op test_edit_op.cpp)
 target_link_libraries(test_edit_op PRIVATE GTest::GTest pdif_engine)
 add_test(NAME gtest_edit_op COMMAND test_edit_op WORKING_DIRECTORY ${CMAKE_BINARY_DIR})

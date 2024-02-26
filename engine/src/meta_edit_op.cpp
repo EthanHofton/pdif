@@ -20,7 +20,7 @@ meta_edit_op::meta_edit_op(meta_edit_op_type type, const std::string& meta_key, 
     }
 }
 
-void meta_edit_op::execute(pdif::stream& t_stream) const {
+void meta_edit_op::execute(pdif::stream_meta& t_stream) const {
     switch (m_type) {
         case meta_edit_op_type::META_ADD:
             try {

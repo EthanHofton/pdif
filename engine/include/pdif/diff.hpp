@@ -89,7 +89,7 @@ public:
      * 
      * @param stream the stream to apply the meta edit script to
      */
-    void apply_meta_edit_script(stream& stream) const;
+    void apply_meta_edit_script(stream_meta& stream) const;
 
 private:
 

@@ -25,6 +25,7 @@ message(STATUS "Fetched nlohmann/json.git")
 
 # set sources
 set(PDIF_SOURCES
+    stream_meta.cpp
     stream_differ_base.cpp
     meta_edit_op.cpp
     edit_op.cpp

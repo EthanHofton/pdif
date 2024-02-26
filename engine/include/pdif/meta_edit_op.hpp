@@ -3,7 +3,7 @@
 
 #include <pdif/errors.hpp>
 #include <pdif/logger.hpp>
-#include <pdif/stream.hpp>
+#include <pdif/stream_meta.hpp>
 #include <optional>
 
 namespace pdif {
@@ -128,7 +128,7 @@ public:
      * 
      * @param t_stream the stream to execute on
      */
-    void execute(pdif::stream& t_stream) const;
+    void execute(pdif::stream_meta& t_stream) const;
 
 private:
 
