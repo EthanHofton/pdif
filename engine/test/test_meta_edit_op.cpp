@@ -80,7 +80,7 @@ TEST(PDIFMetaEditOp, TestHasMetaVal) {
 
 TEST(PDIFMetaEditOp, TestExecuteMetaAdd) {
     pdif::meta_edit_op op = pdif::meta_edit_op(pdif::meta_edit_op_type::META_ADD, "test_key", "test_val");
-    pdif::stream stream;
+    pdif::stream_meta stream;
 
     ASSERT_NO_THROW({op.execute(stream);});
 
@@ -88,7 +88,7 @@ TEST(PDIFMetaEditOp, TestExecuteMetaAdd) {
 }
 
 TEST(PDIFMetaEditOp, TestExecuteMetaDelete) {
-    pdif::stream stream;
+    pdif::stream_meta stream;
     stream.add_metadata("test_key", "test_val");
 
     ASSERT_TRUE(stream.has_key("test_key"));
@@ -101,7 +101,7 @@ TEST(PDIFMetaEditOp, TestExecuteMetaDelete) {
 }
 
 TEST(PDIFMetaEditOp, TestExecuteMetaUpdate) {
-    pdif::stream stream;
+    pdif::stream_meta stream;
     stream.add_metadata("test_key", "test_val");
 
     ASSERT_TRUE(stream.has_key("test_key"));
@@ -114,7 +114,7 @@ TEST(PDIFMetaEditOp, TestExecuteMetaUpdate) {
 }
 
 TEST(PDIFMetaEditOp, TestExecuteMetaUpdateInvalid) {
-    pdif::stream stream;
+    pdif::stream_meta stream;
 
     pdif::meta_edit_op op = pdif::meta_edit_op(pdif::meta_edit_op_type::META_UPDATE, "test_key", "new_val");
 
@@ -122,7 +122,7 @@ TEST(PDIFMetaEditOp, TestExecuteMetaUpdateInvalid) {
 }
 
 TEST(PDIFMetaEditOp, TestExecuteMetaAddInvalid) {
-    pdif::stream stream;
+    pdif::stream_meta stream;
     stream.add_metadata("test_key", "test_val");
 
     pdif::meta_edit_op op = pdif::meta_edit_op(pdif::meta_edit_op_type::META_ADD, "test_key", "new_val");
@@ -131,7 +131,7 @@ TEST(PDIFMetaEditOp, TestExecuteMetaAddInvalid) {
 }
 
 TEST(PDIFMetaEditOp, TestExecuteMetaDeleteInvalid) {
-    pdif::stream stream;
+    pdif::stream_meta stream;
 
     pdif::meta_edit_op op = pdif::meta_edit_op(pdif::meta_edit_op_type::META_DELETE, "test_key");
 
