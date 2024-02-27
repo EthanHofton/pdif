@@ -4,8 +4,30 @@ A PDF Diff tool that compares two PDFs, and reports the differences as a human-r
 
 ## Requirements
 
-- CMake build system, 3.25.2 or later
-- C++17 compiler
+- `CMake` build system, 3.25.2 or later
+- `C++17` compiler
+- `qpdf/qpdf` - A low level PDF library for C++. [GitHub](https://github.com/qpdf/qpdf.git)
+
+QPDF is a requirement for this project. It must be installed to the system before building the project. The project will not build without it. This can be done either using Homebrew on macOS, or by building the library from source.
+
+### macOS
+
+To install QPDF on macOS, use Homebrew:
+
+```bash
+brew install qpdf
+```
+
+### Linux
+
+To install QPDF on Linux, either use the package manager for your distribution or build and install the library from source:
+
+```bash
+cmake -S . -B build -DCMAKE_BUILD_TYPE=RelWithDebInfo -DBUILD_STATIC_LIBS=OFF
+cmake --build build --parallel --target libqpdf
+cmake --install build --component lib
+cmake --install build --component dev
+```
 
 ## Dependencies
 
@@ -13,7 +35,6 @@ The project auto imports the following dependencies (using `FetchContent`):
  
  - `EthanHofton/util` - A collection of utility functions and classes for C++. [GitHub](https://github.com/EthanHofton/util.git)
  - `nlohmann/json` - A JSON library for C++. [GitHub](https://github.com/nlohmann/json.git)
- - `qpdf/qpdf` - A low level PDF library for C++. [GitHub](https://github.com/qpdf/qpdf.git)
 
 ## Building
 

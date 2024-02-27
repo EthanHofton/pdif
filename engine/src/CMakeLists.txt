@@ -22,9 +22,16 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(nlohmann_json)
 message(STATUS "Fetched nlohmann/json.git")
 
+add_definitions(-DPOINTERHOLDER_TRANSITION=-0)
+message(STATUS "Finding qpdf")
+
+find_package(qpdf REQUIRED)
+
+message(STATUS "Found qpdf: ${qpdf_LIBRARIES}")
 
 # set sources
 set(PDIF_SOURCES
+    pdf.cpp
     stream_meta.cpp
     stream_differ_base.cpp
     meta_edit_op.cpp
@@ -33,6 +40,7 @@ set(PDIF_SOURCES
     stream.cpp
     logger.cpp
     diff.cpp
+    content_extractor.cpp
 )
 
 set(LIBRARY_NAME pdif_engine)
@@ -41,6 +49,7 @@ add_library(${LIBRARY_NAME} ${PDIF_SOURCES})
 
 # rename to just pdif
 set_target_properties(${LIBRARY_NAME} PROPERTIES OUTPUT_NAME "pdif")
+target_compile_options(${LIBRARY_NAME} PRIVATE -Wall -Wextra -Wpedantic -Werror)
 
 set_target_properties(${LIBRARY_NAME} PROPERTIES
     VERSION ${PDIF_ENGINE_VERSION}
@@ -53,6 +62,7 @@ target_include_directories(${LIBRARY_NAME} PUBLIC
     ${nlohmann_json_SOURCE_DIR}/include
 )
 target_link_libraries(${LIBRARY_NAME} PUBLIC util)
+target_link_libraries(${LIBRARY_NAME} PRIVATE qpdf::libqpdf)
 
 install(TARGETS ${LIBRARY_NAME}
   EXPORT ${PROJECT_NAME}Targets            # for downstream dependencies

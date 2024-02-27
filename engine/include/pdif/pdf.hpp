@@ -6,6 +6,8 @@
 #include <pdif/stream_differ_base.hpp>
 #include <pdif/content_extractor.hpp>
 
+#include <qpdf/QPDF.hh>
+
 namespace pdif {
 
 /**
@@ -25,7 +27,6 @@ public:
     PDF(const std::string& path, granularity g = granularity::word, scope s = scope::page);
 
     /**
-    /**
      * @brief Get the granularity object
      * 
      * @return granularity 
@@ -44,8 +45,10 @@ private:
 
     granularity m_extractor_granularity;
     scope m_pdf_scope;
+    QPDF m_pdf;
 
-    stream m_stream;
+    std::vector<stream> m_streams;
+    pdif::stream_meta m_meta;
 };
 
 }

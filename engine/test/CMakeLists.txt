@@ -10,6 +10,16 @@ FetchContent_MakeAvailable(googletest)
 add_library(GTest::GTest INTERFACE IMPORTED)
 target_link_libraries(GTest::GTest INTERFACE gtest_main)
 
+# INCLUDE QPDF
+add_definitions(-DPOINTERHOLDER_TRANSITION=-0)
+find_package(qpdf REQUIRED)
+
+# add target to copy test_pdfs to build directory
+add_custom_target(copy_test_pdfs ALL
+    COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/test_pdfs ${CMAKE_BINARY_DIR}/test_pdfs
+    COMMENT "Copying test_pdfs to build directory"
+)
+
 # example test
 # add_executable(example_tests example_tests.cpp)
 # target_link_libraries(example_tests PRIVATE GTest::GTest testing_lib)
@@ -42,3 +52,7 @@ add_test(NAME gtest_meta_edit_op COMMAND test_meta_edit_op WORKING_DIRECTORY ${C
 add_executable(test_stream_differ_base test_stream_differ_base.cpp)
 target_link_libraries(test_stream_differ_base PRIVATE GTest::GTest pdif_engine)
 add_test(NAME gtest_stream_differ_base COMMAND test_stream_differ_base WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
+
+add_executable(test_content_extractor test_content_extractor.cpp)
+target_link_libraries(test_content_extractor PRIVATE GTest::GTest pdif_engine qpdf::libqpdf)
+add_test(NAME gtest_content_extractor COMMAND test_content_extractor WORKING_DIRECTORY ${CMAKE_BINARY_DIR})

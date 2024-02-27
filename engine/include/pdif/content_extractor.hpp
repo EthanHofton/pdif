@@ -3,6 +3,10 @@
 
 #include <vector>
 #include <pdif/stream.hpp>
+#include <pdif/stream_meta.hpp>
+
+#include <qpdf/QPDF.hh>
+#include <qpdf/QPDFObjectHandle.hh>
 
 namespace pdif {
 
@@ -32,9 +36,7 @@ enum class scope {
     document
 };
 
-std::vector<pdif::stream> extract_content(const std::string& path, granularity g, scope s);
-
-
+extern pdif::stream_meta extract_meta(QPDF& pdf);
 
 }
 

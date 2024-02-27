@@ -21,6 +21,7 @@ set(EXE_NAME pdif_cli)
 add_executable(${EXE_NAME} ${PDIF_CLI_SOURCES})
 
 set_target_properties(${EXE_NAME} PROPERTIES OUTPUT_NAME "pdif")
+target_compile_options(${EXE_NAME} PRIVATE -Wall -Wextra -Wpedantic -Werror)
 
 set_target_properties(${EXE_NAME} PROPERTIES
     VERSION ${PDIF_CLI_VERSION}
