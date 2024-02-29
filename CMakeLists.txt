@@ -23,7 +23,7 @@ set(CMAKE_MACOSX_RPATH ON)
 
 enable_testing()
 
-option(PDIF_BUILD_CLI "Build the command line interface" OFF)
+option(PDIF_BUILD_CLI "Build the command line interface" ON)
 option(PDIF_BUILD_ENGINE_TESTS "Build the tests" ON)
 option(PDIF_BUILD_CLI_TESTS "Build the tests" ON)
 

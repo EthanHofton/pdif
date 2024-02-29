@@ -17,6 +17,13 @@ namespace pdif {
 class PDF {
 public:
 
+    enum class comparison_options {
+        meta_only,
+        text_only,
+        image_only,
+        all,
+    };
+
     /**
      * @brief Construct a new PDF object
      * 
@@ -39,7 +46,7 @@ public:
      */
     inline scope get_scope() const { return m_pdf_scope; }
 
-    diff compare(const PDF& other) const;
+    diff compare(const PDF& other, comparison_options op = comparison_options::all) const;
 
 private:
 

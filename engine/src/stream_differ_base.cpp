@@ -2,7 +2,7 @@
 
 namespace pdif {
 
-void stream_differ_base::meta_diff(pdif::diff& d) {
+void stream_differ_base::meta_diff(pdif::diff& d, const pdif::stream_meta& meta1, const pdif::stream_meta& meta2) {
     auto stream1_metadata = meta1.get_metadata();
     auto stream2_metadata = meta2.get_metadata();    
 

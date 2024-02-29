@@ -4,31 +4,25 @@
 // make a concrete class for testing
 class stream_differ_base_concrete : public pdif::stream_differ_base {
 public:
-    stream_differ_base_concrete(const pdif::stream& stream1, const pdif::stream_meta& meta1, const pdif::stream& stream2, const pdif::stream_meta& meta2) : pdif::stream_differ_base(stream1, meta1, stream2, meta2) {}
+    stream_differ_base_concrete(const pdif::stream& stream1, const pdif::stream& stream2) : pdif::stream_differ_base(stream1, stream2) {}
 
     void diff(pdif::diff&) override {}
 };
 
 TEST(PDIFStreamDifferBase, TestConstructor) {
     pdif::stream stream1;
-    pdif::stream_meta meta1;
     pdif::stream stream2;
-    pdif::stream_meta meta2;
-    ASSERT_NO_THROW({stream_differ_base_concrete differ(stream1, meta1, stream2, meta2);});
+    ASSERT_NO_THROW({stream_differ_base_concrete differ(stream1, stream2);});
 }
 
 TEST(PDIFStreamDifferBase, TestMetaDiffAdd) {
-    pdif::stream stream1;
     pdif::stream_meta meta1;
-    pdif::stream stream2;
     pdif::stream_meta meta2;
 
     meta2.add_metadata("key", "value");
 
-    stream_differ_base_concrete differ(stream1, meta1, stream2, meta2);
-
     pdif::diff d;
-    ASSERT_NO_THROW({differ.meta_diff(d);});
+    ASSERT_NO_THROW({pdif::stream_differ_base::meta_diff(d, meta1, meta2);});
 
     ASSERT_EQ(d.meta_edit_op_size(), 1);
 
@@ -41,18 +35,14 @@ TEST(PDIFStreamDifferBase, TestMetaDiffAdd) {
 }
 
 TEST(PDIFStreamDifferBase, TestMetaDiffUpdate) {
-    pdif::stream stream1;
     pdif::stream_meta meta1;
-    pdif::stream stream2;
     pdif::stream_meta meta2;
 
     meta1.add_metadata("key", "value1");
     meta2.add_metadata("key", "value2");
 
-    stream_differ_base_concrete differ(stream1, meta1, stream2, meta2);
-
     pdif::diff d;
-    ASSERT_NO_THROW({differ.meta_diff(d);});
+    ASSERT_NO_THROW({pdif::stream_differ_base::meta_diff(d, meta1, meta2);});
 
     ASSERT_EQ(d.meta_edit_op_size(), 1);
 
@@ -65,17 +55,13 @@ TEST(PDIFStreamDifferBase, TestMetaDiffUpdate) {
 }
 
 TEST(PDIFStreamDifferBase, TestMetaDiffDelete) {
-    pdif::stream stream1;
     pdif::stream_meta meta1;
-    pdif::stream stream2;
     pdif::stream_meta meta2;
 
     meta1.add_metadata("key", "value");
 
-    stream_differ_base_concrete differ(stream1, meta1, stream2, meta2);
-
     pdif::diff d;
-    ASSERT_NO_THROW({differ.meta_diff(d);});
+    ASSERT_NO_THROW({pdif::stream_differ_base::meta_diff(d, meta1, meta2);});
 
     ASSERT_EQ(d.meta_edit_op_size(), 1);
 
