@@ -29,6 +29,13 @@ cmake --install build --component lib
 cmake --install build --component dev
 ```
 
+Or more simpily, using a package manager:
+
+```bash
+sudo apt-get update
+sudo apt-get install qpdf
+```
+
 ## Dependencies
 
 The project auto imports the following dependencies (using `FetchContent`):
