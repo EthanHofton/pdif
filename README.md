@@ -91,4 +91,30 @@ To get the documentation for the library, rebuild the project with the `PDIF_BUI
 
 ### Command Line Interface Usage
 
-TODO: once the CLI is implemented, add usage instructions here.
+The CLIs usage can be viewed by building the project (ensure the `PDIF_BUILD_CLI` option is set to `ON`), and running the `pdif-cli` executable with `help` as the option
+
+```bash
+pdif help
+```
+
+The usage is as follows:
+
+```bash
+pdif [COMMAND] [OPTIONS] <file1> <file2>
+```
+
+Where `[COMMAND]` is one of the following:
+
+ - `diff`: Compare two PDFs
+ - `apply`: Apply an existing edit script to a PDF. For this command, the `<file2>` argument is the edit script to apply to `<file1>`
+ - `help`: Display the help message
+ - `version`: Display the version of the pdif-cli and the pdif-engine library
+
+The `[OPTIONS]` are as follows: 
+
+ - `-o, --output <file>`: The file to output the result to. If not specified, the result will be output to the console
+ - `-m, --meta`: Include the metadata in the output. This is only available for the `diff` command
+ - `-t, --text`: Include the text in the output. This is only available for the `diff` command
+ - `-i, --image`: Include the images in the output. This is only available for the `diff` command
+
+If neither the `--meta`, `--text` or `--image` options are specified, all are on by default.

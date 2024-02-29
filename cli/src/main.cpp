@@ -81,11 +81,26 @@ args parse_arguments(int argc, char *argv[]) {
                 exit(1);
             }
         } else if (arg == "-m" || arg == "--meta") {
+            if (a.command != "diff") {
+                std::cerr << "Error: Option --meta is only available for the diff command\n";
+                print_usage();
+                exit(1);
+            }
             a.compare_meta = true;
         } else if (arg == "-t" || arg == "--text") {
             a.compare_text = true;
+            if (a.command != "diff") {
+                std::cerr << "Error: Option --text is only available for the diff command\n";
+                print_usage();
+                exit(1);
+            }
         } else if (arg == "-i" || arg == "--image") {
             a.compare_image = true;
+            if (a.command != "diff") {
+                std::cerr << "Error: Option --image is only available for the diff command\n";
+                print_usage();
+                exit(1);
+            }
         } else {
             std::cerr << "Error: Unknown option '" << arg << "'\n";
             print_usage();
