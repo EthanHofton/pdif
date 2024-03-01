@@ -20,6 +20,7 @@ struct args {
     bool compare_meta = false;
     bool compare_text = false;
     bool compare_image = false;
+    pdif::scope scope = pdif::scope::page;
 };
 
 void print_usage()
@@ -35,6 +36,7 @@ void print_usage()
     printf("    -m, --meta: compare only the meta data\n");
     printf("    -t, --text: compare only the text\n");
     printf("    -i, --image: compare only the images\n");
+    printf("    -s, --scope <page|document>: the scope of the comparison\n");
 }
 
 args parse_arguments(int argc, char *argv[]) {
@@ -82,6 +84,25 @@ args parse_arguments(int argc, char *argv[]) {
                 print_usage();
                 exit(1);
             }
+        } else if (arg == "-s" || arg == "--scope") {
+            if (i + 1 < argc - 2) {
+                std::string scope = argv[i + 1];
+                if (scope != "page" && scope != "document") {
+                    std::cerr << "Error: Invalid scope '" << scope << "'\n";
+                    print_usage();
+                    exit(1);
+                }
+                if (scope == "page") {
+                    a.scope = pdif::scope::page;
+                } else {
+                    a.scope = pdif::scope::document;
+                }
+                ++i; // Skip the next argument
+            } else {
+                std::cerr << "Error: Missing argument for scope\n";
+                print_usage();
+                exit(1);
+            }
         } else if (arg == "-m" || arg == "--meta") {
             if (a.command != "diff") {
                 std::cerr << "Error: Option --meta is only available for the diff command\n";
@@ -124,15 +145,15 @@ int main(int argc, char** argv)
     args a = parse_arguments(argc, argv);
 
     if (a.command == "diff") {
-        pdif::PDF file1(a.file1);
-        pdif::PDF file2(a.file2);
+        pdif::PDF file1(a.file1, pdif::granularity::word, a.scope);
+        pdif::PDF file2(a.file2, pdif::granularity::word, a.scope);
 
         pdif::PDF::comparison_args args;
         args.compare_meta = a.compare_meta;
         args.compare_text = a.compare_text;
         args.compare_image = a.compare_image;
 
-        pdif::diff  diff = file1.compare<pdif::lcs_stream_differ>(file2, args);
+        pdif::diff diff = file1.compare<pdif::lcs_stream_differ>(file2, args);
 
         if (a.output_file.has_value()) {
             // std::ofstream ofs(a.output_file.value());

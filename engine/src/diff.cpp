@@ -348,6 +348,13 @@ void diff::output_edit_script(std::ostream& os, std::optional<stream> stream1, b
         }
     }
 
+    if (rolling_eq > 0 && !print_eq) {
+        os << "" << util::CONSOLE_COLOR_CODE::FG_DEFAULT << "=" << rolling_eq;
+        os << util::CONSOLE_COLOR_CODE::FG_DEFAULT;
+        os << std::endl;
+        rolling_eq = 0;
+    }
+
     output_summary(os, plus, minus, eq, "=", util::CONSOLE_COLOR_CODE::FG_DEFAULT);
     os << util::CONSOLE_COLOR_CODE::TEXT_BOLD << "End of Content Differences" << util::CONSOLE_COLOR_CODE::TEXT_RESET << std::endl;
 }

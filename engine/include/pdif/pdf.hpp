@@ -45,24 +45,30 @@ public:
      */
     inline scope get_scope() const { return m_pdf_scope; }
 
-    template<typename T, std::enable_if_t<std::is_base_of_v<stream_differ_base, T>, bool> = true>
+    template<typename T, typename = std::enable_if_t<std::is_base_of_v<stream_differ_base, T>>>
     diff compare(const PDF& other, comparison_args) const {
         pdif::diff d;
 
         // compare the meta
         stream_differ_base::meta_diff(d, m_meta, other.m_meta);
 
+        int m = m_streams.size();
+        int n = other.m_streams.size();
+
         // compare the streams
-        if (m_streams.size() != other.m_streams.size()) {
-            // TODO:
-        } else {
-            for (size_t i = 0; i < m_streams.size(); i++) {
-                // stream_differ_base::stream_diff(d, m_streams[i], other.m_streams[i]);
+        for (int i = 0; i < std::max(m, n); i++) {
+            if (i < m && i < n) {
+                T differ(m_streams[i], other.m_streams[i]);
+                differ.diff(d);
+            } else if (i < m) {
+                T differ(m_streams[i], stream());
+                differ.diff(d);
+            } else if (i < n) {
+                T differ(stream(), other.m_streams[i]);
+                differ.diff(d);
             }
         }
-
-
-
+        
         return d;
     }
 

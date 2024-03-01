@@ -14,6 +14,13 @@ TEST(PDIFContentExtractor, TestExtractMeta) {
     ASSERT_EQ(meta.get_metadata("Title"), "Test Title");
 }
 
+TEST(PDIFContentExtractor, TestExtractContent) {
+    QPDF pdf;
+    pdf.processFile("test_pdfs/metadata_initial.pdf");
+
+    std::vector<pdif::stream> streams = pdif::extract_content(pdf, pdif::granularity::word, pdif::scope::page);
+}
+
 int main(int argc, char **argv) {
     ::testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();

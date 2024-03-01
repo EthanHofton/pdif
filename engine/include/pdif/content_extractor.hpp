@@ -7,6 +7,8 @@
 
 #include <qpdf/QPDF.hh>
 #include <qpdf/QPDFObjectHandle.hh>
+#include <qpdf/QPDFPageDocumentHelper.hh>
+#include <sstream>
 
 namespace pdif {
 
