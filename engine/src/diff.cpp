@@ -323,7 +323,9 @@ void diff::output_meta_edit_script(std::ostream& os) const {
             switch (op.get_type()) {
                 case meta_edit_op_type::META_ADD:
                     os << "\t" << util::CONSOLE_COLOR_CODE::FG_GREEN << "+ ";
-                    os << op.get_meta_key() << ": " << op.get_meta_val();
+                    os << op.get_meta_key();
+                    os << util::CONSOLE_COLOR_CODE::FG_DEFAULT << " ==> " << util::CONSOLE_COLOR_CODE::FG_GREEN;
+                    os << op.get_meta_val();
                     os << util::CONSOLE_COLOR_CODE::FG_DEFAULT;
                     os << std::endl;
                     plus++;
@@ -337,7 +339,9 @@ void diff::output_meta_edit_script(std::ostream& os) const {
                     break;
                 case meta_edit_op_type::META_UPDATE:
                     os << "\t" << util::CONSOLE_COLOR_CODE::FG_YELLOW << "~ ";
-                    os << op.get_meta_key() << ": " << op.get_meta_val();
+                    os << op.get_meta_key();
+                    os << util::CONSOLE_COLOR_CODE::FG_DEFAULT << " ==> " << util::CONSOLE_COLOR_CODE::FG_YELLOW;
+                    os << op.get_meta_val();
                     os << util::CONSOLE_COLOR_CODE::FG_DEFAULT;
                     os << std::endl;
                     update++;

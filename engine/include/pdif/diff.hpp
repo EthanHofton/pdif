@@ -106,6 +106,12 @@ public:
      */
     void output_meta_edit_script(std::ostream& os) const;
 
+    /**
+     * @brief reverse the edit script
+     * 
+     */
+    inline void reverse_edit_ops() { std::reverse(m_edit_script.begin(), m_edit_script.end()); }
+
 private:
 
     void check_edit_index(size_t index) const;

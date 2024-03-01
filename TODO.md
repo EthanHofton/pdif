@@ -68,3 +68,11 @@ When applying a diff to a stream, when each edit operation (EQ, DELETE, INSERT, 
 
 - [ ] nlohmann::json very slow on download. Look into speeding this up (maybe use fetch content with zip instead of repo or use a different json library)
 - [ ] test diff::from_json and diff::to_json
+
+
+
+### IMPORTANT
+
+ - [ ] add doxygen
+ - [ ] do tests for PDF
+ - [ ] do tests for lcs_stream_differ

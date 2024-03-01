@@ -32,7 +32,6 @@ target_include_directories(${EXE_NAME} PUBLIC
     ${PROJECT_SOURCE_DIR}/include
     ${PROJECT_BINARY_DIR}/include   # add the binary tree to the search path so that we will find Version.h
 )
-add_definitions(-DPOINTERHOLDER_TRANSITION=-0)
 target_link_libraries(${EXE_NAME} PUBLIC util pdif_engine)
 
 install(TARGETS ${EXE_NAME}

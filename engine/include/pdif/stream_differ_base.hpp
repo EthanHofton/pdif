@@ -52,7 +52,7 @@ public:
      */
     static void meta_diff(pdif::diff& d, const pdif::stream_meta& meta1, const pdif::stream_meta& meta2);
 
-private:
+protected:
 
     pdif::stream stream1;
     pdif::stream stream2;

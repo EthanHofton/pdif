@@ -22,7 +22,6 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(nlohmann_json)
 message(STATUS "Fetched nlohmann/json.git")
 
-add_definitions(-DPOINTERHOLDER_TRANSITION=-0)
 message(STATUS "Finding qpdf")
 
 find_package(qpdf REQUIRED)
@@ -31,6 +30,7 @@ message(STATUS "Found qpdf: ${qpdf_LIBRARIES}")
 
 # set sources
 set(PDIF_SOURCES
+    lcs_stream_differ.cpp
     pdf.cpp
     stream_meta.cpp
     stream_differ_base.cpp

@@ -21,6 +21,8 @@ set(CMAKE_MACOSX_RPATH ON)
 #set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
 #set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
+add_definitions(-DPOINTERHOLDER_TRANSITION=-0)
+
 enable_testing()
 
 option(PDIF_BUILD_CLI "Build the command line interface" ON)
