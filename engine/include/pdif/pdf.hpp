@@ -45,7 +45,26 @@ public:
      */
     inline scope get_scope() const { return m_pdf_scope; }
 
-    diff compare(const PDF& other, comparison_args args) const;
+    template<typename T, std::enable_if_t<std::is_base_of_v<stream_differ_base, T>, bool> = true>
+    diff compare(const PDF& other, comparison_args) const {
+        pdif::diff d;
+
+        // compare the meta
+        stream_differ_base::meta_diff(d, m_meta, other.m_meta);
+
+        // compare the streams
+        if (m_streams.size() != other.m_streams.size()) {
+            // TODO:
+        } else {
+            for (size_t i = 0; i < m_streams.size(); i++) {
+                // stream_differ_base::stream_diff(d, m_streams[i], other.m_streams[i]);
+            }
+        }
+
+
+
+        return d;
+    }
 
 private:
 

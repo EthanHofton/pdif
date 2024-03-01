@@ -4,6 +4,7 @@
 #include <pdif_cli/pdif_cli_config.hpp>
 #include <pdif/pdif_engine_config.hpp>
 #include <pdif/pdf.hpp>
+#include <pdif/lcs_stream_differ.hpp>
 
 void print_version()
 {
@@ -131,7 +132,7 @@ int main(int argc, char** argv)
         args.compare_text = a.compare_text;
         args.compare_image = a.compare_image;
 
-        pdif::diff  diff = file1.compare(file2, args);
+        pdif::diff  diff = file1.compare<pdif::lcs_stream_differ>(file2, args);
 
         if (a.output_file.has_value()) {
             // std::ofstream ofs(a.output_file.value());

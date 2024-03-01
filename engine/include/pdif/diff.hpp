@@ -11,6 +11,7 @@
 #include <util/colormod.hpp>
 
 #include <sstream>
+#include <optional>
 
 using json = nlohmann::json;
 
@@ -97,7 +98,7 @@ public:
      * 
      * @param os the output stream
      */
-    void output_edit_script(std::ostream& os) const;
+    void output_edit_script(std::ostream& os, std::optional<stream> = std::nullopt, bool print_eq = false) const;
 
     /**
      * @brief output the meta edit script to the given output stream

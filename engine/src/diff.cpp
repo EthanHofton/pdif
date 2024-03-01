@@ -276,27 +276,71 @@ meta_edit_op diff::meta_edit_op_from_json(const json& j) const {
     }
 }
 
-void diff::output_edit_script(std::ostream& os) const {
+void diff::output_edit_script(std::ostream& os, std::optional<stream> stream1, bool print_eq) const {
     os << util::CONSOLE_COLOR_CODE::TEXT_BOLD << "Content Differences" << util::CONSOLE_COLOR_CODE::TEXT_RESET << std::endl;
     std::cout << std::endl;
 
     int plus = 0;
     int minus = 0;
     int eq = 0;
+    int rolling_eq = 0;
 
     if (m_edit_script.size() == 0) {
-        os << "\tNo differences" << std::endl;
+        os << "No differences" << std::endl;
     } else {
+        // int i = 0;
+        int og_index = 0;
         for (const edit_op& op : m_edit_script) {
             switch (op.get_type()) {
                 case edit_op_type::INSERT:
+                    if (rolling_eq > 0 && !print_eq) {
+                        os << "" << util::CONSOLE_COLOR_CODE::FG_DEFAULT << "=" << rolling_eq;
+                        os << util::CONSOLE_COLOR_CODE::FG_DEFAULT;
+                        os << std::endl;
+                        rolling_eq = 0;
+                    }
+                    os << "" << util::CONSOLE_COLOR_CODE::FG_GREEN;
+                    os << "+ ";
+                    os << "(index " << og_index << "): ";
+                    os << op.get_arg()->to_string();
+                    os << util::CONSOLE_COLOR_CODE::FG_DEFAULT;
+                    os << std::endl;
                     plus++;
                     break;
                 case edit_op_type::DELETE:
+                    if (rolling_eq > 0 && !print_eq) {
+                        os << "" << util::CONSOLE_COLOR_CODE::FG_DEFAULT << "= ";
+                        os << rolling_eq;
+                        os << util::CONSOLE_COLOR_CODE::FG_DEFAULT;
+                        os << std::endl;
+                        rolling_eq = 0;
+                    }
+                    os << "" << util::CONSOLE_COLOR_CODE::FG_RED;
+                    os << "- ";
+                    os << "(index " << og_index << "): ";
+                    if (stream1.has_value()) {
+                        os << stream1.value()[og_index]->to_string();
+                    }
+                    os << util::CONSOLE_COLOR_CODE::FG_DEFAULT;
+                    os << std::endl;
                     minus++;
+                    og_index++;
                     break;
                 case edit_op_type::EQ:
+                    if (print_eq) {
+                        os << "" << util::CONSOLE_COLOR_CODE::FG_DEFAULT;
+                        os << "= ";
+                        os << "(index " << og_index << "): ";
+                        if (stream1.has_value())
+                        {
+                            os << stream1.value()[og_index]->to_string();
+                        }
+                        os << util::CONSOLE_COLOR_CODE::FG_DEFAULT;
+                        os << std::endl;
+                    }
                     eq++;
+                    og_index++;
+                    rolling_eq++;
                     break;
                 default:
                     break;

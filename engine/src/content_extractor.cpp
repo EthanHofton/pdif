@@ -27,4 +27,8 @@ extern pdif::stream_meta extract_meta(QPDF& pdf) {
     return meta;
 }
 
+extern std::vector<pdif::stream> extract_content(QPDF&, granularity, scope) {
+    return std::vector<pdif::stream>();
+}
+
 }

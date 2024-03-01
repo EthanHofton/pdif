@@ -36,7 +36,23 @@ enum class scope {
     document
 };
 
+/**
+ * @brief extract the metadata from a given PDF
+ * 
+ * @param pdf the PDF to extract the metadata from
+ * @return pdif::stream_meta the metadata
+ */
 extern pdif::stream_meta extract_meta(QPDF& pdf);
+
+/**
+ * @brief extract the content from a given PDF
+ * 
+ * @param pdf the PDF to extract the content from
+ * @param g the granularity to use
+ * @param s the scope to use
+ * @return std::vector<pdif::stream> the extracted content
+ */
+extern std::vector<pdif::stream> extract_content(QPDF& pdf, granularity g, scope s);
 
 }
 

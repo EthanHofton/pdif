@@ -98,7 +98,8 @@
         "utility": "cpp",
         "stdfloat": "cpp",
         "stop_token": "cpp",
-        "cinttypes": "cpp"
+        "cinttypes": "cpp",
+        "*.ipp": "cpp"
     },
     "cSpell.words": [
         "metaprogramming",
