@@ -3,6 +3,7 @@
 #include <optional>
 #include <pdif_cli/pdif_cli_config.hpp>
 #include <pdif/pdif_engine_config.hpp>
+#include <pdif/pdf.hpp>
 
 void print_version()
 {
@@ -122,6 +123,26 @@ int main(int argc, char** argv)
     args a = parse_arguments(argc, argv);
 
     if (a.command == "diff") {
+        pdif::PDF file1(a.file1);
+        pdif::PDF file2(a.file2);
+
+        pdif::PDF::comparison_args args;
+        args.compare_meta = a.compare_meta;
+        args.compare_text = a.compare_text;
+        args.compare_image = a.compare_image;
+
+        pdif::diff  diff = file1.compare(file2, args);
+
+        if (a.output_file.has_value()) {
+            // std::ofstream ofs(a.output_file.value());
+            // ofs << diff.to_json();
+            // ofs.close();
+        } else {
+            diff.output_meta_edit_script(std::cout);
+            std::cout << std::endl;
+            diff.output_edit_script(std::cout);
+            std::cout << std::endl;
+        }
     } else if (a.command == "apply") {
     }
 

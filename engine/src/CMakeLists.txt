@@ -61,8 +61,10 @@ target_include_directories(${LIBRARY_NAME} PUBLIC
     ${PROJECT_BINARY_DIR}/include   # add the binary tree to the search path so that we will find Version.h
     ${nlohmann_json_SOURCE_DIR}/include
 )
-target_link_libraries(${LIBRARY_NAME} PUBLIC util)
-target_link_libraries(${LIBRARY_NAME} PRIVATE qpdf::libqpdf)
+target_link_libraries(${LIBRARY_NAME} PUBLIC
+    util
+    qpdf::libqpdf
+)
 
 install(TARGETS ${LIBRARY_NAME}
   EXPORT ${PROJECT_NAME}Targets            # for downstream dependencies

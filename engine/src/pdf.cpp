@@ -12,15 +12,11 @@ PDF::PDF(const std::string& path, granularity g, scope s) : m_pdf(QPDF()) {
     // m_streams = extract_content(m_pdf, m_extractor_granularity, m_pdf_scope);
 }
 
-pdif::diff PDF::compare(const PDF& other, pdif::PDF::comparison_options op) const {
+pdif::diff PDF::compare(const PDF& other, comparison_args) const {
     pdif::diff d;
 
     // compare the meta
     stream_differ_base::meta_diff(d, m_meta, other.m_meta);
-
-    if (op == comparison_options::meta_only) {
-        return d;
-    }
 
     // compare the streams
     if (m_streams.size() != other.m_streams.size()) {

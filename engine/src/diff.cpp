@@ -276,4 +276,92 @@ meta_edit_op diff::meta_edit_op_from_json(const json& j) const {
     }
 }
 
+void diff::output_edit_script(std::ostream& os) const {
+    os << util::CONSOLE_COLOR_CODE::TEXT_BOLD << "Content Differences" << util::CONSOLE_COLOR_CODE::TEXT_RESET << std::endl;
+    std::cout << std::endl;
+
+    int plus = 0;
+    int minus = 0;
+    int eq = 0;
+
+    if (m_edit_script.size() == 0) {
+        os << "\tNo differences" << std::endl;
+    } else {
+        for (const edit_op& op : m_edit_script) {
+            switch (op.get_type()) {
+                case edit_op_type::INSERT:
+                    plus++;
+                    break;
+                case edit_op_type::DELETE:
+                    minus++;
+                    break;
+                case edit_op_type::EQ:
+                    eq++;
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+
+    output_summary(os, plus, minus, eq, "=", util::CONSOLE_COLOR_CODE::FG_DEFAULT);
+    os << util::CONSOLE_COLOR_CODE::TEXT_BOLD << "End of Content Differences" << util::CONSOLE_COLOR_CODE::TEXT_RESET << std::endl;
 }
+
+void diff::output_meta_edit_script(std::ostream& os) const {
+    os << util::CONSOLE_COLOR_CODE::TEXT_BOLD << "Meta Differences" << util::CONSOLE_COLOR_CODE::TEXT_RESET << std::endl;
+    std::cout << std::endl;
+
+    int plus = 0;
+    int minus = 0;
+    int update = 0;
+    
+    if (m_meta_edit_script.size() == 0) {
+        os << "\tNo differences" << std::endl;
+    } else {
+        for (const meta_edit_op& op : m_meta_edit_script) {
+            switch (op.get_type()) {
+                case meta_edit_op_type::META_ADD:
+                    os << "\t" << util::CONSOLE_COLOR_CODE::FG_GREEN << "+ ";
+                    os << op.get_meta_key() << ": " << op.get_meta_val();
+                    os << util::CONSOLE_COLOR_CODE::FG_DEFAULT;
+                    os << std::endl;
+                    plus++;
+                    break;
+                case meta_edit_op_type::META_DELETE:
+                    os << "\t" << util::CONSOLE_COLOR_CODE::FG_RED << "- ";
+                    os << op.get_meta_key();
+                    os << util::CONSOLE_COLOR_CODE::FG_DEFAULT;
+                    os << std::endl;
+                    minus++;
+                    break;
+                case meta_edit_op_type::META_UPDATE:
+                    os << "\t" << util::CONSOLE_COLOR_CODE::FG_YELLOW << "~ ";
+                    os << op.get_meta_key() << ": " << op.get_meta_val();
+                    os << util::CONSOLE_COLOR_CODE::FG_DEFAULT;
+                    os << std::endl;
+                    update++;
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+
+    output_summary(os, plus, minus, update, "~", util::CONSOLE_COLOR_CODE::FG_YELLOW);
+    os << util::CONSOLE_COLOR_CODE::TEXT_BOLD << "End of Meta Differences" << util::CONSOLE_COLOR_CODE::TEXT_RESET << std::endl;
+
+}
+
+void diff::output_summary(std::ostream& os, int plus, int minus, int last, std::string last_char, util::CONSOLE_COLOR_CODE last_color) const {
+    os << std::endl;
+    os << util::CONSOLE_COLOR_CODE::TEXT_BOLD << "Summary: " << util::CONSOLE_COLOR_CODE::TEXT_RESET;
+    os << util::CONSOLE_COLOR_CODE::FG_GREEN << "+" << plus << " ";
+    os << util::CONSOLE_COLOR_CODE::FG_RED << "-" << minus << " ";
+    os << last_color << last_char << last;
+    os << util::CONSOLE_COLOR_CODE::FG_DEFAULT;
+    os << std::endl;
+}
+
+
+} // namespace pdif

@@ -8,6 +8,7 @@
 #include <pdif/logger.hpp>
 
 #include <nlohmann/json.hpp>
+#include <util/colormod.hpp>
 
 #include <sstream>
 
@@ -91,6 +92,20 @@ public:
      */
     void apply_meta_edit_script(stream_meta& stream) const;
 
+    /**
+     * @brief output the edit script to the given output stream
+     * 
+     * @param os the output stream
+     */
+    void output_edit_script(std::ostream& os) const;
+
+    /**
+     * @brief output the meta edit script to the given output stream
+     * 
+     * @param os the output stream
+     */
+    void output_meta_edit_script(std::ostream& os) const;
+
 private:
 
     void check_edit_index(size_t index) const;
@@ -101,6 +116,8 @@ private:
 
     edit_op edit_op_from_json(const json& j) const;
     meta_edit_op meta_edit_op_from_json(const json& j) const;
+
+    void output_summary(std::ostream& os, int plus, int minus, int last, std::string last_char, util::CONSOLE_COLOR_CODE last_color) const;
 
 private:
 
