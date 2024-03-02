@@ -10,6 +10,8 @@
 #include <qpdf/QPDFPageDocumentHelper.hh>
 #include <sstream>
 
+#include <podofo/podofo.h>
+
 namespace pdif {
 
 /**

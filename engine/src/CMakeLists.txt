@@ -28,6 +28,16 @@ find_package(qpdf REQUIRED)
 
 message(STATUS "Found qpdf: ${qpdf_LIBRARIES}")
 
+# message(STATUS "Fetching Podofo")
+
+# FetchContent_Declare(
+#   podofo
+#   GIT_REPOSITORY https://github.com/podofo/podofo.git
+# )
+# FetchContent_MakeAvailable(podofo)
+
+# message(STATUS "Fetched Podofo")
+
 # set sources
 set(PDIF_SOURCES
     lcs_stream_differ.cpp
@@ -64,6 +74,7 @@ target_include_directories(${LIBRARY_NAME} PUBLIC
 target_link_libraries(${LIBRARY_NAME} PUBLIC
     util
     qpdf::libqpdf
+    # podofo::podofo
 )
 
 install(TARGETS ${LIBRARY_NAME}
