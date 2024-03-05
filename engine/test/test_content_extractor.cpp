@@ -15,7 +15,7 @@ TEST(PDIFContentExtractor, TestExtractMeta) {
 }
 
 TEST(PDIFContentExtractor, TestExtractContent) {
-    std::shared_ptr<QPDF> pdf;
+    std::shared_ptr<QPDF> pdf = QPDF::create();
     pdf->processFile("test_pdfs/metadata_initial.pdf");
 
     std::vector<pdif::stream> streams = pdif::extract_content(pdf, pdif::granularity::word, pdif::scope::page);
