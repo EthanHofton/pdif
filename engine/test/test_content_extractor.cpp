@@ -3,8 +3,8 @@
 #include <qpdf/QPDF.hh>
 
 TEST(PDIFContentExtractor, TestExtractMeta) {
-    QPDF pdf;
-    pdf.processFile("test_pdfs/metadata_initial.pdf");
+    std::shared_ptr<QPDF> pdf = QPDF::create();
+    pdf->processFile("test_pdfs/metadata_initial.pdf");
 
     pdif::stream_meta meta = pdif::extract_meta(pdf);
 
@@ -15,8 +15,8 @@ TEST(PDIFContentExtractor, TestExtractMeta) {
 }
 
 TEST(PDIFContentExtractor, TestExtractContent) {
-    QPDF pdf;
-    pdf.processFile("test_pdfs/metadata_initial.pdf");
+    std::shared_ptr<QPDF> pdf;
+    pdf->processFile("test_pdfs/metadata_initial.pdf");
 
     std::vector<pdif::stream> streams = pdif::extract_content(pdf, pdif::granularity::word, pdif::scope::page);
 }

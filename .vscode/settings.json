@@ -99,7 +99,11 @@
         "stdfloat": "cpp",
         "stop_token": "cpp",
         "cinttypes": "cpp",
-        "*.ipp": "cpp"
+        "*.ipp": "cpp",
+        "csetjmp": "cpp",
+        "csignal": "cpp",
+        "regex": "cpp",
+        "valarray": "cpp"
     },
     "cSpell.words": [
         "metaprogramming",

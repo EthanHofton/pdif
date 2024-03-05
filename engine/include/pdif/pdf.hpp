@@ -72,11 +72,25 @@ public:
         return d;
     }
 
+    /**
+     * @brief Dump the meta data of the PDF to the output stream
+     * 
+     * @param t_out the output stream
+     */
+    void dump_meta(std::ostream&) const;
+    /**
+     * @brief Dump the content of the PDF to the output stream
+     * 
+     * @param t_out the output stream
+     * @param pageno the page number to dump (negative for all, 0 for meta)
+     */
+    void dump_content(std::ostream&, int pageno = -1, std::optional<std::string> = std::nullopt) const;
+
 private:
 
     granularity m_extractor_granularity;
     scope m_pdf_scope;
-    QPDF m_pdf;
+    std::shared_ptr<QPDF> m_pdf;
 
     std::vector<stream> m_streams;
     pdif::stream_meta m_meta;

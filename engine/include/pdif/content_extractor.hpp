@@ -10,8 +10,6 @@
 #include <qpdf/QPDFPageDocumentHelper.hh>
 #include <sstream>
 
-#include <podofo/podofo.h>
-
 namespace pdif {
 
 /**
@@ -26,7 +24,6 @@ enum class granularity {
     letter,
     word,
     sentence,
-    object
 };
 
 /**
@@ -46,7 +43,7 @@ enum class scope {
  * @param pdf the PDF to extract the metadata from
  * @return pdif::stream_meta the metadata
  */
-extern pdif::stream_meta extract_meta(QPDF& pdf);
+extern pdif::stream_meta extract_meta(std::shared_ptr<QPDF> pdf);
 
 /**
  * @brief extract the content from a given PDF
@@ -56,7 +53,7 @@ extern pdif::stream_meta extract_meta(QPDF& pdf);
  * @param s the scope to use
  * @return std::vector<pdif::stream> the extracted content
  */
-extern std::vector<pdif::stream> extract_content(QPDF& pdf, granularity g, scope s);
+extern std::vector<pdif::stream> extract_content(std::shared_ptr<QPDF> pdf, granularity g, scope s);
 
 }
 
