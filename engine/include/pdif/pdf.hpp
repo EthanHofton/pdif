@@ -59,8 +59,10 @@ public:
         for (int i = 0; i < std::max(m, n); i++) {
             if (i < m && i < n) {
                 T differ(m_streams[i], other.m_streams[i]);
+                d.add_original_stream(m_streams[i]);
                 differ.diff(d);
             } else if (i < m) {
+                d.add_original_stream(m_streams[i]);
                 T differ(m_streams[i], stream());
                 differ.diff(d);
             } else if (i < n) {

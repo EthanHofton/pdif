@@ -276,87 +276,125 @@ meta_edit_op diff::meta_edit_op_from_json(const json& j) const {
     }
 }
 
-void diff::output_edit_script(std::ostream& os, std::optional<stream> stream1, bool print_eq) const {
+void diff::output_edit_script(std::ostream& os, std::optional<stream>, bool) const {
     os << util::CONSOLE_COLOR_CODE::TEXT_BOLD << "Content Differences" << util::CONSOLE_COLOR_CODE::TEXT_RESET << std::endl;
     std::cout << std::endl;
 
-    int plus = 0;
-    int minus = 0;
-    int eq = 0;
-    int rolling_eq = 0;
+    std::vector<edit_chunk> chunks;
+    int eq_count = 0;
+    int plus_count = 0;
+    int minus_count = 0;
+
+    bool in_chunk = false;
+    edit_chunk chunk;
 
     if (m_edit_script.size() == 0) {
         os << "No differences" << std::endl;
     } else {
-        // int i = 0;
-        int og_index = 0;
-        for (const edit_op& op : m_edit_script) {
-            switch (op.get_type()) {
-                case edit_op_type::INSERT:
-                    if (rolling_eq > 0 && !print_eq) {
-                        os << "" << util::CONSOLE_COLOR_CODE::FG_DEFAULT << "=" << rolling_eq;
-                        os << util::CONSOLE_COLOR_CODE::FG_DEFAULT;
-                        os << std::endl;
-                        rolling_eq = 0;
+        // loop through edit script
+        // display chunks of edits
+
+        int from_file_pointer = 0;
+        int to_file_pointer = 0;
+        int context_remaining = edit_chunk::ALLOWED_CONTEXT;
+
+        for (size_t i = 0; i < m_edit_script.size(); i++) {
+            auto op = m_edit_script[i];
+
+            if (op.get_type() == edit_op_type::EQ) {
+                eq_count++;
+                if (in_chunk) {
+                    if (context_remaining > 0) {
+                        chunk.from_count++;
+                        chunk.to_count++;
+                        chunk.lines.push_back(get_original_line(from_file_pointer));
+                        context_remaining--;
+                    } else {
+                        chunks.push_back(chunk);
+                        chunk = edit_chunk();
+                        in_chunk = false;
                     }
-                    os << "" << util::CONSOLE_COLOR_CODE::FG_GREEN;
-                    os << "+ ";
-                    os << "(index " << og_index << "): ";
-                    os << op.get_arg()->to_string();
-                    os << util::CONSOLE_COLOR_CODE::FG_DEFAULT;
-                    os << std::endl;
-                    plus++;
-                    break;
-                case edit_op_type::DELETE:
-                    if (rolling_eq > 0 && !print_eq) {
-                        os << "" << util::CONSOLE_COLOR_CODE::FG_DEFAULT << "= ";
-                        os << rolling_eq;
-                        os << util::CONSOLE_COLOR_CODE::FG_DEFAULT;
-                        os << std::endl;
-                        rolling_eq = 0;
-                    }
-                    os << "" << util::CONSOLE_COLOR_CODE::FG_RED;
-                    os << "- ";
-                    os << "(index " << og_index << "): ";
-                    if (stream1.has_value()) {
-                        os << stream1.value()[og_index]->to_string();
-                    }
-                    os << util::CONSOLE_COLOR_CODE::FG_DEFAULT;
-                    os << std::endl;
-                    minus++;
-                    og_index++;
-                    break;
-                case edit_op_type::EQ:
-                    if (print_eq) {
-                        os << "" << util::CONSOLE_COLOR_CODE::FG_DEFAULT;
-                        os << "= ";
-                        os << "(index " << og_index << "): ";
-                        if (stream1.has_value())
-                        {
-                            os << stream1.value()[og_index]->to_string();
+                }
+
+                from_file_pointer++;
+                to_file_pointer++;
+            } else {
+                context_remaining = edit_chunk::ALLOWED_CONTEXT;
+                if (!in_chunk) {
+                    int pre_context_lines = 0;                    
+
+                    // add ALLOWED_CONTEXT lines of context
+                    for (int j = edit_chunk::ALLOWED_CONTEXT; j > 0; j--) {
+                        if (from_file_pointer - j < 0) {
+                            continue;
                         }
-                        os << util::CONSOLE_COLOR_CODE::FG_DEFAULT;
-                        os << std::endl;
+
+                        pre_context_lines++;
+                        chunk.from_count++;
+                        chunk.to_count++;
+                        chunk.lines.push_back(get_original_line(from_file_pointer - j));
                     }
-                    eq++;
-                    og_index++;
-                    rolling_eq++;
-                    break;
-                default:
-                    break;
+
+                    in_chunk = true;
+                    chunk.from_file_start = from_file_pointer - pre_context_lines;
+                    chunk.to_file_start = to_file_pointer - pre_context_lines;
+
+                }
+
+                if (op.get_type() == edit_op_type::INSERT) {
+                    plus_count++;
+                    chunk.to_count++;
+
+                    std::stringstream new_line_ss;
+                    new_line_ss << util::CONSOLE_COLOR_CODE::FG_GREEN << "+" << op.get_arg()->to_string() << util::CONSOLE_COLOR_CODE::FG_DEFAULT;
+                    chunk.lines.push_back(new_line_ss.str());
+                } else if (op.get_type() == edit_op_type::DELETE) {
+                    minus_count++;
+                    chunk.from_count++;
+
+                    std::stringstream new_line_ss;
+                    new_line_ss << util::CONSOLE_COLOR_CODE::FG_RED << "-" << get_original_line(from_file_pointer) << util::CONSOLE_COLOR_CODE::FG_DEFAULT;
+                    chunk.lines.push_back(new_line_ss.str());    
+                }
+
+                // update the pointers
+                if (op.get_type() == edit_op_type::DELETE) {
+                    from_file_pointer++;
+                } else if (op.get_type() == edit_op_type::INSERT) {
+                    to_file_pointer++;
+                }
             }
+
         }
     }
 
-    if (rolling_eq > 0 && !print_eq) {
-        os << "" << util::CONSOLE_COLOR_CODE::FG_DEFAULT << "=" << rolling_eq;
-        os << util::CONSOLE_COLOR_CODE::FG_DEFAULT;
-        os << std::endl;
-        rolling_eq = 0;
+    if (in_chunk) {
+        chunks.push_back(chunk);
+    }
+    
+    // loop through chunks
+    for (const edit_chunk& chunk : chunks) {
+        os << chunk << std::endl;
     }
 
-    output_summary(os, plus, minus, eq, "=", util::CONSOLE_COLOR_CODE::FG_DEFAULT);
+    output_summary(os, plus_count, minus_count, eq_count, "=", util::CONSOLE_COLOR_CODE::FG_DEFAULT);
     os << util::CONSOLE_COLOR_CODE::TEXT_BOLD << "End of Content Differences" << util::CONSOLE_COLOR_CODE::TEXT_RESET << std::endl;
+}
+
+std::string diff::get_original_line(int index) const {
+    int i = index;
+    for (size_t y = 0; y < m_original_streams.size(); y++) {
+        if (m_original_streams[y].size() <= (size_t)i) {
+            i -= m_original_streams[y].size();
+            if (i < 0) {
+                throw pdif_out_of_bounds("pdif::diff::get_original_line - index out of range");
+            }
+        } else {
+            return m_original_streams[y][i]->to_string();
+        }
+    }
+
+    throw pdif_out_of_bounds("pdif::diff::get_original_line - index out of range");
 }
 
 void diff::output_meta_edit_script(std::ostream& os) const {
@@ -416,6 +454,20 @@ void diff::output_summary(std::ostream& os, int plus, int minus, int last, std::
     os << last_color << last_char << last;
     os << util::CONSOLE_COLOR_CODE::FG_DEFAULT;
     os << std::endl;
+}
+
+std::ostream& operator<<(std::ostream& os, const diff::edit_chunk& chunk) {
+    // print chunk header
+    os << util::CONSOLE_COLOR_CODE::TEXT_BOLD;
+    os << "@@ -" << chunk.from_file_start << "," << chunk.from_count << " +" << chunk.to_file_start << "," << chunk.to_count << " @@" << std::endl;
+    os << util::CONSOLE_COLOR_CODE::TEXT_RESET;
+    
+    // print chunk content
+    for (const std::string& line : chunk.lines) {
+        os << line << std::endl;
+    }
+
+    return os;
 }
 
 

@@ -112,8 +112,39 @@ public:
      * 
      */
     inline void reverse_edit_ops() { std::reverse(m_edit_script.begin(), m_edit_script.end()); }
+    /**
+     * @brief reverse the edit script from start to end
+     * 
+     * @param start the start iterator
+     * @param end the end iterator
+     */
+    inline void reverse_edit_ops(std::vector<edit_op>::iterator start, std::vector<edit_op>::iterator end) { std::reverse(start, end); }
+
+    /**
+     * @brief Add an original stream to the diff (used for display purposes only)
+     * 
+     * @param s the original stream
+     */
+    void add_original_stream(const stream& s) { m_original_streams.push_back(s); }
+
+    std::vector<edit_op>::iterator end() { return m_edit_script.end(); }
+    std::vector<edit_op>::iterator begin() { return m_edit_script.begin(); }
 
 private:
+
+    struct edit_chunk {
+        std::vector<std::string> lines;
+        int from_file_start;
+        int to_file_start;
+        int from_count = 0;
+        int to_count = 0;
+
+        static const int ALLOWED_CONTEXT = 3;
+    };
+
+    std::string get_original_line(int index) const;
+
+    friend std::ostream& operator<<(std::ostream& os, const edit_chunk& chunk);
 
     void check_edit_index(size_t index) const;
     void check_meta_index(size_t index) const;
@@ -130,7 +161,11 @@ private:
 
     std::vector<edit_op> m_edit_script;
     std::vector<meta_edit_op> m_meta_edit_script;
+    
+    std::vector<stream> m_original_streams;
 };
+
+std::ostream& operator<<(std::ostream& os, const diff::edit_chunk& chunk);
 
 }
 

@@ -3,6 +3,9 @@
 namespace pdif {
 
 void lcs_stream_differ::diff(pdif::diff& diff) {
+    // store the diff start pointer
+    int size = diff.edit_op_size();
+
     // Step 1: Generate the LCS matrix
     int m = stream1.size();
     int n = stream2.size();
@@ -74,7 +77,10 @@ void lcs_stream_differ::diff(pdif::diff& diff) {
         --j;
     }
 
-    diff.reverse_edit_ops();
+    auto start = std::next(diff.begin(), size);
+    auto end = diff.end();
+    // reverse the diff from where it started
+    diff.reverse_edit_ops(start, end);
 }
 
 }
