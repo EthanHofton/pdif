@@ -17,6 +17,7 @@ namespace pdif {
 enum class stream_type {
     text = 0,
     binary = 1,
+    font_change = 2,
 };
 
 /**
@@ -34,6 +35,9 @@ inline std::ostream& operator<<(std::ostream& os, const stream_type& type) {
         case stream_type::binary:
             os << "binary";
             break;
+        case stream_type::font_change:
+            os << "font_change";
+            break;
     }
     return os;
 }
@@ -46,7 +50,10 @@ inline std::istream& operator>>(std::istream& is, stream_type& type) {
         type = stream_type::text;
     } else if (str == "binary") {
         type = stream_type::binary;
-    } else {
+    } else if (str == "font_change") {
+        type = stream_type::font_change;
+    }
+    else {
         PDIF_LOG_ERROR("stream_type::operator>> - invalid stream_type");
         throw pdif::pdif_invalid_argment("stream_type::operator>> - invalid stream_type");
     }
@@ -58,11 +65,13 @@ inline std::istream& operator>>(std::istream& is, stream_type& type) {
 class stream_elem;
 class text_elem;
 class binary_elem;
+class font_elem;
 
 // typedefs
 using rstream_elem = util::ref<stream_elem>;
 using rtext_elem = util::ref<text_elem>;
 using rbinary_elem = util::ref<binary_elem>;
+using rfont_elem = util::ref<font_elem>;
 
 /**
  * @brief macro to create a static type function for a stream_elem subclass
@@ -258,8 +267,63 @@ private:
     std::vector<char> m_binary;
 };
 
+/**
+ * @brief A concrete subclass of stream_elem that represents a font change
+ * 
+ */
+class font_elem : public stream_elem {
+public:
+
+    /**
+     * @brief static type method for font_elem
+     * 
+     */
+    STATIC_TYPE(stream_type::font_change)
+
+    /**
+     * @brief Construct a new font elem object
+     * 
+     * @param t_font_name the name of the font
+     * @param t_font_size the size of the font
+     * @param t the private_tag to allow construction
+     */
+    font_elem(stream_elem::private_tag, const std::string& t_font_name, int t_font_size);
+
+    /**
+     * @brief getter for the font name
+     * 
+     * @return const std::string& the name of the font
+     */
+    const std::string& font_name() const;
+    /**
+     * @brief getter for the font size
+     * 
+     * @return int the size of the font
+     */
+    int font_size() const;
+
+    /**
+     * @brief the implementation of stream_elem::compare
+     * 
+     * @param t_other the other stream_elem to compare to
+     * @return true if the types are the same and the font name and size are equal
+     * @return false otherwise
+     */
+    virtual bool compare(rstream_elem t_other) override;
+
+    /**
+     * @brief return the stringified font_elem
+     * 
+     * @return std::string the stringified font_elem
+     */
+    virtual std::string to_string() const override;
+
+private:
+
+    std::string m_font_name;
+    int m_font_size;
+};
 
 }
-
 
 #endif // __PDIF_STREAM_ELEM_HPP__

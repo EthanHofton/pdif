@@ -107,6 +107,14 @@ void pdf_content_stream_filter::handleStringWrite() {
 }
 
 void pdf_content_stream_filter::handleFontChange() {
+    if (m_arg_stack.size() != 2) {
+        throw std::runtime_error("Invalid font change - expected 2 args");
+    }
+
+    std::string font_name = std::visit(arg_visitor(), m_arg_stack[0]);
+    int font_size = std::stoi(std::visit(arg_visitor(), m_arg_stack[1]));
+
+    m_stream.push_back(stream_elem::create<font_elem>(font_name, font_size));
 }
 
 void pdf_content_stream_filter::handleEOF() {

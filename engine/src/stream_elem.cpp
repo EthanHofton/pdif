@@ -46,4 +46,40 @@ std::string binary_elem::to_string() const {
     throw pdif::pdif_not_implemented("binary_elem::to_string");
 }
 
+
+
+// ** ====== FONT ELEM ====== ** //
+
+font_elem::font_elem(stream_elem::private_tag t, const std::string& t_font_name, int t_font_size) :
+    stream_elem(t, stream_type::font_change),
+    m_font_name(t_font_name),
+    m_font_size(t_font_size) {}
+
+const std::string& font_elem::font_name() const {
+    return m_font_name;
+}
+
+int font_elem::font_size() const {
+    return m_font_size;
+}
+
+bool font_elem::compare(rstream_elem t_other) {
+    if (t_other->type() != stream_type::font_change) {
+        return false;
+    }
+
+    auto other = t_other->as<font_elem>();
+    return m_font_name == other->font_name() && m_font_size == other->font_size();
+}
+
+std::string font_elem::to_string() const {
+    std::stringstream ss;
+    ss << util::CONSOLE_COLOR_CODE::TEXT_BOLD;
+    ss << util::CONSOLE_COLOR_CODE::FG_BLUE;
+    ss << "Font set: " << m_font_name << ", " << m_font_size << "pt";
+    ss << util::CONSOLE_COLOR_CODE::TEXT_RESET;
+    ss << util::CONSOLE_COLOR_CODE::FG_DEFAULT;
+    return ss.str();
+}
+
 }

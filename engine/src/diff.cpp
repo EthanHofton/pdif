@@ -214,14 +214,14 @@ edit_op diff::edit_op_from_json(const json& j) const {
         }
 
         pdif::rstream_elem arg;
-        switch (arg_t) {
-            case pdif::stream_type::text:
-                arg = pdif::stream_elem::create<pdif::text_elem>(j["arg"]["val"].get<std::string>());
-                break;
-            case pdif::stream_type::binary:
-                throw pdif::pdif_not_implemented("pdif::diff::edit_op_from_json - binary stream not implemented");
-                break;
-        }
+        // switch (arg_t) {
+        //     case pdif::stream_type::text:
+        //         arg = pdif::stream_elem::create<pdif::text_elem>(j["arg"]["val"].get<std::string>());
+        //         break;
+        //     case pdif::stream_type::binary:
+        //         throw pdif::pdif_not_implemented("pdif::diff::edit_op_from_json - binary stream not implemented");
+        //         break;
+        // }
 
         try {
             return edit_op(t, arg);
