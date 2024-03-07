@@ -22,6 +22,8 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(nlohmann_json)
 message(STATUS "Fetched nlohmann/json.git")
 
+list(APPEND CMAKE_PREFIX_PATH /opt/homebrew/Cellar /opt/homebrew/lib)
+
 message(STATUS "Finding qpdf")
 
 find_package(qpdf REQUIRED)
