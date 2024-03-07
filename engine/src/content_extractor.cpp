@@ -42,12 +42,12 @@ extern std::vector<pdif::stream> extract_content(std::shared_ptr<QPDF> pdf, gran
     for (auto& page : pages) {
         if (s == scope::page) {
             pdif::stream s = pdif::stream();
-            T_filter tf(s, g);
+            T_filter tf(s, g, page.getObjectHandle());
 
             page.filterContents(&tf);
             streams.push_back(s);
         } else if (s == scope::document) {
-            T_filter tf(streams[0], g);
+            T_filter tf(streams[0], g, page.getObjectHandle());
 
             page.filterContents(&tf);
         }

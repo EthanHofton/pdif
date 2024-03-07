@@ -16,7 +16,7 @@ namespace pdif {
 class pdf_content_stream_filter : public QPDFObjectHandle::TokenFilter {
 public:
 
-    pdf_content_stream_filter(stream& s, granularity g) : m_stream(s), m_g(g) {}
+    pdf_content_stream_filter(stream& s, granularity g, QPDFObjectHandle root) : m_stream(s), m_g(g), m_root(root) {}
     ~pdf_content_stream_filter() override = default;
 
     /**
@@ -68,6 +68,7 @@ private:
 
     stream& m_stream;
     granularity m_g;
+    QPDFObjectHandle m_root;
     std::string m_string_buffer;
 
     state m_state;

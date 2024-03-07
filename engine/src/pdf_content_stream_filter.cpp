@@ -63,6 +63,8 @@ void pdf_content_stream_filter::handleOperator(QPDFTokenizer::Token const& token
     if (token.getValue() == "Tf") {
         handleFontChange();
     }
+
+    // if (token.getValue() == "")
 }
 
 void pdf_content_stream_filter::handleStringWrite() {
@@ -113,6 +115,21 @@ void pdf_content_stream_filter::handleFontChange() {
 
     std::string font_name = std::visit(arg_visitor(), m_arg_stack[0]);
     int font_size = std::stoi(std::visit(arg_visitor(), m_arg_stack[1]));
+
+    // extract the font name from the root
+    QPDFObjectHandle resources = m_root.getKey("/Resources");
+    QPDFObjectHandle font = resources.getKey("/Font");
+    QPDFObjectHandle font_obj = font.getKey(font_name);
+
+    if (!font_obj.isDictionary()) {
+        throw std::runtime_error("Font not found");
+    }
+
+    font_name = font_obj.getKey("/BaseFont").getName();
+    
+    if (font_name.find("+") != std::string::npos) {
+        font_name = font_name.substr(font_name.find("+") + 1);
+    }
 
     m_stream.push_back(stream_elem::create<font_elem>(font_name, font_size));
 }
