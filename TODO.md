@@ -26,14 +26,6 @@ There is no need to create a new stream elem for metadata since they will be kep
 - [x] Add unit tests for setting of callback function
 - [x] unit tests for meta stream in pdif::stream
 
-#### binary_elem
-
-- [ ] rework binary_elem class to use util::bitstream
-- [ ] use util::bitstream comparitor for stream_elem::compare
-- [ ] util::binary_elem::to_string for serialization
-- [ ] util::binary_elem::from_string for deserialization
-- [ ] rewrite unit tests for binary_elem
-
 #### stream_differ_base
 
 The stream_differ_base should contain the functionallity to generate a pdif::diff for 2 streams metadata. The stream_differ_base should have an abstract function diff that will be implamented by the stream_differ subclasses.
@@ -44,8 +36,8 @@ The stream_differ_base should contain the functionallity to generate a pdif::dif
 
 The lcs stream differ should use the modified LCS algorithm to generate a pdif::diff object. Use rstream_elem::compare to compare the stream elements.
 
-- [ ] implament stream_differ_base::diff for lcs_stream_differ
-- [ ] write unit tests for lcs_stream_differ
+- [x] implament stream_differ_base::diff for lcs_stream_differ
+- [x] write unit tests for lcs_stream_differ
 
 #### myers_stream_differ
 

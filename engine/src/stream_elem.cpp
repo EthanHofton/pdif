@@ -106,4 +106,31 @@ std::string stroke_color_elem::to_string() const {
     return ss.str();
 }
 
+// ** ====== XOBJECT ELEM ====== ** //
+
+xobject_img_elem::xobject_img_elem(stream_elem::private_tag t, const std::string& t_hash, int t_width, int t_height) :
+    stream_elem(t, stream_type::xobject_image),
+    m_image_hash(t_hash),
+    m_width(t_width),
+    m_height(t_height) {}
+
+bool xobject_img_elem::compare(rstream_elem t_other) {
+    if (t_other->type() != stream_type::xobject_image) {
+        return false;
+    }
+
+    auto other = t_other->as<xobject_img_elem>();
+    return m_image_hash == other->image_hash() && m_width == other->width() && m_height == other->height();
+};
+
+std::string xobject_img_elem::to_string() const {
+    std::stringstream ss;
+    ss << util::CONSOLE_COLOR_CODE::TEXT_BOLD;
+    ss << util::CONSOLE_COLOR_CODE::FG_LIGHT_MAGENTA;
+    ss << "[Image: (sha1)" << m_image_hash << ", " << m_width << "x" << m_height << "px]";
+    ss << util::CONSOLE_COLOR_CODE::TEXT_RESET;
+    ss << util::CONSOLE_COLOR_CODE::FG_DEFAULT;
+    return ss.str();
+}
+
 } // namespace pdif

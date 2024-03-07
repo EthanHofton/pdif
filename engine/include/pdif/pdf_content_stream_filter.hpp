@@ -66,6 +66,13 @@ private:
      */
     void handleXObject();
 
+    /**
+     * @brief Hash an image buffer
+     * 
+     * @param data the data
+     * @param size the size
+     */
+    std::string imageToHash(const unsigned char* data, size_t size);
 
 private:
 

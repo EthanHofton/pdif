@@ -7,15 +7,16 @@ A PDF Diff tool that compares two PDFs, and reports the differences as a human-r
 - `CMake` build system, 3.25.2 or later
 - `C++17` compiler
 - `qpdf/qpdf` - A low level PDF library for C++. [GitHub](https://github.com/qpdf/qpdf.git)
+- `OpenSSL` - A cryptographic library for C++, used for image hashing.
 
-QPDF is a requirement for this project. It must be installed to the system before building the project. The project will not build without it. This can be done either using Homebrew on macOS, or by building the library from source.
+QPDF and OpenSSL are a requirement for this project. They must be installed to the system before building the project. The project will not build without it. This can be done either using Homebrew on macOS, or by building the library from source.
 
 ### macOS
 
-To install QPDF on macOS, use Homebrew:
+To install QPDF and OpenSSL on macOS, use Homebrew:
 
 ```bash
-brew install qpdf
+brew install qpdf openssl
 ```
 
 ### Linux
@@ -29,11 +30,11 @@ cmake --install build --component lib
 cmake --install build --component dev
 ```
 
-Or more simpily, using a package manager:
+Or more simply, Install QPDF and OpenSLL using a package manager:
 
 ```bash
 sudo apt-get update
-sudo apt-get install qpdf
+sudo apt-get install qpdf openssl
 ```
 
 ## Dependencies

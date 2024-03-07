@@ -1,4 +1,6 @@
 #include <pdif/pdf_content_stream_filter.hpp>
+#include <openssl/sha.h>
+#include <iomanip>
 
 namespace pdif {
 
@@ -179,7 +181,41 @@ void pdf_content_stream_filter::handleStrokeColorSet() {
 }
 
 void pdf_content_stream_filter::handleXObject() {
+    if (m_arg_stack.size() != 1) {
+        throw std::runtime_error("Invalid XObject - expected 1 arg");
+    }
 
+    std::string xobject_name = std::visit(arg_visitor(), m_arg_stack[0]);
+
+    QPDFObjectHandle resources = m_root.getKey("/Resources");
+    QPDFObjectHandle xobject = resources.getKey("/XObject");
+    QPDFObjectHandle xobject_obj = xobject.getKey(xobject_name);
+    QPDFObjectHandle xobject_dict = xobject_obj.getDict();
+
+    if (!xobject_obj.isStream()) {
+        throw std::runtime_error("XObject not found");
+    }
+
+    auto stream_data = xobject_obj.getRawStreamData();
+
+    std::string image_hash = imageToHash(stream_data->getBuffer(), stream_data->getSize());
+    int width = xobject_dict.getKey("/Width").getIntValue();
+    int height = xobject_dict.getKey("/Height").getIntValue();
+
+    m_stream.push_back(stream_elem::create<xobject_img_elem>(image_hash, width, height));
+}
+
+std::string pdf_content_stream_filter::imageToHash(const unsigned char* data, size_t size) {
+    unsigned char hash[SHA_DIGEST_LENGTH];
+
+    SHA1(data, size, hash);
+
+    std::stringstream ss;
+    for (int i = 0; i < SHA_DIGEST_LENGTH; i++) {
+        ss << std::hex << std::setw(2) << std::setfill('0') << (int)hash[i];
+    }
+
+    return ss.str();
 }
 
 void pdf_content_stream_filter::handleEOF() {

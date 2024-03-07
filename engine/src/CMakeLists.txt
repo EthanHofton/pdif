@@ -30,6 +30,12 @@ find_package(qpdf REQUIRED)
 
 message(STATUS "Found qpdf: ${qpdf_LIBRARIES}")
 
+message(STATUS "Finding OpenSSL")
+
+find_package(OpenSSL REQUIRED)
+
+message(STATUS "Found OpenSSL: ${OPENSSL_LIBRARIES}")
+
 # message(STATUS "Fetching Podofo")
 
 # FetchContent_Declare(
@@ -77,7 +83,7 @@ target_include_directories(${LIBRARY_NAME} PUBLIC
 target_link_libraries(${LIBRARY_NAME} PUBLIC
     util
     qpdf::libqpdf
-    # podofo::podofo
+    OpenSSL::SSL    
 )
 
 install(TARGETS ${LIBRARY_NAME}

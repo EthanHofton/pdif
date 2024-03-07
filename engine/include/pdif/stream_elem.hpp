@@ -19,6 +19,7 @@ enum class stream_type {
     font_set = 1,
     text_color_set = 2,
     stroke_color_set = 3,
+    xobject_image = 4,
 };
 
 /**
@@ -42,6 +43,9 @@ inline std::ostream& operator<<(std::ostream& os, const stream_type& type) {
         case stream_type::stroke_color_set:
             os << "stroke_color_set";
             break;
+        case stream_type::xobject_image:
+            os << "xobject_image";
+            break;
     }
     return os;
 }
@@ -58,6 +62,8 @@ inline std::istream& operator>>(std::istream& is, stream_type& type) {
         type = stream_type::text_color_set;
     } else if (str == "stroke_color_set") {
         type = stream_type::stroke_color_set;
+    } else if (str == "xobject_image") {
+            type = stream_type::xobject_image;
     } else {
         PDIF_LOG_ERROR("stream_type::operator>> - invalid stream_type");
         throw pdif::pdif_invalid_argment("stream_type::operator>> - invalid stream_type");
@@ -72,6 +78,7 @@ class text_elem;
 class font_elem;
 class text_color_elem;
 class stroke_color_elem;
+class xobject_img_elem;
 
 // typedefs
 using rstream_elem = util::ref<stream_elem>;
@@ -79,6 +86,7 @@ using rtext_elem = util::ref<text_elem>;
 using rfont_elem = util::ref<font_elem>;
 using rtext_color_elem = util::ref<text_color_elem>;
 using rstroke_color_elem = util::ref<stroke_color_elem>;
+using rxobject_img_elem = util::ref<xobject_img_elem>;
 
 /**
  * @brief macro to create a static type function for a stream_elem subclass
@@ -324,6 +332,10 @@ protected:
     int b;
 };
 
+/**
+ * @brief A concrete subclass of stream_elem that represents a text color change
+ * 
+ */
 class text_color_elem : public color_elem {
 public:
 
@@ -358,6 +370,10 @@ public:
     virtual std::string to_string() const override;
 };
 
+/**
+ * @brief A concrete subclass of stream_elem that represents a stroke color change
+ * 
+ */
 class stroke_color_elem : public color_elem {
 public:
 
@@ -390,6 +406,71 @@ public:
      * @return std::string the stringified stroke_color_elem
      */
     virtual std::string to_string() const override;
+};
+
+/**
+ * @brief A concrete subclass of stream_elem that represents an XObject image
+ * 
+ */
+class xobject_img_elem : public stream_elem {
+public:
+
+    /**
+     * @brief A static type method for xobject_img_elem
+     * 
+     */
+    STATIC_TYPE(stream_type::xobject_image)
+
+    /**
+     * @brief Construct a new xobject img elem object
+     * 
+     * @param t_image_hash the image hash
+     * @param t_width the width
+     * @param t_height the height
+     */
+    xobject_img_elem(stream_elem::private_tag, const std::string& t_image_hash, int t_width, int t_height);
+
+    /**
+     * @brief get the image hash
+     * 
+     * @return const std::string& 
+     */
+    inline const std::string& image_hash() const { return m_image_hash; }
+    /**
+     * @brief get the width
+     * 
+     * @return int 
+     */
+    inline int width() const { return m_width; }
+    /**
+     * @brief get the height
+     * 
+     * @return int 
+     */
+    inline int height() const { return m_height; }
+
+    /**
+     * @brief Compare this xobject_img_elem to another stream_elem
+     * 
+     * @param t_other the other
+     * @return true 
+     * @return false 
+     */
+    virtual bool compare(rstream_elem t_other) override;
+
+    /**
+     * @brief Convert this xobject_img_elem to a string
+     * 
+     * @return std::string
+     */
+    virtual std::string to_string() const override;
+
+private:
+
+    std::string m_image_hash;
+    int m_width;
+    int m_height;
+
 };
 
 }
