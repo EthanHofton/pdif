@@ -53,6 +53,7 @@ set(PDIF_SOURCES
     logger.cpp
     diff.cpp
     content_extractor.cpp
+    pdf_content_stream_filter.cpp
 )
 
 set(LIBRARY_NAME pdif_engine)
