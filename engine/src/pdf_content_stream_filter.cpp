@@ -64,7 +64,19 @@ void pdf_content_stream_filter::handleOperator(QPDFTokenizer::Token const& token
         handleFontChange();
     }
 
-    // if (token.getValue() == "")
+    if (token.getValue() == "g" || token.getValue() == "rg") {
+        handleTextColorSet();
+    }
+    
+    if (token.getValue() == "G" || token.getValue() == "RG") {
+        handleStrokeColorSet();
+    }
+
+    if (token.getValue() == "Do") {
+        handleXObject();
+    }
+
+    // TODO: Handel inline image (BI, ID, EI)
 }
 
 void pdf_content_stream_filter::handleStringWrite() {
@@ -132,6 +144,42 @@ void pdf_content_stream_filter::handleFontChange() {
     }
 
     m_stream.push_back(stream_elem::create<font_elem>(font_name, font_size));
+}
+
+void pdf_content_stream_filter::handleTextColorSet() {
+    if (m_arg_stack.size() != 3 && m_arg_stack.size() != 1) {
+        throw std::runtime_error("Invalid text color set - expected 1 or 3 args");
+    }
+
+    if (m_arg_stack.size() == 3) {
+        int r = std::stoi(std::visit(arg_visitor(), m_arg_stack[0]));
+        int g = std::stoi(std::visit(arg_visitor(), m_arg_stack[1]));
+        int b = std::stoi(std::visit(arg_visitor(), m_arg_stack[2]));
+        m_stream.push_back(stream_elem::create<text_color_elem>(r, g, b));
+    } else if (m_arg_stack.size() == 1) {
+        int g = std::stoi(std::visit(arg_visitor(), m_arg_stack[0]));
+        m_stream.push_back(stream_elem::create<text_color_elem>(g, g, g));
+    }
+}
+
+void pdf_content_stream_filter::handleStrokeColorSet() {
+    if (m_arg_stack.size() != 3 && m_arg_stack.size() != 1) {
+        throw std::runtime_error("Invalid text color set - expected 1 or 3 args");
+    }
+
+    if (m_arg_stack.size() == 3) {
+        int r = std::stoi(std::visit(arg_visitor(), m_arg_stack[0]));
+        int g = std::stoi(std::visit(arg_visitor(), m_arg_stack[1]));
+        int b = std::stoi(std::visit(arg_visitor(), m_arg_stack[2]));
+        m_stream.push_back(stream_elem::create<stroke_color_elem>(r, g, b));
+    } else if (m_arg_stack.size() == 1) {
+        int g = std::stoi(std::visit(arg_visitor(), m_arg_stack[0]));
+        m_stream.push_back(stream_elem::create<stroke_color_elem>(g, g, g));
+    }
+}
+
+void pdf_content_stream_filter::handleXObject() {
+
 }
 
 void pdf_content_stream_filter::handleEOF() {

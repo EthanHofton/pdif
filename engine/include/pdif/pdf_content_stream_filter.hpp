@@ -50,6 +50,21 @@ private:
      * 
      */
     void handleFontChange();
+    /**
+     * @brief Handel what happens when a text color is set
+     * 
+     */
+    void handleTextColorSet();
+    /**
+     * @brief Handel what happens when a stroke color is set
+     * 
+     */
+    void handleStrokeColorSet();
+    /**
+     * @brief Handel what happens when an XObject is displayed
+     * 
+     */
+    void handleXObject();
 
 
 private:

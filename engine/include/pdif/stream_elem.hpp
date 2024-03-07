@@ -16,8 +16,9 @@ namespace pdif {
  */
 enum class stream_type {
     text = 0,
-    binary = 1,
-    font_change = 2,
+    font_set = 1,
+    text_color_set = 2,
+    stroke_color_set = 3,
 };
 
 /**
@@ -32,11 +33,14 @@ inline std::ostream& operator<<(std::ostream& os, const stream_type& type) {
         case stream_type::text:
             os << "text";
             break;
-        case stream_type::binary:
-            os << "binary";
+        case stream_type::font_set:
+            os << "font_set";
             break;
-        case stream_type::font_change:
-            os << "font_change";
+        case stream_type::text_color_set:
+            os << "text_color_set";
+            break;
+        case stream_type::stroke_color_set:
+            os << "stroke_color_set";
             break;
     }
     return os;
@@ -48,12 +52,13 @@ inline std::istream& operator>>(std::istream& is, stream_type& type) {
 
     if (str == "text") {
         type = stream_type::text;
-    } else if (str == "binary") {
-        type = stream_type::binary;
-    } else if (str == "font_change") {
-        type = stream_type::font_change;
-    }
-    else {
+    } else if (str == "font_set") {
+        type = stream_type::font_set;
+    } else if (str == "text_color_set") {
+        type = stream_type::text_color_set;
+    } else if (str == "stroke_color_set") {
+        type = stream_type::stroke_color_set;
+    } else {
         PDIF_LOG_ERROR("stream_type::operator>> - invalid stream_type");
         throw pdif::pdif_invalid_argment("stream_type::operator>> - invalid stream_type");
     }
@@ -64,14 +69,16 @@ inline std::istream& operator>>(std::istream& is, stream_type& type) {
 // forward declarations
 class stream_elem;
 class text_elem;
-class binary_elem;
 class font_elem;
+class text_color_elem;
+class stroke_color_elem;
 
 // typedefs
 using rstream_elem = util::ref<stream_elem>;
 using rtext_elem = util::ref<text_elem>;
-using rbinary_elem = util::ref<binary_elem>;
 using rfont_elem = util::ref<font_elem>;
+using rtext_color_elem = util::ref<text_color_elem>;
+using rstroke_color_elem = util::ref<stroke_color_elem>;
 
 /**
  * @brief macro to create a static type function for a stream_elem subclass
@@ -220,54 +227,6 @@ private:
 };
 
 /**
- * @brief a concrete subclass of stream_elem that holds a vector of chars
- * 
- */
-class binary_elem : public stream_elem {
-public:
-
-    /**
-     * @brief static type method for binary_elem
-     * 
-     */
-    STATIC_TYPE(stream_type::binary)
-
-    /**
-     * @brief Construct a new binary elem object
-     * 
-     * @param t_binary the binary to store in the binary_elem
-     * @param t the private_tag to allow construction
-     */
-    binary_elem(stream_elem::private_tag, const std::vector<char>& t_binary);
-
-    /**
-     * @brief getter for the binary
-     * 
-     * @return const std::vector<char>& the binary stored in the binary_elem
-     */
-    const std::vector<char>& binary() const;
-    /**
-     * @brief the implementation of stream_elem::compare
-     * 
-     * @param t_other the other stream_elem to compare to
-     * @return true the types are the same and the binary is equal (bitwise)
-     * @return false otherwise
-     */
-    virtual bool compare(rstream_elem t_other) override;
-
-    /**
-     * @brief return the stringified binary_elem
-     * 
-     * @return std::string the stringified binary_elem
-     */
-    virtual std::string to_string() const override;
-
-private:
-
-    std::vector<char> m_binary;
-};
-
-/**
  * @brief A concrete subclass of stream_elem that represents a font change
  * 
  */
@@ -278,7 +237,7 @@ public:
      * @brief static type method for font_elem
      * 
      */
-    STATIC_TYPE(stream_type::font_change)
+    STATIC_TYPE(stream_type::font_set)
 
     /**
      * @brief Construct a new font elem object
@@ -322,6 +281,115 @@ private:
 
     std::string m_font_name;
     int m_font_size;
+};
+
+/**
+ * @brief A concrete subclass of stream_elem that represents a color change
+ * 
+ */
+class color_elem : public stream_elem {
+public:
+
+    /**
+     * @brief Construct a new text color elem object
+     * 
+     * @param t_color the color to set
+     * @param t the private_tag to allow construction
+     */
+    color_elem(stream_elem::private_tag, stream_type t_type, int t_r, int t_g, int t_b) : stream_elem(private_tag(), t_type), r(t_r), g(t_g), b(t_b) {}
+
+    /**
+     * @brief Get the red value of the color
+     * 
+     * @return int
+     */
+    inline int red() const { return r; }
+    /**
+     * @brief Get the green value of the color
+     * 
+     * @return int 
+     */
+    inline int green() const { return g; }
+    /**
+     * @brief Get the blue value of the color
+     * 
+     * @return int 
+     */
+    inline int blue() const { return b; }
+
+protected:
+
+    int r;
+    int g;
+    int b;
+};
+
+class text_color_elem : public color_elem {
+public:
+
+    /**
+     * @brief static type method for text_color_elem
+     * 
+     */
+    STATIC_TYPE(stream_type::text_color_set)
+
+    /**
+     * @brief Construct a new text color elem object
+     * 
+     * @param t_color the color to set
+     * @param t the private_tag to allow construction
+     */
+    text_color_elem(stream_elem::private_tag, int t_r, int t_g, int t_b);
+
+    /**
+     * @brief the implementation of stream_elem::compare
+     * 
+     * @param t_other the other stream_elem to compare to
+     * @return true if the types are the same and the colors are equal
+     * @return false otherwise
+     */
+    virtual bool compare(rstream_elem t_other) override;
+
+    /**
+     * @brief return the stringified text_color_elem
+     * 
+     * @return std::string the stringified text_color_elem
+     */
+    virtual std::string to_string() const override;
+};
+
+class stroke_color_elem : public color_elem {
+public:
+
+    /**
+     * @brief static type method for stroke_color_elem
+     * 
+     */
+    STATIC_TYPE(stream_type::stroke_color_set)
+
+    /**
+     * @brief Construct a new stroke color elem object
+     * 
+     * @param t_color the color to set
+     * @param t the private_tag to allow construction
+     */
+    stroke_color_elem(stream_elem::private_tag, int t_r, int t_g, int t_b);
+
+    /**
+     * @brief the implementation of stream_elem::compare
+     * 
+     * @param t_other the other stream_elem to compare to
+     * @return true if the types are the same and the colors are equal
+     * @return false otherwise
+     */
+    virtual bool compare(rstream_elem t_other) override;
+
+    /**
+     * @brief return the stringified stroke_color_elem
+     * 
+     * @return std::string the stringified stroke_color_elem
+     */
+    virtual std::string to_string() const override;
 };
 
 }
