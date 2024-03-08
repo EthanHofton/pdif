@@ -13,14 +13,14 @@ option(UTIL_BUILD_TESTS "Build tests" OFF)
 FetchContent_MakeAvailable(util)
 message(STATUS "Fetched EthanHofton/util.git")
 
-message(STATUS "Fetching nlohmann/json.git")
-# INCLUDE NLOHMANN JSON
-FetchContent_Declare(
-  nlohmann_json
-  GIT_REPOSITORY https://github.com/nlohmann/json.git
-)
-FetchContent_MakeAvailable(nlohmann_json)
-message(STATUS "Fetched nlohmann/json.git")
+# message(STATUS "Fetching nlohmann/json.git")
+# # INCLUDE NLOHMANN JSON
+# FetchContent_Declare(
+#   nlohmann_json
+#   GIT_REPOSITORY https://github.com/nlohmann/json.git
+# )
+# FetchContent_MakeAvailable(nlohmann_json)
+# message(STATUS "Fetched nlohmann/json.git")
 
 list(APPEND CMAKE_PREFIX_PATH /opt/homebrew/Cellar /opt/homebrew/lib)
 
@@ -78,7 +78,7 @@ set_target_properties(${LIBRARY_NAME} PROPERTIES
 target_include_directories(${LIBRARY_NAME} PUBLIC
     ${PROJECT_SOURCE_DIR}/include
     ${PROJECT_BINARY_DIR}/include   # add the binary tree to the search path so that we will find Version.h
-    ${nlohmann_json_SOURCE_DIR}/include
+    # ${nlohmann_json_SOURCE_DIR}/include
 )
 target_link_libraries(${LIBRARY_NAME} PUBLIC
     util

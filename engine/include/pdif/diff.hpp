@@ -7,13 +7,10 @@
 #include <pdif/meta_edit_op.hpp>
 #include <pdif/logger.hpp>
 
-#include <nlohmann/json.hpp>
 #include <util/colormod.hpp>
 
 #include <sstream>
 #include <optional>
-
-using json = nlohmann::json;
 
 namespace pdif {
 
@@ -23,6 +20,44 @@ namespace pdif {
  */
 class diff {
 public:
+
+    /**
+     * @brief Represent a chunk of change in the diff
+     * 
+     */
+    struct edit_chunk {
+        /**
+         * @brief The content of the chunk
+         * 
+         */
+        std::vector<std::string> lines;
+        /**
+         * @brief The chunk start relative to the original stream
+         * 
+         */
+        int from_file_start;
+        /**
+         * @brief the chunk start relative to the new stream
+         * 
+         */
+        int to_file_start;
+        /**
+         * @brief How many lines are in the chunk from the original stream
+         * 
+         */
+        int from_count = 0;
+        /**
+         * @brief How many lines are in the chunk from the new stream
+         * 
+         */
+        int to_count = 0;
+
+        /**
+         * @brief The number of context lines before and after the chunk
+         * 
+         */
+        static const int ALLOWED_CONTEXT = 3;
+    };
 
     /**
      * @brief add an edit op to the edit script
@@ -65,21 +100,6 @@ public:
     size_t meta_edit_op_size() const;
 
     /**
-     * @brief convert the edit script to a json string
-     * 
-     * @return std::string the json string
-     */
-    [[deprecated("this function has not been tested. Do not use it")]]
-    std::string to_json() const;
-    /**
-     * @brief read the edit script from a json string
-     * 
-     * @param json the json string
-     */
-    [[deprecated("this function has not been tested. Do not use it")]]
-    void from_json(const std::string& json);
-
-    /**
      * @brief apply the edit script to the given stream
      * 
      * @param stream the stream to apply the edit script to
@@ -98,7 +118,7 @@ public:
      * 
      * @param os the output stream
      */
-    void output_edit_script(std::ostream& os, std::optional<stream> = std::nullopt, bool print_eq = false) const;
+    void output_edit_script(std::ostream& os) const;
 
     /**
      * @brief output the meta edit script to the given output stream
@@ -130,17 +150,11 @@ public:
     std::vector<edit_op>::iterator end() { return m_edit_script.end(); }
     std::vector<edit_op>::iterator begin() { return m_edit_script.begin(); }
 
+    std::vector<edit_chunk> edit_chunk_summary() const;
+    void count_op_types(int& plus, int& minus, int&eq) const;
+
 private:
 
-    struct edit_chunk {
-        std::vector<std::string> lines;
-        int from_file_start;
-        int to_file_start;
-        int from_count = 0;
-        int to_count = 0;
-
-        static const int ALLOWED_CONTEXT = 3;
-    };
 
     std::string get_original_line(int index) const;
 
@@ -148,12 +162,6 @@ private:
 
     void check_edit_index(size_t index) const;
     void check_meta_index(size_t index) const;
-    
-    json edit_op_to_json(const edit_op& op) const;
-    json meta_edit_op_to_json(const meta_edit_op& op) const;
-
-    edit_op edit_op_from_json(const json& j) const;
-    meta_edit_op meta_edit_op_from_json(const json& j) const;
 
     void output_summary(std::ostream& os, int plus, int minus, int last, std::string last_char, util::CONSOLE_COLOR_CODE last_color) const;
 
