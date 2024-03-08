@@ -4,7 +4,6 @@
 #include <pdif/stream.hpp>
 #include <pdif/stream_elem.hpp>
 #include <pdif/meta_edit_op.hpp>
-#include <nlohmann/json.hpp>
 
 TEST(PDIFDiff, TestAddEditOp) {
     pdif::diff diff;
@@ -434,33 +433,6 @@ TEST(PDIFDiff, TestApplyMetaEditScriptStreamCallbackErrorInCallback) {
 
     ASSERT_THROW({diff.apply_meta_edit_script(stream);}, pdif::pdif_error_in_callback);
 }
-
-TEST(PDIFDiff, DISABLED_TestFromJsonEditScriptAdd) {}
-TEST(PDIFDiff, DISABLED_TestFromJsonEditScriptAddInvalidNoArg) {}
-
-TEST(PDIFDiff, DISABLED_TestFromJsonEditScriptDelete) {}
-TEST(PDIFDiff, DISABLED_TestFromJsonEditScriptDeleteInvalidWithArg) {}
-
-TEST(PDIFDiff, DISABLED_TestFromJsonEditScriptEq) {}
-TEST(PDIFDiff, DISABLED_TestFromJsonEditScriptEqInvalidWithArg) {}
-
-TEST(PDIFDiff, DISABLED_TestFromJsonInvalidCommand) {}
-TEST(PDIFDiff, DISABLED_TestFromJsonInvalidArgType) {}
-
-TEST(PDIFDiff, DISABLED_TestFromJsonInvalidNoDiff) {}
-TEST(PDIFDiff, DISABLED_TestFromJsonInvalidNoEditScript) {}
-TEST(PDIFDiff, DISABLED_TestFromJsonInvalidNoMetaEditScript) {}
-TEST(PDIFDiff, DISABLED_TestFromJsonInvalidEditScriptNotArray) {}
-TEST(PDIFDiff, DISABLED_TestFromJsonInvalidMetaEditScriptNotArray) {}
-TEST(PDIFDiff, DISABLED_TestFromJsonInvalidNoEditCommandType) {}
-TEST(PDIFDiff, DISABLED_TestFromJsonInvalidNoMetaEditCommandType) {}
-TEST(PDIFDiff, DISABLED_TestFromJsonInvalidNoMetaEditKey) {}
-TEST(PDIFDiff, DISABLED_TestFromJsonInvalidNoEditOpArgType) {}
-TEST(PDIFDiff, DISABLED_TestFromJsonInvalidNoEditOpArgVal) {}
-
-TEST(PDIFDiff, DISABLED_TestFromJsonEmptyEditScript) {}
-TEST(PDIFDiff, DISABLED_TestFromJsonEmptyMetaEditScript) {}
-
 
 int main(int argc, char **argv) {
     ::testing::InitGoogleTest(&argc, argv);
