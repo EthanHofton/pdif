@@ -304,32 +304,32 @@ public:
      * @param t_color the color to set
      * @param t the private_tag to allow construction
      */
-    color_elem(stream_elem::private_tag, stream_type t_type, int t_r, int t_g, int t_b) : stream_elem(private_tag(), t_type), r(t_r), g(t_g), b(t_b) {}
+    color_elem(stream_elem::private_tag, stream_type t_type, float t_r, float t_g, float t_b) : stream_elem(private_tag(), t_type), r(t_r), g(t_g), b(t_b) {}
 
     /**
      * @brief Get the red value of the color
      * 
-     * @return int
+     * @return float
      */
-    inline int red() const { return r; }
+    inline float red() const { return r; }
     /**
      * @brief Get the green value of the color
      * 
-     * @return int 
+     * @return float 
      */
-    inline int green() const { return g; }
+    inline float green() const { return g; }
     /**
      * @brief Get the blue value of the color
      * 
-     * @return int 
+     * @return float 
      */
-    inline int blue() const { return b; }
+    inline float blue() const { return b; }
 
 protected:
 
-    int r;
-    int g;
-    int b;
+    float r;
+    float g;
+    float b;
 };
 
 /**
@@ -351,7 +351,7 @@ public:
      * @param t_color the color to set
      * @param t the private_tag to allow construction
      */
-    text_color_elem(stream_elem::private_tag, int t_r, int t_g, int t_b);
+    text_color_elem(stream_elem::private_tag, float t_r, float t_g, float t_b);
 
     /**
      * @brief the implementation of stream_elem::compare
@@ -389,7 +389,7 @@ public:
      * @param t_color the color to set
      * @param t the private_tag to allow construction
      */
-    stroke_color_elem(stream_elem::private_tag, int t_r, int t_g, int t_b);
+    stroke_color_elem(stream_elem::private_tag, float t_r, float t_g, float t_b);
 
     /**
      * @brief the implementation of stream_elem::compare

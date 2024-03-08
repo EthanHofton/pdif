@@ -154,12 +154,12 @@ void pdf_content_stream_filter::handleTextColorSet() {
     }
 
     if (m_arg_stack.size() == 3) {
-        int r = std::stoi(std::visit(arg_visitor(), m_arg_stack[0]));
-        int g = std::stoi(std::visit(arg_visitor(), m_arg_stack[1]));
-        int b = std::stoi(std::visit(arg_visitor(), m_arg_stack[2]));
+        int r = std::stof(std::visit(arg_visitor(), m_arg_stack[0]));
+        int g = std::stof(std::visit(arg_visitor(), m_arg_stack[1]));
+        int b = std::stof(std::visit(arg_visitor(), m_arg_stack[2]));
         m_stream.push_back(stream_elem::create<text_color_elem>(r, g, b));
     } else if (m_arg_stack.size() == 1) {
-        int g = std::stoi(std::visit(arg_visitor(), m_arg_stack[0]));
+        int g = std::stof(std::visit(arg_visitor(), m_arg_stack[0]));
         m_stream.push_back(stream_elem::create<text_color_elem>(g, g, g));
     }
 }
@@ -170,12 +170,12 @@ void pdf_content_stream_filter::handleStrokeColorSet() {
     }
 
     if (m_arg_stack.size() == 3) {
-        int r = std::stoi(std::visit(arg_visitor(), m_arg_stack[0]));
-        int g = std::stoi(std::visit(arg_visitor(), m_arg_stack[1]));
-        int b = std::stoi(std::visit(arg_visitor(), m_arg_stack[2]));
+        int r = std::stof(std::visit(arg_visitor(), m_arg_stack[0]));
+        int g = std::stof(std::visit(arg_visitor(), m_arg_stack[1]));
+        int b = std::stof(std::visit(arg_visitor(), m_arg_stack[2]));
         m_stream.push_back(stream_elem::create<stroke_color_elem>(r, g, b));
     } else if (m_arg_stack.size() == 1) {
-        int g = std::stoi(std::visit(arg_visitor(), m_arg_stack[0]));
+        int g = std::stof(std::visit(arg_visitor(), m_arg_stack[0]));
         m_stream.push_back(stream_elem::create<stroke_color_elem>(g, g, g));
     }
 }

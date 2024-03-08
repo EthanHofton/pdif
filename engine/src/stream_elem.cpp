@@ -61,7 +61,7 @@ std::string font_elem::to_string() const {
 }
 
 // ** ====== TEXT COLOR ELEM ====== ** //
-text_color_elem::text_color_elem(stream_elem::private_tag t, int t_r, int t_g, int t_b) :
+text_color_elem::text_color_elem(stream_elem::private_tag t, float t_r, float t_g, float t_b) :
     color_elem(t, stream_type::text_color_set, t_r, t_g, t_b) {}
 
 bool text_color_elem::compare(rstream_elem t_other) {
@@ -84,7 +84,7 @@ std::string text_color_elem::to_string() const {
 }
 
 // ** ====== STROKE COLOR ELEM ====== ** //
-stroke_color_elem::stroke_color_elem(stream_elem::private_tag t, int t_r, int t_g, int t_b) :
+stroke_color_elem::stroke_color_elem(stream_elem::private_tag t, float t_r, float t_g, float t_b) :
     color_elem(t, stream_type::stroke_color_set, t_r, t_g, t_b) {}
 
 bool stroke_color_elem::compare(rstream_elem t_other) {
