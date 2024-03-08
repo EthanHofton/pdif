@@ -17,12 +17,6 @@ namespace pdif {
 class PDF {
 public:
 
-    struct comparison_args {
-        bool compare_meta = false;
-        bool compare_text = false;
-        bool compare_image = false;
-    };
-
     /**
      * @brief Construct a new PDF object
      * 
@@ -30,7 +24,7 @@ public:
      * @param g the granularity of the extractor (default: word)
      * @param s the scope of the extractor (default: page)
      */
-    PDF(const std::string& path, granularity g = granularity::word, scope s = scope::page);
+    PDF(const std::string& path, granularity g = granularity::word, scope s = scope::page, bool write_console_colors = true);
 
     /**
      * @brief Get the granularity object
@@ -46,7 +40,7 @@ public:
     inline scope get_scope() const { return m_pdf_scope; }
 
     template<typename T, typename = std::enable_if_t<std::is_base_of_v<stream_differ_base, T>>>
-    diff compare(const PDF& other, comparison_args) const {
+    diff compare(const PDF& other) const {
         pdif::diff d;
 
         // compare the meta
@@ -88,6 +82,43 @@ public:
      */
     void dump_content(std::ostream&, int pageno = -1, std::optional<std::string> = std::nullopt) const;
 
+    /**
+     * @brief Flag to set whether to write console colors
+     * 
+     * @param b the flag
+     */
+    inline void write_console_colors(bool b) { m_write_console_colors = b; }
+    /**
+     * @brief flag to check whether to write console colors
+     * 
+     * @return true
+     * @return false 
+     */
+    inline bool write_console_colors() const { return m_write_console_colors; }
+
+    /**
+     * @brief Get the meta object
+     * 
+     * @return pdif::stream_meta 
+     */
+    pdif::stream_meta get_meta() const { return m_meta; }
+    /**
+     * @brief Get the streams object
+     * 
+     * @return std::vector<stream> 
+     */
+    std::vector<stream> get_streams() const { return m_streams; }
+
+private:
+
+    /**
+     * @brief get a console color code (if enabled)
+     * 
+     * @param code the code
+     * @return std::string returned color code
+     */
+    std::string cc(util::CONSOLE_COLOR_CODE code) const;
+
 private:
 
     granularity m_extractor_granularity;
@@ -96,6 +127,8 @@ private:
 
     std::vector<stream> m_streams;
     pdif::stream_meta m_meta;
+
+    bool m_write_console_colors;
 };
 
 }

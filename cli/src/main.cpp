@@ -243,12 +243,7 @@ int main(int argc, char** argv)
         pdif::PDF file1(a.file1, a.granularity, a.scope);
         pdif::PDF file2(a.file2, a.granularity, a.scope);
 
-        pdif::PDF::comparison_args args;
-        args.compare_meta = a.compare_meta;
-        args.compare_text = a.compare_text;
-        args.compare_image = a.compare_image;
-
-        pdif::diff diff = file1.compare<pdif::lcs_stream_differ>(file2, args);
+        pdif::diff diff = file1.compare<pdif::lcs_stream_differ>(file2);
 
         if (a.output_file.has_value()) {
             // std::ofstream ofs(a.output_file.value());
