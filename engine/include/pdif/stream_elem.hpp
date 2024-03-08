@@ -2,7 +2,9 @@
 #define __PDIF_STREAM_ELEM_HPP__
 
 #include <util/memory.hpp>
+#include <util/colormod.hpp>
 #include <string>
+#include <sstream>
 #include <vector>
 
 #include <pdif/errors.hpp>
@@ -142,7 +144,7 @@ public:
      * 
      * @return std::string the stringified stream_elem
      */
-    virtual std::string to_string() const = 0;
+    virtual std::string to_string(bool console_colors = true) const = 0;
 
     /**
      * @brief 
@@ -179,10 +181,21 @@ public:
         return std::dynamic_pointer_cast<T>(shared_from_this());
     }
 
+protected:
+
+    static inline std::string cc(util::CONSOLE_COLOR_CODE t_code, bool t_write_console_colors) {
+        if (t_write_console_colors) {
+            std::stringstream ss;
+            ss << t_code;
+            return ss.str();
+        } else {
+            return "";
+        }
+    }
+
 private:
 
     stream_type m_type;
-
 };
 
 /**
@@ -226,7 +239,7 @@ public:
      * 
      * @return std::string the stringified text_elem
      */
-    virtual std::string to_string() const override;
+    virtual std::string to_string(bool console_colors = true) const override;
 
 private:
 
@@ -283,7 +296,7 @@ public:
      * 
      * @return std::string the stringified font_elem
      */
-    virtual std::string to_string() const override;
+    virtual std::string to_string(bool console_colors = true) const override;
 
 private:
 
@@ -367,7 +380,7 @@ public:
      * 
      * @return std::string the stringified text_color_elem
      */
-    virtual std::string to_string() const override;
+    virtual std::string to_string(bool console_colors = true) const override;
 };
 
 /**
@@ -405,7 +418,7 @@ public:
      * 
      * @return std::string the stringified stroke_color_elem
      */
-    virtual std::string to_string() const override;
+    virtual std::string to_string(bool console_colors = true) const override;
 };
 
 /**
@@ -463,7 +476,7 @@ public:
      * 
      * @return std::string
      */
-    virtual std::string to_string() const override;
+    virtual std::string to_string(bool console_colors = true) const override;
 
 private:
 

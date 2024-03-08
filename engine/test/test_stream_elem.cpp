@@ -39,6 +39,11 @@ TEST(PDIFTextElem, TestToString) {
     ASSERT_EQ(elem->to_string(), "Hello, World!");
 }
 
+TEST(PDIFTextElem, TestToStringNoCC) {
+    pdif::rtext_elem elem = pdif::stream_elem::create<pdif::text_elem>("Hello, World!")->as<pdif::text_elem>();
+    ASSERT_EQ(elem->to_string(false), "Hello, World!");
+}
+
 
 TEST(PDIFFontElem, TestFontName) {
     pdif::rfont_elem elem = pdif::stream_elem::create<pdif::font_elem>("Arial", 9)->as<pdif::font_elem>();
@@ -91,6 +96,16 @@ TEST(PDIFFontElem, TestToString) {
     ss << util::CONSOLE_COLOR_CODE::FG_DEFAULT;
 
     ASSERT_EQ(elem1->to_string(), ss.str());
+}
+
+TEST(PDIFFontElem, TestToStringNoCC) {
+    pdif::rfont_elem elem1 = pdif::stream_elem::create<pdif::font_elem>("CM10", 13)->as<pdif::font_elem>();
+    
+    std::stringstream ss;
+    ss << "[Font set: " << elem1->font_name() << ", " << elem1->font_size() << "pt]";
+
+    ASSERT_EQ(elem1->to_string(false), ss.str());
+
 }
 
 TEST(PDIFColorElem, TestRed) {
@@ -150,6 +165,15 @@ TEST(PDIFTextColorElem, TestToString) {
     ASSERT_EQ(elem->to_string(), ss.str());
 }
 
+TEST(PDIFTextColorElem, TestToStringNoCC) {
+    pdif::rtext_color_elem elem = pdif::stream_elem::create<pdif::text_color_elem>(0.81, 0, 0)->as<pdif::text_color_elem>();
+
+    std::stringstream ss;
+    ss << "[Text color set: " << elem->red() << "r, " << elem->green() << "g, " << elem->blue() << "b]";
+
+    ASSERT_EQ(elem->to_string(false), ss.str());
+}
+
 TEST(PDIFStrokeColorElem, TestCompareTrue) {
     pdif::rstroke_color_elem elem1 = pdif::stream_elem::create<pdif::stroke_color_elem>(0.81, 0, 0)->as<pdif::stroke_color_elem>();
     pdif::rstroke_color_elem elem2 = pdif::stream_elem::create<pdif::stroke_color_elem>(0.81, 0, 0)->as<pdif::stroke_color_elem>();
@@ -187,6 +211,17 @@ TEST(PDIFStrokeColorElem, TestToString) {
     ss << "[Stroke color set: " << elem->red() << "r, " << elem->green() << "g, " << elem->blue() << "b]";
     ss << util::CONSOLE_COLOR_CODE::TEXT_RESET;
     ss << util::CONSOLE_COLOR_CODE::FG_DEFAULT;
+
+    ASSERT_EQ(elem->to_string(), ss.str());
+}
+
+TEST(PDIFStrokeColorElem, TestToStringNoCC) {
+    pdif::rtext_color_elem elem = pdif::stream_elem::create<pdif::text_color_elem>(0.81, 0, 0)->as<pdif::text_color_elem>();
+
+    std::stringstream ss;
+    ss << "[Text color set: " << elem->red() << "r, " << elem->green() << "g, " << elem->blue() << "b]";
+
+    ASSERT_EQ(elem->to_string(false), ss.str());
 }
 
 TEST(PDIFXObjectImgElem, TestImageHash) {
@@ -242,6 +277,17 @@ TEST(PDIFXObjectImgElem, TestToString) {
     ss << "[Image: (sha1)" << elem->image_hash() << ", " << elem->width() << "x" << elem->height() << "px]";
     ss << util::CONSOLE_COLOR_CODE::TEXT_RESET;
     ss << util::CONSOLE_COLOR_CODE::FG_DEFAULT;
+
+    ASSERT_EQ(elem->to_string(), ss.str());
+}
+
+TEST(PDIFXObjectImgElem, TestToStringNoCC) {
+    pdif::rxobject_img_elem elem = pdif::stream_elem::create<pdif::xobject_img_elem>("faf89233299323faf3f3", 300, 300)->as<pdif::xobject_img_elem>();
+
+    std::stringstream ss;
+    ss << "[Image: (sha1)" << elem->image_hash() << ", " << elem->width() << "x" << elem->height() << "px]";
+
+    ASSERT_EQ(elem->to_string(false), ss.str());
 }
 
 TEST(PDIFStreamElem, TestCompareDifferentTypeTextFont) {

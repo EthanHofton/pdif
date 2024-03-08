@@ -3,7 +3,7 @@
 
 namespace pdif {
 
-stream_elem::stream_elem(private_tag, stream_type t_type) : m_type(t_type) {}
+stream_elem::stream_elem(private_tag, stream_type t_type) : m_type(t_type){}
 stream_type stream_elem::type() const { return m_type; }
 
 text_elem::text_elem(stream_elem::private_tag t, const std::string& t_text) :
@@ -22,7 +22,7 @@ bool text_elem::compare(rstream_elem t_other) {
     return m_text == t_other->as<text_elem>()->text();
 }
 
-std::string text_elem::to_string() const {
+std::string text_elem::to_string(bool) const {
     return m_text;
 }
 
@@ -50,13 +50,13 @@ bool font_elem::compare(rstream_elem t_other) {
     return m_font_name == other->font_name() && m_font_size == other->font_size();
 }
 
-std::string font_elem::to_string() const {
+std::string font_elem::to_string(bool console_colors) const {
     std::stringstream ss;
-    ss << util::CONSOLE_COLOR_CODE::TEXT_BOLD;
-    ss << util::CONSOLE_COLOR_CODE::FG_BLUE;
+    ss << cc(util::CONSOLE_COLOR_CODE::TEXT_BOLD, console_colors);
+    ss << cc(util::CONSOLE_COLOR_CODE::FG_BLUE, console_colors);
     ss << "[Font set: " << m_font_name << ", " << m_font_size << "pt]";
-    ss << util::CONSOLE_COLOR_CODE::TEXT_RESET;
-    ss << util::CONSOLE_COLOR_CODE::FG_DEFAULT;
+    ss << cc(util::CONSOLE_COLOR_CODE::TEXT_RESET, console_colors);
+    ss << cc(util::CONSOLE_COLOR_CODE::FG_DEFAULT, console_colors);
     return ss.str();
 }
 
@@ -73,13 +73,13 @@ bool text_color_elem::compare(rstream_elem t_other) {
     return r == other->red() && g == other->green() && b == other->blue();
 }
 
-std::string text_color_elem::to_string() const {
+std::string text_color_elem::to_string(bool console_colors) const {
     std::stringstream ss;
-    ss << util::CONSOLE_COLOR_CODE::TEXT_BOLD;
-    ss << util::CONSOLE_COLOR_CODE::FG_BLUE;
+    ss << cc(util::CONSOLE_COLOR_CODE::TEXT_BOLD, console_colors);
+    ss << cc(util::CONSOLE_COLOR_CODE::FG_BLUE, console_colors);
     ss << "[Text color set: " << r << "r, " << g << "g, " << b << "b]";
-    ss << util::CONSOLE_COLOR_CODE::TEXT_RESET;
-    ss << util::CONSOLE_COLOR_CODE::FG_DEFAULT;
+    ss << cc(util::CONSOLE_COLOR_CODE::TEXT_RESET, console_colors);
+    ss << cc(util::CONSOLE_COLOR_CODE::FG_DEFAULT, console_colors);
     return ss.str();
 }
 
@@ -96,13 +96,13 @@ bool stroke_color_elem::compare(rstream_elem t_other) {
     return r == other->red() && g == other->green() && b == other->blue();
 }
 
-std::string stroke_color_elem::to_string() const {
+std::string stroke_color_elem::to_string(bool console_colors) const {
     std::stringstream ss;
-    ss << util::CONSOLE_COLOR_CODE::TEXT_BOLD;
-    ss << util::CONSOLE_COLOR_CODE::FG_BLUE;
+    ss << cc(util::CONSOLE_COLOR_CODE::TEXT_BOLD, console_colors);
+    ss << cc(util::CONSOLE_COLOR_CODE::FG_BLUE, console_colors);
     ss << "[Stroke color set: " << r << "r, " << g << "g, " << b << "b]";
-    ss << util::CONSOLE_COLOR_CODE::TEXT_RESET;
-    ss << util::CONSOLE_COLOR_CODE::FG_DEFAULT;
+    ss << cc(util::CONSOLE_COLOR_CODE::TEXT_RESET, console_colors);
+    ss << cc(util::CONSOLE_COLOR_CODE::FG_DEFAULT, console_colors);
     return ss.str();
 }
 
@@ -123,13 +123,13 @@ bool xobject_img_elem::compare(rstream_elem t_other) {
     return m_image_hash == other->image_hash() && m_width == other->width() && m_height == other->height();
 };
 
-std::string xobject_img_elem::to_string() const {
+std::string xobject_img_elem::to_string(bool console_colors) const {
     std::stringstream ss;
-    ss << util::CONSOLE_COLOR_CODE::TEXT_BOLD;
-    ss << util::CONSOLE_COLOR_CODE::FG_LIGHT_MAGENTA;
+    ss << cc(util::CONSOLE_COLOR_CODE::TEXT_BOLD, console_colors);
+    ss << cc(util::CONSOLE_COLOR_CODE::FG_LIGHT_MAGENTA, console_colors);
     ss << "[Image: (sha1)" << m_image_hash << ", " << m_width << "x" << m_height << "px]";
-    ss << util::CONSOLE_COLOR_CODE::TEXT_RESET;
-    ss << util::CONSOLE_COLOR_CODE::FG_DEFAULT;
+    ss << cc(util::CONSOLE_COLOR_CODE::TEXT_RESET, console_colors);
+    ss << cc(util::CONSOLE_COLOR_CODE::FG_DEFAULT, console_colors);
     return ss.str();
 }
 
