@@ -87,7 +87,7 @@ std::vector<diff::edit_chunk> diff::edit_chunk_summary() const {
 
     int from_file_pointer = 0;
     int to_file_pointer = 0;
-    int context_remaining = edit_chunk::ALLOWED_CONTEXT;
+    int context_remaining = m_allowed_context;
 
     for (size_t i = 0; i < m_edit_script.size(); i++) {
         auto op = m_edit_script[i];
@@ -109,12 +109,12 @@ std::vector<diff::edit_chunk> diff::edit_chunk_summary() const {
             from_file_pointer++;
             to_file_pointer++;
         } else {
-            context_remaining = edit_chunk::ALLOWED_CONTEXT;
+            context_remaining = m_allowed_context;
             if (!in_chunk) {
                 int pre_context_lines = 0;                    
 
                 // add ALLOWED_CONTEXT lines of context
-                for (int j = edit_chunk::ALLOWED_CONTEXT; j > 0; j--) {
+                for (int j = m_allowed_context; j > 0; j--) {
                     if (from_file_pointer - j < 0) {
                         continue;
                     }
@@ -135,14 +135,14 @@ std::vector<diff::edit_chunk> diff::edit_chunk_summary() const {
                 chunk.to_count++;
 
                 std::stringstream new_line_ss;
-                new_line_ss << util::CONSOLE_COLOR_CODE::FG_GREEN << "+" << op.get_arg()->to_string() << util::CONSOLE_COLOR_CODE::FG_DEFAULT;
+                new_line_ss << cc(util::CONSOLE_COLOR_CODE::FG_GREEN) << "+" << op.get_arg()->to_string(m_write_console_colors) << cc(util::CONSOLE_COLOR_CODE::FG_DEFAULT);
                 chunk.lines.push_back(new_line_ss.str());
             } else if (op.get_type() == edit_op_type::DELETE) {
                 chunk.from_count++;
 
                 std::stringstream new_line_ss;
-                new_line_ss << util::CONSOLE_COLOR_CODE::FG_RED << "-" << get_original_line(from_file_pointer) << util::CONSOLE_COLOR_CODE::FG_DEFAULT;
-                chunk.lines.push_back(new_line_ss.str());    
+                new_line_ss << cc(util::CONSOLE_COLOR_CODE::FG_RED) << "-" << get_original_line(from_file_pointer) << cc(util::CONSOLE_COLOR_CODE::FG_DEFAULT);
+                chunk.lines.push_back(new_line_ss.str());
             }
 
             // update the pointers
@@ -178,8 +178,8 @@ void diff::count_op_types(int& plus, int& minus, int&eq) const {
 }
 
 void diff::output_edit_script(std::ostream& os) const {
-    os << util::CONSOLE_COLOR_CODE::TEXT_BOLD << "Content Differences" << util::CONSOLE_COLOR_CODE::TEXT_RESET << std::endl;
-    std::cout << std::endl;
+    os << cc(util::CONSOLE_COLOR_CODE::TEXT_BOLD) << "Content Differences" << cc(util::CONSOLE_COLOR_CODE::TEXT_RESET) << std::endl;
+    os << std::endl;
 
 
     if (m_edit_script.size() == 0) {
@@ -187,7 +187,7 @@ void diff::output_edit_script(std::ostream& os) const {
     } else {
         auto chunks = edit_chunk_summary();
         for (const edit_chunk& chunk : chunks) {
-            os << chunk << std::endl;
+            write_edit_chunk(os, chunk);
         }
     }
     
@@ -195,7 +195,7 @@ void diff::output_edit_script(std::ostream& os) const {
     count_op_types(plus_count, minus_count, eq_count);
 
     output_summary(os, plus_count, minus_count, eq_count, "=", util::CONSOLE_COLOR_CODE::FG_DEFAULT);
-    os << util::CONSOLE_COLOR_CODE::TEXT_BOLD << "End of Content Differences" << util::CONSOLE_COLOR_CODE::TEXT_RESET << std::endl;
+    os << cc(util::CONSOLE_COLOR_CODE::TEXT_BOLD) << "End of Content Differences" << cc(util::CONSOLE_COLOR_CODE::TEXT_RESET) << std::endl;
 }
 
 std::string diff::get_original_line(int index) const {
@@ -207,7 +207,7 @@ std::string diff::get_original_line(int index) const {
                 throw pdif_out_of_bounds("pdif::diff::get_original_line - index out of range");
             }
         } else {
-            return m_original_streams[y][i]->to_string();
+            return m_original_streams[y][i]->to_string(m_write_console_colors);
         }
     }
 
@@ -215,8 +215,8 @@ std::string diff::get_original_line(int index) const {
 }
 
 void diff::output_meta_edit_script(std::ostream& os) const {
-    os << util::CONSOLE_COLOR_CODE::TEXT_BOLD << "Meta Differences" << util::CONSOLE_COLOR_CODE::TEXT_RESET << std::endl;
-    std::cout << std::endl;
+    os << cc(util::CONSOLE_COLOR_CODE::TEXT_BOLD) << "Meta Differences" << cc(util::CONSOLE_COLOR_CODE::TEXT_RESET) << std::endl;
+    os << std::endl;
 
     int plus = 0;
     int minus = 0;
@@ -228,27 +228,27 @@ void diff::output_meta_edit_script(std::ostream& os) const {
         for (const meta_edit_op& op : m_meta_edit_script) {
             switch (op.get_type()) {
                 case meta_edit_op_type::META_ADD:
-                    os << "\t" << util::CONSOLE_COLOR_CODE::FG_GREEN << "+ ";
+                    os << "\t" << cc(util::CONSOLE_COLOR_CODE::FG_GREEN) << "+ ";
                     os << op.get_meta_key();
-                    os << util::CONSOLE_COLOR_CODE::FG_DEFAULT << " ==> " << util::CONSOLE_COLOR_CODE::FG_GREEN;
+                    os << cc(util::CONSOLE_COLOR_CODE::FG_DEFAULT) << " ==> " << cc(util::CONSOLE_COLOR_CODE::FG_GREEN);
                     os << op.get_meta_val();
-                    os << util::CONSOLE_COLOR_CODE::FG_DEFAULT;
+                    os << cc(util::CONSOLE_COLOR_CODE::FG_DEFAULT);
                     os << std::endl;
                     plus++;
                     break;
                 case meta_edit_op_type::META_DELETE:
-                    os << "\t" << util::CONSOLE_COLOR_CODE::FG_RED << "- ";
+                    os << "\t" << cc(util::CONSOLE_COLOR_CODE::FG_RED) << "- ";
                     os << op.get_meta_key();
-                    os << util::CONSOLE_COLOR_CODE::FG_DEFAULT;
+                    os << cc(util::CONSOLE_COLOR_CODE::FG_DEFAULT);
                     os << std::endl;
                     minus++;
                     break;
                 case meta_edit_op_type::META_UPDATE:
-                    os << "\t" << util::CONSOLE_COLOR_CODE::FG_YELLOW << "~ ";
+                    os << "\t" << cc(util::CONSOLE_COLOR_CODE::FG_YELLOW) << "~ ";
                     os << op.get_meta_key();
-                    os << util::CONSOLE_COLOR_CODE::FG_DEFAULT << " ==> " << util::CONSOLE_COLOR_CODE::FG_YELLOW;
+                    os << cc(util::CONSOLE_COLOR_CODE::FG_DEFAULT) << " ==> " << cc(util::CONSOLE_COLOR_CODE::FG_YELLOW);
                     os << op.get_meta_val();
-                    os << util::CONSOLE_COLOR_CODE::FG_DEFAULT;
+                    os << cc(util::CONSOLE_COLOR_CODE::FG_DEFAULT);
                     os << std::endl;
                     update++;
                     break;
@@ -259,18 +259,40 @@ void diff::output_meta_edit_script(std::ostream& os) const {
     }
 
     output_summary(os, plus, minus, update, "~", util::CONSOLE_COLOR_CODE::FG_YELLOW);
-    os << util::CONSOLE_COLOR_CODE::TEXT_BOLD << "End of Meta Differences" << util::CONSOLE_COLOR_CODE::TEXT_RESET << std::endl;
+    os << cc(util::CONSOLE_COLOR_CODE::TEXT_BOLD) << "End of Meta Differences" << cc(util::CONSOLE_COLOR_CODE::TEXT_RESET) << std::endl;
 
 }
 
 void diff::output_summary(std::ostream& os, int plus, int minus, int last, std::string last_char, util::CONSOLE_COLOR_CODE last_color) const {
     os << std::endl;
-    os << util::CONSOLE_COLOR_CODE::TEXT_BOLD << "Summary: " << util::CONSOLE_COLOR_CODE::TEXT_RESET;
-    os << util::CONSOLE_COLOR_CODE::FG_GREEN << "+" << plus << " ";
-    os << util::CONSOLE_COLOR_CODE::FG_RED << "-" << minus << " ";
-    os << last_color << last_char << last;
-    os << util::CONSOLE_COLOR_CODE::FG_DEFAULT;
+    os << cc(util::CONSOLE_COLOR_CODE::TEXT_BOLD) << "Summary: " << cc(util::CONSOLE_COLOR_CODE::TEXT_RESET);
+    os << cc(util::CONSOLE_COLOR_CODE::FG_GREEN) << "+" << plus << " ";
+    os << cc(util::CONSOLE_COLOR_CODE::FG_RED) << "-" << minus << " ";
+    os << cc(last_color) << last_char << last;
+    os << cc(util::CONSOLE_COLOR_CODE::FG_DEFAULT);
     os << std::endl;
+}
+
+std::string diff::cc(util::CONSOLE_COLOR_CODE code) const {
+    if (m_write_console_colors) {
+        std::stringstream ss;
+        ss << code;
+        return ss.str();
+    }
+    return "";
+}
+
+void diff::write_edit_chunk(std::ostream& os, const edit_chunk& chunk) const {
+    // print chunk header
+    os << cc(util::CONSOLE_COLOR_CODE::TEXT_BOLD);
+    os << "@@ -" << chunk.from_file_start << "," << chunk.from_count << " +" << chunk.to_file_start << "," << chunk.to_count << " @@" << std::endl;
+    os << cc(util::CONSOLE_COLOR_CODE::TEXT_RESET);
+    
+    // print chunk content
+    for (const std::string& line : chunk.lines) {
+        os << line << std::endl;
+    }
+
 }
 
 std::ostream& operator<<(std::ostream& os, const diff::edit_chunk& chunk) {

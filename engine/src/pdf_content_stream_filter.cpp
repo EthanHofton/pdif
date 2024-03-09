@@ -63,18 +63,22 @@ void pdf_content_stream_filter::handleOperator(QPDFTokenizer::Token const& token
     }
 
     if (token.getValue() == "Tf") {
+        flushStringBuffer();
         handleFontChange();
     }
 
     if (token.getValue() == "g" || token.getValue() == "rg") {
+        flushStringBuffer();
         handleTextColorSet();
     }
     
     if (token.getValue() == "G" || token.getValue() == "RG") {
+        flushStringBuffer();
         handleStrokeColorSet();
     }
 
     if (token.getValue() == "Do") {
+        flushStringBuffer();
         handleXObject();
     }
 
@@ -119,6 +123,14 @@ void pdf_content_stream_filter::handleStringWrite() {
             }
             break;
         }
+    }
+}
+
+void pdf_content_stream_filter::flushStringBuffer() {
+    // flush the string buffer if it's not empty
+    if (m_string_buffer.size() > 0) {
+        m_stream.push_back(stream_elem::create<text_elem>(m_string_buffer));
+        m_string_buffer.clear();
     }
 }
 

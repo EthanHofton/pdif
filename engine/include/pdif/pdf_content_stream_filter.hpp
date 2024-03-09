@@ -74,6 +74,12 @@ private:
      */
     std::string imageToHash(const unsigned char* data, size_t size);
 
+    /**
+     * @brief Flush the string buffer
+     * 
+     */
+    void flushStringBuffer();
+
 private:
 
     // single arg, or array arg

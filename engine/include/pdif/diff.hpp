@@ -51,13 +51,9 @@ public:
          * 
          */
         int to_count = 0;
-
-        /**
-         * @brief The number of context lines before and after the chunk
-         * 
-         */
-        static const int ALLOWED_CONTEXT = 3;
     };
+
+    diff(bool write_console_colors = true) : m_write_console_colors(write_console_colors) {}
 
     /**
      * @brief add an edit op to the edit script
@@ -141,6 +137,13 @@ public:
     inline void reverse_edit_ops(std::vector<edit_op>::iterator start, std::vector<edit_op>::iterator end) { std::reverse(start, end); }
 
     /**
+     * @brief Set the allowed context line count for edit chunks
+     * 
+     * @param context 
+     */
+    inline void set_allowed_context(int context) { m_allowed_context = context; }
+
+    /**
      * @brief Add an original stream to the diff (used for display purposes only)
      * 
      * @param s the original stream
@@ -165,12 +168,19 @@ private:
 
     void output_summary(std::ostream& os, int plus, int minus, int last, std::string last_char, util::CONSOLE_COLOR_CODE last_color) const;
 
+    void write_edit_chunk(std::ostream& os, const edit_chunk& chunk) const;
+
+    std::string cc(util::CONSOLE_COLOR_CODE code) const;
+
 private:
 
     std::vector<edit_op> m_edit_script;
     std::vector<meta_edit_op> m_meta_edit_script;
     
     std::vector<stream> m_original_streams;
+
+    bool m_write_console_colors = true;
+    int m_allowed_context = 3;
 };
 
 std::ostream& operator<<(std::ostream& os, const diff::edit_chunk& chunk);

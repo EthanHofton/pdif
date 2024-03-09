@@ -101,7 +101,7 @@ TEST(PDIFPDF, DumpContentNoConsoleColorsPageNoNegative) {
     auto page = pdf.get_streams()[0];
 
     for (size_t i = 0; i < page.size(); i++) {
-        ss << page[i]->to_string() << " ";
+        ss << page[i]->to_string(false) << " ";
     }
 
     ss << std::endl;
@@ -125,7 +125,7 @@ TEST(PDIFPDF, DumpContentNoConsoleColorsPageSingle) {
     auto page = pdf.get_streams()[0];
 
     for (size_t i = 0; i < page.size(); i++) {
-        ss << page[i]->to_string() << " ";
+        ss << page[i]->to_string(false) << " ";
     }
 
     ss << std::endl;

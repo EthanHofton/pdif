@@ -41,7 +41,7 @@ public:
 
     template<typename T, typename = std::enable_if_t<std::is_base_of_v<stream_differ_base, T>>>
     diff compare(const PDF& other) const {
-        pdif::diff d;
+        pdif::diff d(m_write_console_colors);
 
         // compare the meta
         stream_differ_base::meta_diff(d, m_meta, other.m_meta);

@@ -43,7 +43,7 @@ void PDF::dump_content(std::ostream& t_out, int pageno, std::optional<std::strin
             t_out << std::endl;
             auto stream = m_streams[y];
             for (size_t i = 0; i < stream.size(); i++) {
-                t_out << stream[i]->to_string();
+                t_out << stream[i]->to_string(m_write_console_colors);
 
                 if (spacing.has_value()) {
                     t_out << spacing.value();
@@ -73,7 +73,7 @@ void PDF::dump_content(std::ostream& t_out, int pageno, std::optional<std::strin
         t_out << std::endl;
         auto stream = m_streams[pageno - 1];
         for (size_t i = 0; i < stream.size(); i++) {
-            t_out << stream[i]->to_string();
+            t_out << stream[i]->to_string(m_write_console_colors);
 
             if (spacing.has_value()) {
                 t_out << spacing.value();
