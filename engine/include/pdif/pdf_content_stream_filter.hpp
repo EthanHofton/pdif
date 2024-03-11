@@ -103,7 +103,7 @@ private:
 
     std::vector<arg_type> m_arg_stack;
 
-    static constexpr double SPACE_THRESHOLD = -50;
+    static constexpr double SPACE_THRESHOLD = -70;
 };
 
 };
