@@ -31,7 +31,7 @@ struct args {
 
 void print_usage()
 {
-    printf("usage: pdif [diff|extract|help|version] ");
+    printf("usage: pdif [diff|extract|help|version]\n");
     printf("  diff [diff_options] <pdf1> <pdf2>: compare two PDF files and output the differences\n");
     printf("  extract [extract_options] <file>: extract the content of a PDF file\n");
     printf("  help: print this message\n");

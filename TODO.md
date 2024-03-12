@@ -1,5 +1,12 @@
 ### TODO
 
+### HIGH PRIORITY:
+
+- [ ] implement testing section
+- [ ] BUG FIX: add to_unicode to font elem, if the font has one. Use the to_unicode map to convert the raw stream value to unicode
+- [ ] BUG FIX: Fix ligature issue. When doing text extraction, liguatures are not being handeled correctly, causing fi, ff ect to be some wird escape sequence. Potentally use unicode normalization to fix this issue. OR if this fails, research a unicode map for ligatures and use that to fix the issue.
+
+
 #### code base
 
 - [x] add README.md
@@ -23,14 +30,14 @@
 ### Features:
 
 - [ ] MAYBE: add support for image resizing (think on how to do nicely)
-- [ ] implement cli options
+- Note on above: QPDF has a function to get the current graphic matrix for an object, could use this function to get the graphic matrix for the image and extract the scaling factor and skew.
+- [x] implement cli options. 
 - [ ] annotation diffs
 - [ ] form diffs
 
 ### Cleanup:
 
-- Remove dormant apply code from cli.
-
+- [x] Remove dormant apply code from cli.
 
 ## Scoping
 

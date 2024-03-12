@@ -42,7 +42,6 @@ sudo apt-get install qpdf openssl
 The project auto imports the following dependencies (using `FetchContent`):
  
  - `EthanHofton/util` - A collection of utility functions and classes for C++. [GitHub](https://github.com/EthanHofton/util.git)
- - `nlohmann/json` - A JSON library for C++. [GitHub](https://github.com/nlohmann/json.git)
 
 ## Building
 
@@ -114,22 +113,21 @@ pdif [COMMAND]
 Where `[COMMAND]` is one of the following:
 
  - `diff [diff_options] <pdf1> <pdf2>`: Compare two PDFs
- - `apply [diff_options] <pdf1> <json_diff>`: Apply a calculated diff to a PDF
+ - `extract [extract__options] <file>`: Extract the metadata and content from a PDF
  - `help`: Display the help message
  - `version`: Display the version of the pdif-cli and the pdif-engine library
- - `extract [extract__options] <file>`: Extract the metadata and content from a PDF
 
 The `[diff_options]` are as follows: 
 
  - `-o, --output <file>`: The file to output the result to. If not specified, the result will be output to the console
- - `-m, --meta`: Include the metadata in the output.
- - `-t, --text`: Include the text in the output.
- - `-i, --image`: Include the images in the output.
+ - `-m, --meta`: Compare only the metadata in the output.
+ - `-C, --content`: Compare only the content streams.
  - `-s, --scope <page|document>`: This is the scope of the extraction, either treat the PDF as one long single page or multiple pages.
+ - `-S, --summary`: Compare only the content streams.
  - `-g, --granularity <letter|word|sentence>`: The granularity of the extracted document.
  - `-p, --page <number>`: The page number to diff. Negative for all, zero for metadata.
-
-If neither the `--meta`, `--text` or `--image` options are specified, all are on by default.
+ - `-n, --no-color`: Do not use terminal escape code in the output.
+ - `-c, --context <number>`: The number of context lines to include before and after for each diff chunk.
 
 The `[extract_options]` are as follows:
 
@@ -137,3 +135,4 @@ The `[extract_options]` are as follows:
  - `-p, --page <number>`: The page number to diff. Negative for all, zero for metadata.
  - `-o, --output <file>`: The file to output the result to. If not specified, the result will be output to the console
  - `-s, --spacing <value>`: The spacing between the elements in the output.
+ - `-n, --no-color`: Do not use terminal escape code in the output.
