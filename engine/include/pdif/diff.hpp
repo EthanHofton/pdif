@@ -150,11 +150,55 @@ public:
      */
     void add_original_stream(const stream& s) { m_original_streams.push_back(s); }
 
+    /**
+     * @brief get a reference end iterator for the edit script
+     * 
+     * @return std::vector<edit_op>::iterator 
+     */
     std::vector<edit_op>::iterator end() { return m_edit_script.end(); }
+    /**
+     * @brief get a reference begin iterator for the edit script
+     * 
+     * @return std::vector<edit_op>::iterator 
+     */
     std::vector<edit_op>::iterator begin() { return m_edit_script.begin(); }
 
+    /**
+     * @brief get the diff, represented as a series of edit chunks
+     * 
+     * @return std::vector<edit_chunk> 
+     */
     std::vector<edit_chunk> edit_chunk_summary() const;
-    void count_op_types(int& plus, int& minus, int&eq) const;
+    /**
+     * @brief count the number of each type of operation in the edit script
+     * 
+     * @param plus 
+     * @param minus 
+     * @param eq 
+     */
+    void count_edit_op_types(int& plus, int& minus, int&eq) const;
+
+    /**
+     * @brief Count the number of each type of operation in the meta edit script
+     * 
+     * @param update 
+     * @param add 
+     * @param del 
+     */
+    void count_meta_op_types(int& update, int& add, int&del) const;
+
+    /**
+     * @brief output a summary of the diff to the given output stream
+     * 
+     * @param os 
+     */
+    void output_edit_summary(std::ostream& os) const;
+    /**
+     * @brief output a summary of the meta edit script to the given output stream
+     * 
+     * @param os 
+     */
+    void output_meta_summary(std::ostream& os) const;
 
 private:
 

@@ -29,7 +29,7 @@ extern pdif::stream_meta extract_meta(std::shared_ptr<QPDF> pdf) {
     return meta;
 }
 
-extern std::vector<pdif::stream> extract_content(std::shared_ptr<QPDF> pdf, granularity g, scope s) {
+extern std::vector<pdif::stream> extract_content(std::shared_ptr<QPDF> pdf, granularity g, scope s, int pageno) {
     using T_filter = pdf_content_stream_filter;
     std::vector<pdif::stream> streams;
 
@@ -37,6 +37,14 @@ extern std::vector<pdif::stream> extract_content(std::shared_ptr<QPDF> pdf, gran
 
     if (s == scope::document) {
         streams.push_back(pdif::stream());
+    }
+
+    if (pageno >= (int)pages.size()) {
+        throw std::runtime_error("Page number out of range");
+    }
+
+    if (pageno >= 0) {
+        pages = {pages[pageno]};
     }
 
     for (auto& page : pages) {

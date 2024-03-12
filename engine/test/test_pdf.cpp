@@ -72,26 +72,13 @@ TEST(PDIFPDF, DumpMetaConsoleColors) {
     ASSERT_EQ(pdf_ss.str(), ss.str());
 }
 
-TEST(PDIFPDF, DumpContentNoConsoleColorsPageno0) {
-    pdif::PDF pdf("test_pdfs/content_initial.pdf", pdif::granularity::word, pdif::scope::page, false);
-
-    std::stringstream pdf_ss;
-
-    ASSERT_NO_THROW(pdf.dump_content(pdf_ss, 0));
-
-    std::stringstream ss;
-    pdf.dump_meta(ss);
-
-    ASSERT_EQ(pdf_ss.str(), ss.str());
-}
-
 // all
 TEST(PDIFPDF, DumpContentNoConsoleColorsPageNoNegative) {
-    pdif::PDF pdf("test_pdfs/content_initial.pdf", pdif::granularity::word, pdif::scope::page, false);
+    pdif::PDF pdf("test_pdfs/content_initial.pdf", pdif::granularity::word, pdif::scope::page, false, -1);
 
     std::stringstream pdf_ss;
 
-    ASSERT_NO_THROW(pdf.dump_content(pdf_ss, -1));
+    ASSERT_NO_THROW(pdf.dump_content(pdf_ss));
 
     std::stringstream ss;
 
@@ -111,11 +98,11 @@ TEST(PDIFPDF, DumpContentNoConsoleColorsPageNoNegative) {
 }
 
 TEST(PDIFPDF, DumpContentNoConsoleColorsPageSingle) {
-    pdif::PDF pdf("test_pdfs/content_initial.pdf", pdif::granularity::word, pdif::scope::page, false);
+    pdif::PDF pdf("test_pdfs/content_initial.pdf", pdif::granularity::word, pdif::scope::page, false, 0);
 
     std::stringstream pdf_ss;
 
-    ASSERT_NO_THROW(pdf.dump_content(pdf_ss, 1));
+    ASSERT_NO_THROW(pdf.dump_content(pdf_ss));
 
     std::stringstream ss;
 
@@ -135,32 +122,15 @@ TEST(PDIFPDF, DumpContentNoConsoleColorsPageSingle) {
 }
 
 TEST(PDIFPDF, DumpContentPageNoInvalid) {
-    pdif::PDF pdf("test_pdfs/content_initial.pdf", pdif::granularity::word, pdif::scope::page, false);
-
-    std::stringstream pdf_ss;
-
-    ASSERT_THROW(pdf.dump_content(pdf_ss, 2), std::runtime_error);
-}
-
-TEST(PDIFPDF, DumpContentConsoleColorsPageNo0) {
-    pdif::PDF pdf("test_pdfs/content_initial.pdf", pdif::granularity::word, pdif::scope::page, true);
-
-    std::stringstream pdf_ss;
-
-    ASSERT_NO_THROW(pdf.dump_content(pdf_ss, 0));
-
-    std::stringstream ss;
-    pdf.dump_meta(ss);
-
-    ASSERT_EQ(pdf_ss.str(), ss.str());
+    ASSERT_THROW({pdif::PDF pdf("test_pdfs/content_initial.pdf", pdif::granularity::word, pdif::scope::page, false, 1);}, std::runtime_error);
 }
 
 TEST(PDIFPDF, DumpContentConsoleColorsPageSingle) {
-    pdif::PDF pdf("test_pdfs/content_initial.pdf", pdif::granularity::word, pdif::scope::page, true);
+    pdif::PDF pdf("test_pdfs/content_initial.pdf", pdif::granularity::word, pdif::scope::page, true, 0);
 
     std::stringstream pdf_ss;
 
-    ASSERT_NO_THROW(pdf.dump_content(pdf_ss, 1));
+    ASSERT_NO_THROW(pdf.dump_content(pdf_ss));
 
     std::stringstream ss;
 
@@ -180,11 +150,11 @@ TEST(PDIFPDF, DumpContentConsoleColorsPageSingle) {
 }
 
 TEST(PDIFPDF, DumpContentConsoleColorsPageNoNegative) {
-    pdif::PDF pdf("test_pdfs/content_initial.pdf", pdif::granularity::word, pdif::scope::page, true);
+    pdif::PDF pdf("test_pdfs/content_initial.pdf", pdif::granularity::word, pdif::scope::page, true, -1);
 
     std::stringstream pdf_ss;
 
-    ASSERT_NO_THROW(pdf.dump_content(pdf_ss, -1));
+    ASSERT_NO_THROW(pdf.dump_content(pdf_ss));
 
     std::stringstream ss;
 

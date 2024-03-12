@@ -83,6 +83,7 @@ void pdf_content_stream_filter::handleOperator(QPDFTokenizer::Token const& token
     }
 
     // TODO: Handel inline image (BI, ID, EI)
+    // OR: use QPDF to convert inline images to XObjects
 }
 
 void pdf_content_stream_filter::handleStringWrite() {

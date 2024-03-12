@@ -53,7 +53,7 @@ extern pdif::stream_meta extract_meta(std::shared_ptr<QPDF> pdf);
  * @param s the scope to use
  * @return std::vector<pdif::stream> the extracted content
  */
-extern std::vector<pdif::stream> extract_content(std::shared_ptr<QPDF> pdf, granularity g, scope s);
+extern std::vector<pdif::stream> extract_content(std::shared_ptr<QPDF> pdf, granularity g, scope s, int pageno = -1);
 
 }
 

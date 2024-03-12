@@ -161,7 +161,7 @@ std::vector<diff::edit_chunk> diff::edit_chunk_summary() const {
     return chunks;
 }
 
-void diff::count_op_types(int& plus, int& minus, int&eq) const {
+void diff::count_edit_op_types(int& plus, int& minus, int&eq) const {
     plus = 0;
     minus = 0;
     eq = 0;
@@ -173,6 +173,22 @@ void diff::count_op_types(int& plus, int& minus, int&eq) const {
             minus++;
         } else if (op.get_type() == edit_op_type::EQ) {
             eq++;
+        }
+    }
+}
+
+void diff::count_meta_op_types(int& update, int& add, int&del) const {
+    update = 0;
+    add = 0;
+    del = 0;
+
+    for (const meta_edit_op& op : m_meta_edit_script) {
+        if (op.get_type() == meta_edit_op_type::META_UPDATE) {
+            update++;
+        } else if (op.get_type() == meta_edit_op_type::META_DELETE) {
+            del++;
+        } else if (op.get_type() == meta_edit_op_type::META_ADD) {
+            add++;
         }
     }
 }
@@ -191,10 +207,6 @@ void diff::output_edit_script(std::ostream& os) const {
         }
     }
     
-    int plus_count, minus_count, eq_count;
-    count_op_types(plus_count, minus_count, eq_count);
-
-    output_summary(os, plus_count, minus_count, eq_count, "=", util::CONSOLE_COLOR_CODE::FG_DEFAULT);
     os << cc(util::CONSOLE_COLOR_CODE::TEXT_BOLD) << "End of Content Differences" << cc(util::CONSOLE_COLOR_CODE::TEXT_RESET) << std::endl;
 }
 
@@ -217,10 +229,6 @@ std::string diff::get_original_line(int index) const {
 void diff::output_meta_edit_script(std::ostream& os) const {
     os << cc(util::CONSOLE_COLOR_CODE::TEXT_BOLD) << "Meta Differences" << cc(util::CONSOLE_COLOR_CODE::TEXT_RESET) << std::endl;
     os << std::endl;
-
-    int plus = 0;
-    int minus = 0;
-    int update = 0;
     
     if (m_meta_edit_script.size() == 0) {
         os << "\tNo differences" << std::endl;
@@ -234,14 +242,12 @@ void diff::output_meta_edit_script(std::ostream& os) const {
                     os << op.get_meta_val();
                     os << cc(util::CONSOLE_COLOR_CODE::FG_DEFAULT);
                     os << std::endl;
-                    plus++;
                     break;
                 case meta_edit_op_type::META_DELETE:
                     os << "\t" << cc(util::CONSOLE_COLOR_CODE::FG_RED) << "- ";
                     os << op.get_meta_key();
                     os << cc(util::CONSOLE_COLOR_CODE::FG_DEFAULT);
                     os << std::endl;
-                    minus++;
                     break;
                 case meta_edit_op_type::META_UPDATE:
                     os << "\t" << cc(util::CONSOLE_COLOR_CODE::FG_YELLOW) << "~ ";
@@ -250,7 +256,6 @@ void diff::output_meta_edit_script(std::ostream& os) const {
                     os << op.get_meta_val();
                     os << cc(util::CONSOLE_COLOR_CODE::FG_DEFAULT);
                     os << std::endl;
-                    update++;
                     break;
                 default:
                     break;
@@ -258,9 +263,7 @@ void diff::output_meta_edit_script(std::ostream& os) const {
         }
     }
 
-    output_summary(os, plus, minus, update, "~", util::CONSOLE_COLOR_CODE::FG_YELLOW);
     os << cc(util::CONSOLE_COLOR_CODE::TEXT_BOLD) << "End of Meta Differences" << cc(util::CONSOLE_COLOR_CODE::TEXT_RESET) << std::endl;
-
 }
 
 void diff::output_summary(std::ostream& os, int plus, int minus, int last, std::string last_char, util::CONSOLE_COLOR_CODE last_color) const {
@@ -292,7 +295,20 @@ void diff::write_edit_chunk(std::ostream& os, const edit_chunk& chunk) const {
     for (const std::string& line : chunk.lines) {
         os << line << std::endl;
     }
+}
 
+void diff::output_edit_summary(std::ostream& os) const {
+    int plus_count, minus_count, eq_count;
+    count_edit_op_types(plus_count, minus_count, eq_count);
+
+    output_summary(os, plus_count, minus_count, eq_count, "=", util::CONSOLE_COLOR_CODE::FG_DEFAULT);
+}
+
+void diff::output_meta_summary(std::ostream& os) const {
+    int add, update, del;
+    count_meta_op_types(update, add, del);
+
+    output_summary(os, add, del, update, "~", util::CONSOLE_COLOR_CODE::FG_YELLOW);
 }
 
 std::ostream& operator<<(std::ostream& os, const diff::edit_chunk& chunk) {

@@ -23,8 +23,10 @@ public:
      * @param path the path of the PDF file
      * @param g the granularity of the extractor (default: word)
      * @param s the scope of the extractor (default: page)
+     * @param write_console_colors flag to set whether to write console colors (default: true)
+     * @param pageno the page number to extract STARTING FROM 0 (default: -1 for all)
      */
-    PDF(const std::string& path, granularity g = granularity::word, scope s = scope::page, bool write_console_colors = true);
+    PDF(const std::string& path, granularity g = granularity::word, scope s = scope::page, bool write_console_colors = true, int pageno = -1);
 
     /**
      * @brief Get the granularity object
@@ -80,7 +82,7 @@ public:
      * @param t_out the output stream
      * @param pageno the page number to dump (negative for all, 0 for meta)
      */
-    void dump_content(std::ostream&, int pageno = -1, std::optional<std::string> = std::nullopt) const;
+    void dump_content(std::ostream&, std::optional<std::string> = std::nullopt) const;
 
     /**
      * @brief Flag to set whether to write console colors
@@ -129,6 +131,7 @@ private:
     pdif::stream_meta m_meta;
 
     bool m_write_console_colors;
+    int m_pageno;
 };
 
 }
