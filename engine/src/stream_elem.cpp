@@ -60,6 +60,26 @@ std::string font_elem::to_string(bool console_colors) const {
     return ss.str();
 }
 
+void font_elem::set_to_unicode(std::map<std::string, std::string> t_to_unicode) {
+    m_to_unicode = t_to_unicode;
+}
+
+bool font_elem::has_to_unicode() const {
+    return m_to_unicode.has_value();
+}
+
+std::string font_elem::to_unicode(const std::string& t_char) const {
+    if (!has_to_unicode()) {
+        return t_char;
+    }
+
+    if (m_to_unicode.value().find(t_char) == m_to_unicode.value().end()) {
+        return t_char;
+    }
+
+    return m_to_unicode.value().at(t_char);
+}
+
 // ** ====== TEXT COLOR ELEM ====== ** //
 text_color_elem::text_color_elem(stream_elem::private_tag t, float t_r, float t_g, float t_b) :
     color_elem(t, stream_type::text_color_set, t_r, t_g, t_b) {}

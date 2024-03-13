@@ -3,7 +3,7 @@
 ### HIGH PRIORITY:
 
 - [ ] implement testing section
-- [ ] BUG FIX: add to_unicode to font elem, if the font has one. Use the to_unicode map to convert the raw stream value to unicode
+- [x] BUG FIX: add to_unicode to font elem, if the font has one. Use the to_unicode map to convert the raw stream value to unicode
 - [ ] BUG FIX: Fix ligature issue. When doing text extraction, liguatures are not being handeled correctly, causing fi, ff ect to be some wird escape sequence. Potentally use unicode normalization to fix this issue. OR if this fails, research a unicode map for ligatures and use that to fix the issue.
 
 
