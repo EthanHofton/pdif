@@ -298,10 +298,34 @@ public:
      */
     virtual std::string to_string(bool console_colors = true) const override;
 
+    /**
+     * @brief Set the to unicode map
+     * 
+     * @param t_to_unicode 
+     */
+    void set_to_unicode(std::map<std::string, std::string> t_to_unicode);
+    /**
+     * @brief checks if the font has a to_unicode map
+     * 
+     * @return true 
+     * @return false 
+     */
+    bool has_to_unicode() const;
+    /**
+     * @brief uses the to_unicode map to convert a string to unicode
+     * If the to_unicode map is not set, the input string is returned
+     * 
+     * @param t_char 
+     * @return std::string 
+     */
+    std::string to_unicode(const std::string& t_char) const;
+
 private:
 
     std::string m_font_name;
     int m_font_size;
+
+    std::optional<std::map<std::string, std::string>> m_to_unicode;
 };
 
 /**
