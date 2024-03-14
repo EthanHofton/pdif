@@ -27,12 +27,20 @@ std::string pdf_content_stream_filter::arg_visitor::operator()(std::vector<QPDFT
                         decoded.append(unicode_hex);
                     }
                     s.append(QUtil::hex_decode(decoded));
-                } else {
-                    s.append(token.getValue());
+                    continue;
+                } else if (val[0] == '(') {
+                    val = val.substr(1, val.size() - 2);
+                    // for now, only decode if value is octal
+                    if (val[0] == '\\') {
+                        int octal = std::stoi(val.substr(1, 3), 0, 8);
+                        std::string unicode_hex = current_font.value()->to_unicode(std::to_string(octal));
+                        s.append(unicode_hex);
+                        continue;
+                    }
                 }
-            } else {
-                s.append(token.getValue());
-            }
+            } 
+
+            s.append(token.getValue());
         } else if (token.getType() == QPDFTokenizer::tt_integer || token.getType() == QPDFTokenizer::tt_real) {
             if (std::stoi(token.getValue()) < SPACE_THRESHOLD) {
                 s.push_back(' ');
@@ -111,9 +119,7 @@ void pdf_content_stream_filter::handleStringWrite() {
         visitor.current_font = m_state.current_font;
 
         std::string val = std::visit(visitor, arg);
-        // unicode normalization
-        std::string val_normalized = unicodeNormalize(val);
-        m_string_buffer.append(val_normalized);
+        m_string_buffer.append(val);
     }
 
     switch (m_g) {
@@ -191,6 +197,16 @@ void pdf_content_stream_filter::handleFontChange() {
         if (to_unicode_obj.isStream()) {
             auto stream_data = to_unicode_obj.getStreamData();
             parseCMap(std::string((char*)stream_data->getBuffer(), stream_data->getSize()));
+        }
+    // now check if the font has font file stream, with a char encoding
+    } else if (font_obj.hasKey("/FontDescriptor")) {
+        QPDFObjectHandle font_descriptor = font_obj.getKey("/FontDescriptor");
+        if (font_descriptor.hasKey("/FontFile")) {
+            QPDFObjectHandle font_file = font_descriptor.getKey("/FontFile");
+            if (font_file.isStream()) {
+                auto stream_data = font_file.getStreamData();
+                getPostScriptFontEncoding(std::string((char*)stream_data->getBuffer(), stream_data->getSize()));
+            }
         }
     }
 
@@ -330,20 +346,38 @@ void pdf_content_stream_filter::parseCMap(const std::string& cmap) {
     }
 }
 
-std::string pdf_content_stream_filter::unicodeNormalize(const std::string& str) const {
-    const utf8proc_uint8_t* utf8Input = reinterpret_cast<const utf8proc_uint8_t*>(str.c_str());
-    utf8proc_uint8_t* normalizedString = nullptr;
+void pdf_content_stream_filter::getPostScriptFontEncoding(const std::string& postscript_font) {
+    std::stringstream ss;
+    ss << postscript_font;
 
-    ssize_t resultLength = utf8proc_map(utf8Input, 0, &normalizedString, (utf8proc_option_t)(UTF8PROC_STABLE | UTF8PROC_COMPOSE));
-    std::string normalized;
-    if (resultLength > 0) {
-        // convert to std::string
-        normalized.assign(reinterpret_cast<char*>(normalizedString), resultLength);
-        return normalized;
+    std::string line;
+    std::map<std::string, std::string> to_unicode;
+
+    while (std::getline(ss, line)) {
+        if (line.find("/Encoding") != std::string::npos) {
+            std::string encoding;
+            std::getline(ss, encoding);
+            // skip the first line (array def)
+            std::getline(ss, encoding);
+            while (encoding.find("def") == std::string::npos) {
+                std::string def, index, name, end;
+                std::istringstream encoding_ss(encoding);
+                encoding_ss >> def >> index >> name >> end;
+
+                if (name[0] == '/') {
+                    name = name.substr(1);
+                }
+
+                to_unicode[index] = name;
+                std::getline(ss, encoding);
+            }
+        }
+    }
+
+    if (m_state.current_font.has_value()) {
+        m_state.current_font.value()->set_to_unicode(to_unicode);
     } else {
-        const char* errorMessage = utf8proc_errmsg(resultLength);
-        PDIF_LOG_WARN("Failed to normalize string: {}, with error message: {}", str, errorMessage);
-        return str;
+        PDIF_LOG_WARN("Parsed PostScript Font Encoding, but no font is set");
     }
 }
 

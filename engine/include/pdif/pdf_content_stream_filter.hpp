@@ -86,6 +86,13 @@ private:
      * @param cmap 
      */
     void parseCMap(const std::string& cmap);
+
+    /**
+     * @brief Get the Post Script Font Encoding for a postscript font
+     * 
+     * @param postscript_font 
+     */
+    void getPostScriptFontEncoding(const std::string& postscript_font);
     
     /**
      * @brief do unicode normalization on the input string
