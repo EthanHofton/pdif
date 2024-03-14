@@ -2,6 +2,7 @@
 #include <openssl/sha.h>
 #include <iomanip>
 #include <qpdf/QUtil.hh>
+#include <utf8proc.h>
 
 namespace pdif {
 
@@ -110,7 +111,9 @@ void pdf_content_stream_filter::handleStringWrite() {
         visitor.current_font = m_state.current_font;
 
         std::string val = std::visit(visitor, arg);
-        m_string_buffer.append(val);
+        // unicode normalization
+        std::string val_normalized = unicodeNormalize(val);
+        m_string_buffer.append(val_normalized);
     }
 
     switch (m_g) {
@@ -324,6 +327,23 @@ void pdf_content_stream_filter::parseCMap(const std::string& cmap) {
         m_state.current_font.value()->set_to_unicode(to_unicode);
     } else {
         PDIF_LOG_WARN("Parsed ToUnicode CMap, but no font is set");
+    }
+}
+
+std::string pdf_content_stream_filter::unicodeNormalize(const std::string& str) const {
+    const utf8proc_uint8_t* utf8Input = reinterpret_cast<const utf8proc_uint8_t*>(str.c_str());
+    utf8proc_uint8_t* normalizedString = nullptr;
+
+    ssize_t resultLength = utf8proc_map(utf8Input, 0, &normalizedString, (utf8proc_option_t)(UTF8PROC_STABLE | UTF8PROC_COMPOSE));
+    std::string normalized;
+    if (resultLength > 0) {
+        // convert to std::string
+        normalized.assign(reinterpret_cast<char*>(normalizedString), resultLength);
+        return normalized;
+    } else {
+        const char* errorMessage = utf8proc_errmsg(resultLength);
+        PDIF_LOG_WARN("Failed to normalize string: {}, with error message: {}", str, errorMessage);
+        return str;
     }
 }
 

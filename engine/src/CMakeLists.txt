@@ -36,15 +36,14 @@ find_package(OpenSSL REQUIRED)
 
 message(STATUS "Found OpenSSL: ${OPENSSL_LIBRARIES}")
 
-# message(STATUS "Fetching Podofo")
+message(STATUS "Finding utf8proc")
 
-# FetchContent_Declare(
-#   podofo
-#   GIT_REPOSITORY https://github.com/podofo/podofo.git
-# )
-# FetchContent_MakeAvailable(podofo)
-
-# message(STATUS "Fetched Podofo")
+FetchContent_Declare(
+  utf8proc
+  GIT_REPOSITORY https://github.com/JuliaStrings/utf8proc
+)
+FetchContent_MakeAvailable(utf8proc)
+message(STATUS "Found utf8proc")
 
 # set sources
 set(PDIF_SOURCES
@@ -78,12 +77,12 @@ set_target_properties(${LIBRARY_NAME} PROPERTIES
 target_include_directories(${LIBRARY_NAME} PUBLIC
     ${PROJECT_SOURCE_DIR}/include
     ${PROJECT_BINARY_DIR}/include   # add the binary tree to the search path so that we will find Version.h
-    # ${nlohmann_json_SOURCE_DIR}/include
 )
 target_link_libraries(${LIBRARY_NAME} PUBLIC
     util
     qpdf::libqpdf
-    OpenSSL::SSL    
+    OpenSSL::SSL
+    utf8proc
 )
 
 install(TARGETS ${LIBRARY_NAME}
