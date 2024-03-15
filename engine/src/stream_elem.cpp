@@ -60,7 +60,7 @@ std::string font_elem::to_string(bool console_colors) const {
     return ss.str();
 }
 
-void font_elem::set_to_unicode(std::map<std::string, std::string> t_to_unicode) {
+void font_elem::set_to_unicode(std::map<int, std::string> t_to_unicode) {
     m_to_unicode = t_to_unicode;
 }
 
@@ -68,13 +68,17 @@ bool font_elem::has_to_unicode() const {
     return m_to_unicode.has_value();
 }
 
-std::string font_elem::to_unicode(const std::string& t_char) const {
+std::string font_elem::to_unicode(int t_char) const {
+    if (t_char == 0 || t_char < 0) {
+        return "";
+    }
+
     if (!has_to_unicode()) {
-        return t_char;
+        return std::string(1, (char)t_char);
     }
 
     if (m_to_unicode.value().find(t_char) == m_to_unicode.value().end()) {
-        return t_char;
+        return std::string(1, (char)t_char);
     }
 
     return m_to_unicode.value().at(t_char);

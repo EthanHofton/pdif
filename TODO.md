@@ -44,3 +44,10 @@
 Does layout need to be included? The focus of the project is on the content of the PDF, not the layout.
 
 - Cover most content types: text, images (xobject), fonts, colors, text, annotations, forms, metadata
+
+
+### Font extraction, unicode mapping:
+
+Currently, the font extraction works but will not work for all kinds.
+
+In order to make the code more robust, we need to check the mapping range. For example, a ToUnicode map can map charicter from 0x0000 - 0x00FF. This means that for every 4 bytes, we have 1 unicode charicter. For other fonts, such as CMR10, the post script font definition is over 0-256 bits (2 bytes). This means for every 2 bytes, we have 1 unicode charicter.

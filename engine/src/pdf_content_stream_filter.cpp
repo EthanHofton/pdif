@@ -2,7 +2,6 @@
 #include <openssl/sha.h>
 #include <iomanip>
 #include <qpdf/QUtil.hh>
-#include <utf8proc.h>
 
 namespace pdif {
 
@@ -18,29 +17,36 @@ std::string pdf_content_stream_filter::arg_visitor::operator()(std::vector<QPDFT
             if (current_font.has_value()) {
                 std::string val = token.getRawValue();
 
-                // only decode if the string is in hex
+                // decode hex string
                 if (val[0] == '<') {
                     std::string decoded = "";
-                    for (size_t i = 1; i < val.size() - 1; i += 4) {
-                        std::string hex = val.substr(i, 4);
-                        std::string unicode_hex = current_font.value()->to_unicode(hex);
+                    for (size_t i = 1; i < val.size() - 1; i += 2) {
+                        std::string hex = val.substr(i, 2);
+                        int hex_i = std::stoi(hex, 0, 16);
+                        std::string unicode_hex = current_font.value()->to_unicode(hex_i);
                         decoded.append(unicode_hex);
                     }
                     s.append(QUtil::hex_decode(decoded));
                     continue;
-                } else if (val[0] == '(') {
-                    val = val.substr(1, val.size() - 2);
-                    // for now, only decode if value is octal
-                    if (val[0] == '\\') {
-                        int octal = std::stoi(val.substr(1, 3), 0, 8);
-                        std::string unicode_hex = current_font.value()->to_unicode(std::to_string(octal));
-                        s.append(unicode_hex);
+                }
+
+                val = token.getValue();
+                std::string decoded = "";
+                for (auto c : val) {
+                    // could do this better
+                    if (!std::isalpha(c) && (int)c > 20) {
+                        decoded.push_back(c);
                         continue;
                     }
-                }
-            } 
 
-            s.append(token.getValue());
+                    int c_i = (int)c;
+                    std::string unicode_hex = current_font.value()->to_unicode(c_i);
+                    decoded.append(unicode_hex);
+                }
+                s.append(decoded);
+            } else {
+                s.append(token.getValue());
+            }
         } else if (token.getType() == QPDFTokenizer::tt_integer || token.getType() == QPDFTokenizer::tt_real) {
             if (std::stoi(token.getValue()) < SPACE_THRESHOLD) {
                 s.push_back(' ');
@@ -114,6 +120,10 @@ void pdf_content_stream_filter::handleOperator(QPDFTokenizer::Token const& token
 }
 
 void pdf_content_stream_filter::handleStringWrite() {
+    if (!m_string_buffer.empty()) {
+        m_string_buffer.push_back(' ');
+    }
+
     for (auto& arg : m_arg_stack) {
         arg_visitor visitor;
         visitor.current_font = m_state.current_font;
@@ -300,7 +310,7 @@ void pdf_content_stream_filter::parseCMap(const std::string& cmap) {
     ss << cmap;
 
     std::string line;
-    std::map<std::string, std::string> to_unicode;
+    std::map<int, std::string> to_unicode;
 
     // check the CMap type
     std::getline(ss, line);
@@ -333,7 +343,9 @@ void pdf_content_stream_filter::parseCMap(const std::string& cmap) {
                     to = to.substr(1, to.size() - 2);
                 }
 
-                to_unicode[from] = to;
+                int from_i = std::stoi(from, 0, 16);
+
+                to_unicode[from_i] = to;
                 std::getline(ss, bfchar);
             }
         }
@@ -351,7 +363,7 @@ void pdf_content_stream_filter::getPostScriptFontEncoding(const std::string& pos
     ss << postscript_font;
 
     std::string line;
-    std::map<std::string, std::string> to_unicode;
+    std::map<int, std::string> to_unicode;
 
     while (std::getline(ss, line)) {
         if (line.find("/Encoding") != std::string::npos) {
@@ -360,7 +372,8 @@ void pdf_content_stream_filter::getPostScriptFontEncoding(const std::string& pos
             // skip the first line (array def)
             std::getline(ss, encoding);
             while (encoding.find("def") == std::string::npos) {
-                std::string def, index, name, end;
+                std::string def, name, end;
+                int index;
                 std::istringstream encoding_ss(encoding);
                 encoding_ss >> def >> index >> name >> end;
 
