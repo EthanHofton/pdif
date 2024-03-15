@@ -93,14 +93,6 @@ private:
      * @param postscript_font 
      */
     void getPostScriptFontEncoding(const std::string& postscript_font);
-    
-    /**
-     * @brief do unicode normalization on the input string
-     * 
-     * @param str 
-     * @return std::string 
-     */
-    std::string unicodeNormalize(const std::string& str) const;
 
 private:
 
