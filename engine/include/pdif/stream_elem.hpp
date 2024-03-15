@@ -303,7 +303,7 @@ public:
      * 
      * @param t_to_unicode 
      */
-    void set_to_unicode(std::map<std::string, std::string> t_to_unicode);
+    void set_to_unicode(std::map<int, std::string> t_to_unicode);
     /**
      * @brief checks if the font has a to_unicode map
      * 
@@ -318,14 +318,14 @@ public:
      * @param t_char 
      * @return std::string 
      */
-    std::string to_unicode(const std::string& t_char) const;
+    std::string to_unicode(int t_char) const;
 
 private:
 
     std::string m_font_name;
     int m_font_size;
 
-    std::optional<std::map<std::string, std::string>> m_to_unicode;
+    std::optional<std::map<int, std::string>> m_to_unicode;
 };
 
 /**

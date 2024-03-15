@@ -103,7 +103,8 @@
         "csetjmp": "cpp",
         "csignal": "cpp",
         "regex": "cpp",
-        "valarray": "cpp"
+        "valarray": "cpp",
+        "filesystem": "cpp"
     },
     "cSpell.words": [
         "metaprogramming",

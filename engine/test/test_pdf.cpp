@@ -282,7 +282,7 @@ TEST(PDIFPDFCompare, BasicTextSentenceGranularity) {
     op = d.get_edit_op(1);
     ASSERT_EQ(op.get_type(), pdif::edit_op_type::INSERT);
     ASSERT_EQ(op.get_arg()->type(), pdif::stream_type::text);
-    ASSERT_EQ(op.get_arg()->as<pdif::text_elem>()->text(), "Hello my world1");
+    ASSERT_EQ(op.get_arg()->as<pdif::text_elem>()->text(), "Hello my world 1");
 
     op = d.get_edit_op(2);
     ASSERT_EQ(op.get_type(), pdif::edit_op_type::DELETE);

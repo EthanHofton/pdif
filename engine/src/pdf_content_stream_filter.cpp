@@ -17,18 +17,33 @@ std::string pdf_content_stream_filter::arg_visitor::operator()(std::vector<QPDFT
             if (current_font.has_value()) {
                 std::string val = token.getRawValue();
 
-                // only decode if the string is in hex
+                // decode hex string
                 if (val[0] == '<') {
                     std::string decoded = "";
-                    for (size_t i = 1; i < val.size() - 1; i += 4) {
-                        std::string hex = val.substr(i, 4);
-                        std::string unicode_hex = current_font.value()->to_unicode(hex);
+                    for (size_t i = 1; i < val.size() - 1; i += 2) {
+                        std::string hex = val.substr(i, 2);
+                        int hex_i = std::stoi(hex, 0, 16);
+                        std::string unicode_hex = current_font.value()->to_unicode(hex_i);
                         decoded.append(unicode_hex);
                     }
                     s.append(QUtil::hex_decode(decoded));
-                } else {
-                    s.append(token.getValue());
+                    continue;
                 }
+
+                val = token.getValue();
+                std::string decoded = "";
+                for (auto c : val) {
+                    // could do this better
+                    if (!std::isalpha(c) && (int)c > 20) {
+                        decoded.push_back(c);
+                        continue;
+                    }
+
+                    int c_i = (int)c;
+                    std::string unicode_hex = current_font.value()->to_unicode(c_i);
+                    decoded.append(unicode_hex);
+                }
+                s.append(decoded);
             } else {
                 s.append(token.getValue());
             }
@@ -105,6 +120,10 @@ void pdf_content_stream_filter::handleOperator(QPDFTokenizer::Token const& token
 }
 
 void pdf_content_stream_filter::handleStringWrite() {
+    if (!m_string_buffer.empty()) {
+        m_string_buffer.push_back(' ');
+    }
+
     for (auto& arg : m_arg_stack) {
         arg_visitor visitor;
         visitor.current_font = m_state.current_font;
@@ -188,6 +207,16 @@ void pdf_content_stream_filter::handleFontChange() {
         if (to_unicode_obj.isStream()) {
             auto stream_data = to_unicode_obj.getStreamData();
             parseCMap(std::string((char*)stream_data->getBuffer(), stream_data->getSize()));
+        }
+    // now check if the font has font file stream, with a char encoding
+    } else if (font_obj.hasKey("/FontDescriptor")) {
+        QPDFObjectHandle font_descriptor = font_obj.getKey("/FontDescriptor");
+        if (font_descriptor.hasKey("/FontFile")) {
+            QPDFObjectHandle font_file = font_descriptor.getKey("/FontFile");
+            if (font_file.isStream()) {
+                auto stream_data = font_file.getStreamData();
+                getPostScriptFontEncoding(std::string((char*)stream_data->getBuffer(), stream_data->getSize()));
+            }
         }
     }
 
@@ -281,7 +310,7 @@ void pdf_content_stream_filter::parseCMap(const std::string& cmap) {
     ss << cmap;
 
     std::string line;
-    std::map<std::string, std::string> to_unicode;
+    std::map<int, std::string> to_unicode;
 
     // check the CMap type
     std::getline(ss, line);
@@ -314,7 +343,9 @@ void pdf_content_stream_filter::parseCMap(const std::string& cmap) {
                     to = to.substr(1, to.size() - 2);
                 }
 
-                to_unicode[from] = to;
+                int from_i = std::stoi(from, 0, 16);
+
+                to_unicode[from_i] = to;
                 std::getline(ss, bfchar);
             }
         }
@@ -324,6 +355,42 @@ void pdf_content_stream_filter::parseCMap(const std::string& cmap) {
         m_state.current_font.value()->set_to_unicode(to_unicode);
     } else {
         PDIF_LOG_WARN("Parsed ToUnicode CMap, but no font is set");
+    }
+}
+
+void pdf_content_stream_filter::getPostScriptFontEncoding(const std::string& postscript_font) {
+    std::stringstream ss;
+    ss << postscript_font;
+
+    std::string line;
+    std::map<int, std::string> to_unicode;
+
+    while (std::getline(ss, line)) {
+        if (line.find("/Encoding") != std::string::npos) {
+            std::string encoding;
+            std::getline(ss, encoding);
+            // skip the first line (array def)
+            std::getline(ss, encoding);
+            while (encoding.find("def") == std::string::npos) {
+                std::string def, name, end;
+                int index;
+                std::istringstream encoding_ss(encoding);
+                encoding_ss >> def >> index >> name >> end;
+
+                if (name[0] == '/') {
+                    name = name.substr(1);
+                }
+
+                to_unicode[index] = name;
+                std::getline(ss, encoding);
+            }
+        }
+    }
+
+    if (m_state.current_font.has_value()) {
+        m_state.current_font.value()->set_to_unicode(to_unicode);
+    } else {
+        PDIF_LOG_WARN("Parsed PostScript Font Encoding, but no font is set");
     }
 }
 

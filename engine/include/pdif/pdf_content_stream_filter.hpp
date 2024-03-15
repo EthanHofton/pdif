@@ -80,7 +80,20 @@ private:
      */
     void flushStringBuffer();
 
+    /**
+     * @brief parse the cmap into the current font
+     * 
+     * @param cmap 
+     */
     void parseCMap(const std::string& cmap);
+
+    /**
+     * @brief Get the Post Script Font Encoding for a postscript font
+     * 
+     * @param postscript_font 
+     */
+    void getPostScriptFontEncoding(const std::string& postscript_font);
+
 private:
 
     // single arg, or array arg
