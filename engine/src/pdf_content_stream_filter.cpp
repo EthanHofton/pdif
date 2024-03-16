@@ -49,7 +49,9 @@ std::string pdf_content_stream_filter::arg_visitor::operator()(std::vector<QPDFT
             }
         } else if (token.getType() == QPDFTokenizer::tt_integer || token.getType() == QPDFTokenizer::tt_real) {
             if (std::stoi(token.getValue()) < SPACE_THRESHOLD) {
-                s.push_back(' ');
+                if (s.back() != ' ' && s.size() > 0) {
+                    s.push_back(' ');
+                }
             }
         }
     }

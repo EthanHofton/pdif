@@ -294,6 +294,45 @@ TEST(PDIFContentExtractor, Color) {
 
     ASSERT_EQ(s[6]->type(), pdif::stream_type::font_set);
     ASSERT_EQ(s[6]->as<pdif::font_elem>()->font_name(), "CMR10");
+    ASSERT_EQ(s[6]->as<pdif::font_elem>()->font_size(), 9);
+
+    ASSERT_EQ(s[7]->type(), pdif::stream_type::text);
+    ASSERT_EQ(s[7]->as<pdif::text_elem>()->text(), "This example shows how to use the");
+
+    check_color(8, 1, 0, 0);
+    check_stroke(9, 1, 0, 0);
+
+    ASSERT_EQ(s[10]->type(), pdif::stream_type::text);
+    ASSERT_EQ(s[10]->as<pdif::text_elem>()->text(), "xcolor");
+
+    check_color(11, 0, 0, 0);
+    check_stroke(12, 0, 0, 0);
+
+    ASSERT_EQ(s[13]->type(), pdif::stream_type::text);
+    ASSERT_EQ(s[13]->as<pdif::text_elem>()->text(), "package to change the color of L");
+
+    ASSERT_EQ(s[14]->type(), pdif::stream_type::font_set);
+    ASSERT_EQ(s[14]->as<pdif::font_elem>()->font_name(), "CMR7");
+    ASSERT_EQ(s[14]->as<pdif::font_elem>()->font_size(), 6);
+
+    ASSERT_EQ(s[15]->type(), pdif::stream_type::text);
+    ASSERT_EQ(s[15]->as<pdif::text_elem>()->text(), "A");
+
+    ASSERT_EQ(s[16]->type(), pdif::stream_type::font_set);
+    ASSERT_EQ(s[16]->as<pdif::font_elem>()->font_name(), "CMR10");
+    ASSERT_EQ(s[16]->as<pdif::font_elem>()->font_size(), 9);
+    
+    ASSERT_EQ(s[17]->type(), pdif::stream_type::text);
+    ASSERT_EQ(s[17]->as<pdif::text_elem>()->text(), "T E X page elements.");
+
+    check_color(18, 0, 0, 0);
+    check_stroke(19, 0, 0, 0);
+
+    ASSERT_EQ(s[20]->type(), pdif::stream_type::text);
+    ASSERT_EQ(s[20]->as<pdif::text_elem>()->text(), "1");
+
+    check_color(21, 0, 0, 0);
+    check_stroke(22, 0, 0, 0);
 }
 
 TEST(PDIFContentExtractor, Backslash) {
