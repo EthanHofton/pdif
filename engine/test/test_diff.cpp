@@ -578,6 +578,13 @@ TEST(PDIFDiff, TestReverseEditOpsRange) {
     ASSERT_EQ(diff.get_edit_op(6).get_arg()->as<pdif::text_elem>()->text(), "Inserted 2");
 }
 
+TEST(PDIFDiff, TestEditChunkSummaryContext3) {}
+TEST(PDIFDiff, TestEditChunkSummaryContext5) {}
+TEST(PDIFDiff, TestEditChunkSummary2Chunks) {}
+TEST(PDIFDiff, TestEditChunkSummaryNotEnoughBefore) {}
+TEST(PDIFDiff, TestEditChunkSummaryNotEnoughAfter) {}
+TEST(PDIFDiff, TestEditChunkSummaryOGStreamNotSet) {}
+
 int main(int argc, char **argv) {
     ::testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();
