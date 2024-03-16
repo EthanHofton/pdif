@@ -28,6 +28,7 @@ enable_testing()
 option(PDIF_BUILD_CLI "Build the command line interface" ON)
 option(PDIF_BUILD_ENGINE_TESTS "Build the tests" ON)
 option(PDIF_BUILD_CLI_TESTS "Build the tests" ON)
+option(PDIF_BUILD_DOCS "Build the engine documentation" ON)
 
 add_subdirectory(engine)
 
