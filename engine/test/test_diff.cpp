@@ -434,6 +434,350 @@ TEST(PDIFDiff, TestApplyMetaEditScriptStreamCallbackErrorInCallback) {
     ASSERT_THROW({diff.apply_meta_edit_script(stream);}, pdif::pdif_error_in_callback);
 }
 
+TEST(PDIFDiff, TestCountEditOpTypes) {
+    pdif::diff diff;
+    pdif::edit_op op1(pdif::edit_op_type::INSERT, pdif::stream_elem::create<pdif::text_elem>("Inserted"));
+    pdif::edit_op op2(pdif::edit_op_type::DELETE);
+    pdif::edit_op op3(pdif::edit_op_type::EQ);
+
+    diff.add_edit_op(op1);
+    diff.add_edit_op(op2);
+    diff.add_edit_op(op3);
+
+    int insert_count = 0;
+    int delete_count = 0;
+    int eq_count = 0;
+
+    ASSERT_NO_THROW({diff.count_edit_op_types(insert_count, delete_count, eq_count);});
+
+    ASSERT_EQ(insert_count, 1);
+    ASSERT_EQ(delete_count, 1);
+    ASSERT_EQ(eq_count, 1);
+}
+
+TEST(PDIFDiff, TestCountMetaOpTypes) {
+    pdif::diff diff;
+    pdif::meta_edit_op op1(pdif::meta_edit_op_type::META_ADD, "key", "value");
+    pdif::meta_edit_op op2(pdif::meta_edit_op_type::META_DELETE, "key");
+    pdif::meta_edit_op op3(pdif::meta_edit_op_type::META_UPDATE, "key", "value");
+
+    diff.add_meta_edit_op(op1);
+    diff.add_meta_edit_op(op2);
+    diff.add_meta_edit_op(op3);
+
+    int add_count = 0;
+    int delete_count = 0;
+    int update_count = 0;
+
+    ASSERT_NO_THROW({diff.count_meta_op_types(add_count, delete_count, update_count);});
+
+    ASSERT_EQ(add_count, 1);
+    ASSERT_EQ(delete_count, 1);
+    ASSERT_EQ(update_count, 1);
+}
+
+TEST(PDIFDiff, TestCountEditOpTypesEmpty) {
+    pdif::diff diff;
+
+    int insert_count = 0;
+    int delete_count = 0;
+    int eq_count = 0;
+
+    ASSERT_NO_THROW({diff.count_edit_op_types(insert_count, delete_count, eq_count);});
+
+    ASSERT_EQ(insert_count, 0);
+    ASSERT_EQ(delete_count, 0);
+    ASSERT_EQ(eq_count, 0);
+}
+
+TEST(PDIFDiff, TestCountMetaOpTypesEmpty) {
+    pdif::diff diff;
+
+    int add_count = 0;
+    int delete_count = 0;
+    int update_count = 0;
+
+    ASSERT_NO_THROW({diff.count_meta_op_types(add_count, delete_count, update_count);});
+
+    ASSERT_EQ(add_count, 0);
+    ASSERT_EQ(delete_count, 0);
+    ASSERT_EQ(update_count, 0);
+}
+
+TEST(PDIFDiff, TestReverseEditOps) {
+    pdif::diff diff;
+    pdif::edit_op op1(pdif::edit_op_type::INSERT, pdif::stream_elem::create<pdif::text_elem>("Inserted"));
+    pdif::edit_op op2(pdif::edit_op_type::DELETE);
+    pdif::edit_op op3(pdif::edit_op_type::EQ);
+
+    diff.add_edit_op(op1);
+    diff.add_edit_op(op2);
+    diff.add_edit_op(op3);
+
+    ASSERT_NO_THROW({diff.reverse_edit_ops();});
+
+    ASSERT_EQ(diff.edit_op_size(), 3);
+
+    ASSERT_EQ(diff.get_edit_op(0).get_type(), pdif::edit_op_type::EQ);
+    ASSERT_EQ(diff.get_edit_op(0).has_arg(), false);
+
+    ASSERT_EQ(diff.get_edit_op(1).get_type(), pdif::edit_op_type::DELETE);
+    ASSERT_EQ(diff.get_edit_op(1).has_arg(), false);
+
+    ASSERT_EQ(diff.get_edit_op(2).get_type(), pdif::edit_op_type::INSERT);
+    ASSERT_EQ(diff.get_edit_op(2).has_arg(), true);
+    ASSERT_EQ(diff.get_edit_op(2).get_arg()->as<pdif::text_elem>()->text(), "Inserted");
+}
+
+TEST(PDIFDiff, TestReverseEditOpsEmpty) {
+    pdif::diff diff;
+    ASSERT_NO_THROW({diff.reverse_edit_ops();});
+    ASSERT_EQ(diff.edit_op_size(), 0);
+}
+
+TEST(PDIFDiff, TestReverseEditOpsRange) {
+    pdif::diff diff;
+    pdif::edit_op op1(pdif::edit_op_type::INSERT, pdif::stream_elem::create<pdif::text_elem>("Inserted"));
+    pdif::edit_op op2(pdif::edit_op_type::DELETE);
+    pdif::edit_op op3(pdif::edit_op_type::EQ);
+    pdif::edit_op op4(pdif::edit_op_type::EQ);
+    pdif::edit_op op5(pdif::edit_op_type::EQ);
+    pdif::edit_op op6(pdif::edit_op_type::DELETE);
+    pdif::edit_op op7(pdif::edit_op_type::INSERT, pdif::stream_elem::create<pdif::text_elem>("Inserted 2"));
+
+    diff.add_edit_op(op1);
+    diff.add_edit_op(op2);
+    diff.add_edit_op(op3);
+    diff.add_edit_op(op4);
+    diff.add_edit_op(op5);
+    diff.add_edit_op(op6);
+    diff.add_edit_op(op7);
+
+    ASSERT_NO_THROW({diff.reverse_edit_ops(diff.begin() + 2, diff.begin() + 6);});
+
+    ASSERT_EQ(diff.edit_op_size(), 7);
+
+    ASSERT_EQ(diff.get_edit_op(0).get_type(), pdif::edit_op_type::INSERT);
+    ASSERT_EQ(diff.get_edit_op(0).has_arg(), true);
+    ASSERT_EQ(diff.get_edit_op(0).get_arg()->as<pdif::text_elem>()->text(), "Inserted");
+
+    ASSERT_EQ(diff.get_edit_op(1).get_type(), pdif::edit_op_type::DELETE);
+    ASSERT_EQ(diff.get_edit_op(1).has_arg(), false);
+
+    ASSERT_EQ(diff.get_edit_op(2).get_type(), pdif::edit_op_type::DELETE);
+    ASSERT_EQ(diff.get_edit_op(2).has_arg(), false);
+
+    ASSERT_EQ(diff.get_edit_op(3).get_type(), pdif::edit_op_type::EQ);
+
+    ASSERT_EQ(diff.get_edit_op(4).get_type(), pdif::edit_op_type::EQ);
+
+    ASSERT_EQ(diff.get_edit_op(5).get_type(), pdif::edit_op_type::EQ);
+
+    ASSERT_EQ(diff.get_edit_op(6).get_type(), pdif::edit_op_type::INSERT);
+    ASSERT_EQ(diff.get_edit_op(6).has_arg(), true);
+    ASSERT_EQ(diff.get_edit_op(6).get_arg()->as<pdif::text_elem>()->text(), "Inserted 2");
+}
+
+TEST(PDIFDiff, TestEditChunkSummaryContext3) {
+    pdif::stream s;
+    s.push_back(pdif::stream_elem::create<pdif::text_elem>("0"));
+    s.push_back(pdif::stream_elem::create<pdif::text_elem>("1"));
+    s.push_back(pdif::stream_elem::create<pdif::text_elem>("2"));
+    s.push_back(pdif::stream_elem::create<pdif::text_elem>("3"));
+    s.push_back(pdif::stream_elem::create<pdif::text_elem>("4"));
+    s.push_back(pdif::stream_elem::create<pdif::text_elem>("5"));
+    s.push_back(pdif::stream_elem::create<pdif::text_elem>("6"));
+    s.push_back(pdif::stream_elem::create<pdif::text_elem>("7"));
+
+    pdif::diff diff;
+    diff.add_original_stream(s);
+
+    diff.set_allowed_context(3);
+    diff.add_edit_op(pdif::edit_op(pdif::edit_op_type::EQ));
+    diff.add_edit_op(pdif::edit_op(pdif::edit_op_type::EQ));
+    diff.add_edit_op(pdif::edit_op(pdif::edit_op_type::EQ));
+    diff.add_edit_op(pdif::edit_op(pdif::edit_op_type::EQ));
+    diff.add_edit_op(pdif::edit_op(pdif::edit_op_type::INSERT, pdif::stream_elem::create<pdif::text_elem>("Inserted")));
+    diff.add_edit_op(pdif::edit_op(pdif::edit_op_type::EQ));
+    diff.add_edit_op(pdif::edit_op(pdif::edit_op_type::EQ));
+    diff.add_edit_op(pdif::edit_op(pdif::edit_op_type::EQ));
+    diff.add_edit_op(pdif::edit_op(pdif::edit_op_type::EQ));
+
+    std::vector<pdif::diff::edit_chunk> chunks = diff.edit_chunk_summary();
+
+    ASSERT_EQ(chunks.size(), 1);
+
+    auto c = chunks[0];
+
+    ASSERT_EQ(c.from_file_start, 1);
+    ASSERT_EQ(c.from_count, 6);
+    ASSERT_EQ(c.to_file_start, 1);
+    ASSERT_EQ(c.to_count, 7);
+}
+
+TEST(PDIFDiff, TestEditChunkSummaryContext4) {
+    pdif::stream s;
+    s.push_back(pdif::stream_elem::create<pdif::text_elem>("-1"));
+    s.push_back(pdif::stream_elem::create<pdif::text_elem>("0"));
+    s.push_back(pdif::stream_elem::create<pdif::text_elem>("1"));
+    s.push_back(pdif::stream_elem::create<pdif::text_elem>("2"));
+    s.push_back(pdif::stream_elem::create<pdif::text_elem>("3"));
+    s.push_back(pdif::stream_elem::create<pdif::text_elem>("4"));
+    s.push_back(pdif::stream_elem::create<pdif::text_elem>("5"));
+    s.push_back(pdif::stream_elem::create<pdif::text_elem>("6"));
+    s.push_back(pdif::stream_elem::create<pdif::text_elem>("7"));
+    s.push_back(pdif::stream_elem::create<pdif::text_elem>("8"));
+
+    pdif::diff diff;
+    diff.add_original_stream(s);
+
+    diff.set_allowed_context(4);
+    diff.add_edit_op(pdif::edit_op(pdif::edit_op_type::EQ));
+    diff.add_edit_op(pdif::edit_op(pdif::edit_op_type::EQ));
+    diff.add_edit_op(pdif::edit_op(pdif::edit_op_type::EQ));
+    diff.add_edit_op(pdif::edit_op(pdif::edit_op_type::EQ));
+    diff.add_edit_op(pdif::edit_op(pdif::edit_op_type::EQ));
+    diff.add_edit_op(pdif::edit_op(pdif::edit_op_type::INSERT, pdif::stream_elem::create<pdif::text_elem>("Inserted")));
+    diff.add_edit_op(pdif::edit_op(pdif::edit_op_type::EQ));
+    diff.add_edit_op(pdif::edit_op(pdif::edit_op_type::EQ));
+    diff.add_edit_op(pdif::edit_op(pdif::edit_op_type::EQ));
+    diff.add_edit_op(pdif::edit_op(pdif::edit_op_type::EQ));
+    diff.add_edit_op(pdif::edit_op(pdif::edit_op_type::EQ));
+
+    std::vector<pdif::diff::edit_chunk> chunks = diff.edit_chunk_summary();
+
+    ASSERT_EQ(chunks.size(), 1);
+
+    auto c = chunks[0];
+
+    ASSERT_EQ(c.from_file_start, 1);
+    ASSERT_EQ(c.from_count, 8);
+    ASSERT_EQ(c.to_file_start, 1);
+    ASSERT_EQ(c.to_count, 9);
+}
+
+TEST(PDIFDiff, TestEditChunkSummary2Chunks) {
+    pdif::stream s;
+    s.push_back(pdif::stream_elem::create<pdif::text_elem>("0"));
+    s.push_back(pdif::stream_elem::create<pdif::text_elem>("1"));
+    s.push_back(pdif::stream_elem::create<pdif::text_elem>("2"));
+    s.push_back(pdif::stream_elem::create<pdif::text_elem>("3"));
+    s.push_back(pdif::stream_elem::create<pdif::text_elem>("4"));
+    s.push_back(pdif::stream_elem::create<pdif::text_elem>("5"));
+    s.push_back(pdif::stream_elem::create<pdif::text_elem>("6"));
+    s.push_back(pdif::stream_elem::create<pdif::text_elem>("7"));
+
+    pdif::diff diff;
+    diff.add_original_stream(s);
+
+    diff.set_allowed_context(2);
+    diff.add_edit_op(pdif::edit_op(pdif::edit_op_type::EQ));
+    diff.add_edit_op(pdif::edit_op(pdif::edit_op_type::EQ));
+    diff.add_edit_op(pdif::edit_op(pdif::edit_op_type::INSERT, pdif::stream_elem::create<pdif::text_elem>("Inserted")));
+    diff.add_edit_op(pdif::edit_op(pdif::edit_op_type::EQ));
+    diff.add_edit_op(pdif::edit_op(pdif::edit_op_type::EQ));
+    diff.add_edit_op(pdif::edit_op(pdif::edit_op_type::EQ));
+    diff.add_edit_op(pdif::edit_op(pdif::edit_op_type::INSERT, pdif::stream_elem::create<pdif::text_elem>("Inserted")));
+    diff.add_edit_op(pdif::edit_op(pdif::edit_op_type::EQ));
+    diff.add_edit_op(pdif::edit_op(pdif::edit_op_type::EQ));
+    diff.add_edit_op(pdif::edit_op(pdif::edit_op_type::EQ));
+
+    std::vector<pdif::diff::edit_chunk> chunks = diff.edit_chunk_summary();
+
+    ASSERT_EQ(chunks.size(), 2);
+
+    auto c = chunks[0];
+
+    ASSERT_EQ(c.from_file_start, 0);
+    ASSERT_EQ(c.from_count, 4);
+    ASSERT_EQ(c.to_file_start, 0);
+    ASSERT_EQ(c.to_count, 5);
+
+    c = chunks[1];
+
+    ASSERT_EQ(c.from_file_start, 3);
+    ASSERT_EQ(c.from_count, 4);
+    ASSERT_EQ(c.to_file_start, 4);
+    ASSERT_EQ(c.to_count, 5);
+}
+
+TEST(PDIFDiff, TestEditChunkSummaryContextReset) {
+    pdif::stream s;
+    s.push_back(pdif::stream_elem::create<pdif::text_elem>("0"));
+    s.push_back(pdif::stream_elem::create<pdif::text_elem>("1"));
+    s.push_back(pdif::stream_elem::create<pdif::text_elem>("2"));
+    s.push_back(pdif::stream_elem::create<pdif::text_elem>("3"));
+    s.push_back(pdif::stream_elem::create<pdif::text_elem>("4"));
+    s.push_back(pdif::stream_elem::create<pdif::text_elem>("5"));
+    s.push_back(pdif::stream_elem::create<pdif::text_elem>("6"));
+    s.push_back(pdif::stream_elem::create<pdif::text_elem>("7"));
+
+    pdif::diff diff;
+    diff.add_original_stream(s);
+
+    diff.set_allowed_context(2);
+    diff.add_edit_op(pdif::edit_op(pdif::edit_op_type::EQ));
+    diff.add_edit_op(pdif::edit_op(pdif::edit_op_type::EQ));
+    diff.add_edit_op(pdif::edit_op(pdif::edit_op_type::INSERT, pdif::stream_elem::create<pdif::text_elem>("Inserted")));
+    diff.add_edit_op(pdif::edit_op(pdif::edit_op_type::EQ));
+    diff.add_edit_op(pdif::edit_op(pdif::edit_op_type::EQ));
+    diff.add_edit_op(pdif::edit_op(pdif::edit_op_type::INSERT, pdif::stream_elem::create<pdif::text_elem>("Inserted")));
+    diff.add_edit_op(pdif::edit_op(pdif::edit_op_type::EQ));
+    diff.add_edit_op(pdif::edit_op(pdif::edit_op_type::EQ));
+    diff.add_edit_op(pdif::edit_op(pdif::edit_op_type::EQ));
+    diff.add_edit_op(pdif::edit_op(pdif::edit_op_type::EQ));
+
+    std::vector<pdif::diff::edit_chunk> chunks = diff.edit_chunk_summary();
+
+    ASSERT_EQ(chunks.size(), 1);
+
+    auto c = chunks[0];
+
+    ASSERT_EQ(c.from_file_start, 0);
+    ASSERT_EQ(c.from_count, 6);
+    ASSERT_EQ(c.to_file_start, 0);
+    ASSERT_EQ(c.to_count, 8);
+}
+
+TEST(PDIFDiff, TestEditChunkSummaryNotEnoughContext) {
+    pdif::stream s;
+    s.push_back(pdif::stream_elem::create<pdif::text_elem>("1"));
+    s.push_back(pdif::stream_elem::create<pdif::text_elem>("2"));
+
+    pdif::diff diff;
+    diff.add_original_stream(s);
+
+    diff.set_allowed_context(2);
+    diff.add_edit_op(pdif::edit_op(pdif::edit_op_type::EQ));
+    diff.add_edit_op(pdif::edit_op(pdif::edit_op_type::INSERT, pdif::stream_elem::create<pdif::text_elem>("Inserted")));
+    diff.add_edit_op(pdif::edit_op(pdif::edit_op_type::EQ));
+
+    std::vector<pdif::diff::edit_chunk> chunks = diff.edit_chunk_summary();
+
+    ASSERT_EQ(chunks.size(), 1);
+
+    auto c = chunks[0];
+
+    ASSERT_EQ(c.from_file_start, 0);
+    ASSERT_EQ(c.from_count, 2);
+    ASSERT_EQ(c.to_file_start, 0);
+    ASSERT_EQ(c.to_count, 3);
+}
+
+TEST(PDIFDiff, TestEditChunkSummaryOGStreamNotSet) {
+    pdif::stream s;
+    s.push_back(pdif::stream_elem::create<pdif::text_elem>("1"));
+    s.push_back(pdif::stream_elem::create<pdif::text_elem>("2"));
+
+    pdif::diff diff;
+
+    diff.set_allowed_context(3);
+    diff.add_edit_op(pdif::edit_op(pdif::edit_op_type::EQ));
+    diff.add_edit_op(pdif::edit_op(pdif::edit_op_type::DELETE));
+
+    ASSERT_THROW(diff.edit_chunk_summary(), pdif::pdif_out_of_bounds);
+}
+
 int main(int argc, char **argv) {
     ::testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();
