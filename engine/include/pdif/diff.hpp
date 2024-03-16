@@ -227,6 +227,13 @@ private:
     int m_allowed_context = 3;
 };
 
+/**
+ * @brief output an edit chunk to the given output stream
+ * 
+ * @param os the output stream
+ * @param chunk the chunk to output
+ * @return std::ostream& 
+ */
 std::ostream& operator<<(std::ostream& os, const diff::edit_chunk& chunk);
 
 }

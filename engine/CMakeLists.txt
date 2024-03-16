@@ -14,3 +14,7 @@ add_subdirectory(src)
 if (PDIF_BUILD_ENGINE_TESTS)
     add_subdirectory(test)
 endif() # PDIF_BUILD_ENGINE_TESTS
+
+if (PDIF_BUILD_DOCS)
+    add_subdirectory(docs)
+endif() # PDIF_BUILD_DOCS

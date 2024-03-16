@@ -104,7 +104,9 @@
         "csignal": "cpp",
         "regex": "cpp",
         "valarray": "cpp",
-        "filesystem": "cpp"
+        "filesystem": "cpp",
+        "Doxyfile": "doxyfile",
+        "Doxyfile.in": "doxyfile"
     },
     "cSpell.words": [
         "metaprogramming",

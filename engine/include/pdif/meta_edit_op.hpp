@@ -41,6 +41,13 @@ inline std::ostream& operator<<(std::ostream& os, const meta_edit_op_type& type)
     return os;
 }
 
+/**
+ * @brief the >> operator for meta_edit_op_type
+ * 
+ * @param is the input stream
+ * @param type the meta_edit_op_type to read into
+ * @return std::istream& 
+ */
 inline std::istream& operator>>(std::istream& is, meta_edit_op_type& type) {
     std::string str;
     is >> str;

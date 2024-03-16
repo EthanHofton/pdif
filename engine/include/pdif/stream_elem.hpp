@@ -52,6 +52,13 @@ inline std::ostream& operator<<(std::ostream& os, const stream_type& type) {
     return os;
 }
 
+/**
+ * @brief the >> operator for stream_type
+ * 
+ * @param is the input stream to read from
+ * @param type the stream_type to read into
+ * @return std::istream& 
+ */
 inline std::istream& operator>>(std::istream& is, stream_type& type) {
     std::string str;
     is >> str;
@@ -336,12 +343,15 @@ class color_elem : public stream_elem {
 public:
 
     /**
-     * @brief Construct a new text color elem object
+     * @brief Construct a new color elem object
      * 
-     * @param t_color the color to set
      * @param t the private_tag to allow construction
+     * @param t_type the type of the color_elem
+     * @param t_r the red value
+     * @param t_g the green value
+     * @param t_b the blue value
      */
-    color_elem(stream_elem::private_tag, stream_type t_type, float t_r, float t_g, float t_b) : stream_elem(private_tag(), t_type), r(t_r), g(t_g), b(t_b) {}
+    color_elem(stream_elem::private_tag t, stream_type t_type, float t_r, float t_g, float t_b) : stream_elem(t, t_type), r(t_r), g(t_g), b(t_b) {}
 
     /**
      * @brief Get the red value of the color
@@ -385,10 +395,12 @@ public:
     /**
      * @brief Construct a new text color elem object
      * 
-     * @param t_color the color to set
      * @param t the private_tag to allow construction
+     * @param t_r the red value
+     * @param t_g the green value
+     * @param t_b the blue value
      */
-    text_color_elem(stream_elem::private_tag, float t_r, float t_g, float t_b);
+    text_color_elem(stream_elem::private_tag t, float t_r, float t_g, float t_b);
 
     /**
      * @brief the implementation of stream_elem::compare
@@ -423,10 +435,12 @@ public:
     /**
      * @brief Construct a new stroke color elem object
      * 
-     * @param t_color the color to set
      * @param t the private_tag to allow construction
+     * @param t_r the red value
+     * @param t_g the green value
+     * @param t_b the blue value
      */
-    stroke_color_elem(stream_elem::private_tag, float t_r, float t_g, float t_b);
+    stroke_color_elem(stream_elem::private_tag t, float t_r, float t_g, float t_b);
 
     /**
      * @brief the implementation of stream_elem::compare
@@ -461,11 +475,12 @@ public:
     /**
      * @brief Construct a new xobject img elem object
      * 
+     * @param t the private_tag to allow construction
      * @param t_image_hash the image hash
      * @param t_width the width
      * @param t_height the height
      */
-    xobject_img_elem(stream_elem::private_tag, const std::string& t_image_hash, int t_width, int t_height);
+    xobject_img_elem(stream_elem::private_tag t, const std::string& t_image_hash, int t_width, int t_height);
 
     /**
      * @brief get the image hash

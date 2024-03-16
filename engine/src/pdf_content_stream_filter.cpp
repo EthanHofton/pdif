@@ -49,7 +49,9 @@ std::string pdf_content_stream_filter::arg_visitor::operator()(std::vector<QPDFT
             }
         } else if (token.getType() == QPDFTokenizer::tt_integer || token.getType() == QPDFTokenizer::tt_real) {
             if (std::stoi(token.getValue()) < SPACE_THRESHOLD) {
-                s.push_back(' ');
+                if (s.back() != ' ' && s.size() > 0) {
+                    s.push_back(' ');
+                }
             }
         }
     }
@@ -160,6 +162,14 @@ void pdf_content_stream_filter::handleStringWrite() {
                 std::string sentence = m_string_buffer.substr(0, fullstop_pos + 1);
                 m_stream.push_back(stream_elem::create<text_elem>(sentence));
                 m_string_buffer.erase(0, fullstop_pos + 1);
+                if (m_string_buffer.empty()) {
+                    break;
+                }
+
+                if (m_string_buffer[0] == ' ') {
+                    m_string_buffer.erase(0, 1);
+                }
+
                 fullstop_pos = m_string_buffer.find('.');
             }
             break;

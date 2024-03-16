@@ -35,9 +35,9 @@ public:
      */
     inline granularity get_granularity() const { return m_extractor_granularity; }
     /**
-     * @brief Set the scope object
+     * @brief get the scope
      * 
-     * @param s the scope to set
+     * @return scope
      */
     inline scope get_scope() const { return m_pdf_scope; }
 
@@ -80,9 +80,10 @@ public:
      * @brief Dump the content of the PDF to the output stream
      * 
      * @param t_out the output stream
-     * @param pageno the page number to dump (negative for all, 0 for meta)
+     * @param spacing the spacing to use (default: none)
+     * 
      */
-    void dump_content(std::ostream&, std::optional<std::string> = std::nullopt) const;
+    void dump_content(std::ostream& t_out, std::optional<std::string> spacing = std::nullopt) const;
 
     /**
      * @brief Flag to set whether to write console colors
