@@ -13,15 +13,6 @@ option(UTIL_BUILD_TESTS "Build tests" OFF)
 FetchContent_MakeAvailable(util)
 message(STATUS "Fetched EthanHofton/util.git")
 
-# message(STATUS "Fetching nlohmann/json.git")
-# # INCLUDE NLOHMANN JSON
-# FetchContent_Declare(
-#   nlohmann_json
-#   GIT_REPOSITORY https://github.com/nlohmann/json.git
-# )
-# FetchContent_MakeAvailable(nlohmann_json)
-# message(STATUS "Fetched nlohmann/json.git")
-
 list(APPEND CMAKE_PREFIX_PATH /opt/homebrew/Cellar /opt/homebrew/lib)
 
 message(STATUS "Finding qpdf")
@@ -35,16 +26,6 @@ message(STATUS "Finding OpenSSL")
 find_package(OpenSSL REQUIRED)
 
 message(STATUS "Found OpenSSL: ${OPENSSL_LIBRARIES}")
-
-# message(STATUS "Fetching Podofo")
-
-# FetchContent_Declare(
-#   podofo
-#   GIT_REPOSITORY https://github.com/podofo/podofo.git
-# )
-# FetchContent_MakeAvailable(podofo)
-
-# message(STATUS "Fetched Podofo")
 
 # set sources
 set(PDIF_SOURCES
@@ -78,12 +59,11 @@ set_target_properties(${LIBRARY_NAME} PROPERTIES
 target_include_directories(${LIBRARY_NAME} PUBLIC
     ${PROJECT_SOURCE_DIR}/include
     ${PROJECT_BINARY_DIR}/include   # add the binary tree to the search path so that we will find Version.h
-    # ${nlohmann_json_SOURCE_DIR}/include
 )
 target_link_libraries(${LIBRARY_NAME} PUBLIC
     util
     qpdf::libqpdf
-    OpenSSL::SSL    
+    OpenSSL::SSL
 )
 
 install(TARGETS ${LIBRARY_NAME}

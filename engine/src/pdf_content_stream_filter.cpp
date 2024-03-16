@@ -1,6 +1,7 @@
 #include <pdif/pdf_content_stream_filter.hpp>
 #include <openssl/sha.h>
 #include <iomanip>
+#include <qpdf/QUtil.hh>
 
 namespace pdif {
 
@@ -13,10 +14,44 @@ std::string pdf_content_stream_filter::arg_visitor::operator()(std::vector<QPDFT
 
     for (auto& token : t) {
         if (token.getType() == QPDFTokenizer::tt_string) {
-            s.append(token.getValue());
+            if (current_font.has_value()) {
+                std::string val = token.getRawValue();
+
+                // decode hex string
+                if (val[0] == '<') {
+                    std::string decoded = "";
+                    for (size_t i = 1; i < val.size() - 1; i += 2) {
+                        std::string hex = val.substr(i, 2);
+                        int hex_i = std::stoi(hex, 0, 16);
+                        std::string unicode_hex = current_font.value()->to_unicode(hex_i);
+                        decoded.append(unicode_hex);
+                    }
+                    s.append(QUtil::hex_decode(decoded));
+                    continue;
+                }
+
+                val = token.getValue();
+                std::string decoded = "";
+                for (auto c : val) {
+                    // could do this better
+                    if (!std::isalpha(c) && (int)c > 20) {
+                        decoded.push_back(c);
+                        continue;
+                    }
+
+                    int c_i = (int)c;
+                    std::string unicode_hex = current_font.value()->to_unicode(c_i);
+                    decoded.append(unicode_hex);
+                }
+                s.append(decoded);
+            } else {
+                s.append(token.getValue());
+            }
         } else if (token.getType() == QPDFTokenizer::tt_integer || token.getType() == QPDFTokenizer::tt_real) {
             if (std::stoi(token.getValue()) < SPACE_THRESHOLD) {
-                s.push_back(' ');
+                if (s.back() != ' ' && s.size() > 0) {
+                    s.push_back(' ');
+                }
             }
         }
     }
@@ -87,8 +122,15 @@ void pdf_content_stream_filter::handleOperator(QPDFTokenizer::Token const& token
 }
 
 void pdf_content_stream_filter::handleStringWrite() {
+    if (!m_string_buffer.empty()) {
+        m_string_buffer.push_back(' ');
+    }
+
     for (auto& arg : m_arg_stack) {
-        std::string val = std::visit(arg_visitor(), arg);
+        arg_visitor visitor;
+        visitor.current_font = m_state.current_font;
+
+        std::string val = std::visit(visitor, arg);
         m_string_buffer.append(val);
     }
 
@@ -120,6 +162,14 @@ void pdf_content_stream_filter::handleStringWrite() {
                 std::string sentence = m_string_buffer.substr(0, fullstop_pos + 1);
                 m_stream.push_back(stream_elem::create<text_elem>(sentence));
                 m_string_buffer.erase(0, fullstop_pos + 1);
+                if (m_string_buffer.empty()) {
+                    break;
+                }
+
+                if (m_string_buffer[0] == ' ') {
+                    m_string_buffer.erase(0, 1);
+                }
+
                 fullstop_pos = m_string_buffer.find('.');
             }
             break;
@@ -158,7 +208,29 @@ void pdf_content_stream_filter::handleFontChange() {
         font_name = font_name.substr(font_name.find("+") + 1);
     }
 
-    m_stream.push_back(stream_elem::create<font_elem>(font_name, font_size));
+    pdif::rstream_elem f = pdif::stream_elem::create<font_elem>(font_name, font_size);
+    m_state.current_font = f->as<font_elem>();
+
+    // now that the state is set, we can extract the ToUnicode stream
+    if (font_obj.hasKey("/ToUnicode")) {
+        QPDFObjectHandle to_unicode_obj = font_obj.getKey("/ToUnicode");
+        if (to_unicode_obj.isStream()) {
+            auto stream_data = to_unicode_obj.getStreamData();
+            parseCMap(std::string((char*)stream_data->getBuffer(), stream_data->getSize()));
+        }
+    // now check if the font has font file stream, with a char encoding
+    } else if (font_obj.hasKey("/FontDescriptor")) {
+        QPDFObjectHandle font_descriptor = font_obj.getKey("/FontDescriptor");
+        if (font_descriptor.hasKey("/FontFile")) {
+            QPDFObjectHandle font_file = font_descriptor.getKey("/FontFile");
+            if (font_file.isStream()) {
+                auto stream_data = font_file.getStreamData();
+                getPostScriptFontEncoding(std::string((char*)stream_data->getBuffer(), stream_data->getSize()));
+            }
+        }
+    }
+
+    m_stream.push_back(f);
 }
 
 void pdf_content_stream_filter::handleTextColorSet() {
@@ -170,10 +242,16 @@ void pdf_content_stream_filter::handleTextColorSet() {
         int r = std::stof(std::visit(arg_visitor(), m_arg_stack[0]));
         int g = std::stof(std::visit(arg_visitor(), m_arg_stack[1]));
         int b = std::stof(std::visit(arg_visitor(), m_arg_stack[2]));
-        m_stream.push_back(stream_elem::create<text_color_elem>(r, g, b));
+
+        pdif::rstream_elem elem = pdif::stream_elem::create<text_color_elem>(r, g, b);
+        m_state.current_text_color = elem->as<text_color_elem>();
+        m_stream.push_back(elem);
     } else if (m_arg_stack.size() == 1) {
         int g = std::stof(std::visit(arg_visitor(), m_arg_stack[0]));
-        m_stream.push_back(stream_elem::create<text_color_elem>(g, g, g));
+
+        pdif::rstream_elem elem = pdif::stream_elem::create<text_color_elem>(g, g, g);
+        m_state.current_text_color = elem->as<text_color_elem>();
+        m_stream.push_back(elem);
     }
 }
 
@@ -186,10 +264,16 @@ void pdf_content_stream_filter::handleStrokeColorSet() {
         int r = std::stof(std::visit(arg_visitor(), m_arg_stack[0]));
         int g = std::stof(std::visit(arg_visitor(), m_arg_stack[1]));
         int b = std::stof(std::visit(arg_visitor(), m_arg_stack[2]));
-        m_stream.push_back(stream_elem::create<stroke_color_elem>(r, g, b));
+
+        pdif::rstream_elem elem = pdif::stream_elem::create<stroke_color_elem>(r, g, b);
+        m_state.current_stroke_color = elem->as<stroke_color_elem>();
+        m_stream.push_back(elem);
     } else if (m_arg_stack.size() == 1) {
         int g = std::stof(std::visit(arg_visitor(), m_arg_stack[0]));
-        m_stream.push_back(stream_elem::create<stroke_color_elem>(g, g, g));
+        
+        pdif::rstream_elem elem = pdif::stream_elem::create<stroke_color_elem>(g, g, g);
+        m_state.current_stroke_color = elem->as<stroke_color_elem>();
+        m_stream.push_back(elem);
     }
 }
 
@@ -229,6 +313,95 @@ std::string pdf_content_stream_filter::imageToHash(const unsigned char* data, si
     }
 
     return ss.str();
+}
+
+void pdf_content_stream_filter::parseCMap(const std::string& cmap) {
+    std::stringstream ss;
+    ss << cmap;
+
+    std::string line;
+    std::map<int, std::string> to_unicode;
+
+    // check the CMap type
+    std::getline(ss, line);
+    if (line != "%!PS-Adobe-3.0 Resource-CMap") {
+        PDIF_LOG_WARN("Expecting Adobe CMap, but got: {}. Unexpected results may follow", line);
+    }
+    bool shown_warning = false;
+
+    while (std::getline(ss, line)) {
+        if (line.find("beginbfchar") != std::string::npos) {
+            std::string bfchar;
+            std::getline(ss, bfchar);
+            while (bfchar.find("endbfchar") == std::string::npos) {
+                std::string from;
+                std::string to;
+                std::stringstream bfchar_ss;
+                bfchar_ss << bfchar;
+                bfchar_ss >> from >> to;
+
+                if (from[0] == '<') {
+                    from = from.substr(1, from.size() - 2);
+                } else {
+                    if (!shown_warning) {
+                        PDIF_LOG_WARN("Unexpected CMap format - expected hex string, but got: {}", from);
+                        shown_warning = true;
+                    }
+                }
+
+                if (to[0] == '<') {
+                    to = to.substr(1, to.size() - 2);
+                }
+
+                int from_i = std::stoi(from, 0, 16);
+
+                to_unicode[from_i] = to;
+                std::getline(ss, bfchar);
+            }
+        }
+    }
+
+    if (m_state.current_font.has_value()) {
+        m_state.current_font.value()->set_to_unicode(to_unicode);
+    } else {
+        PDIF_LOG_WARN("Parsed ToUnicode CMap, but no font is set");
+    }
+}
+
+void pdf_content_stream_filter::getPostScriptFontEncoding(const std::string& postscript_font) {
+    std::stringstream ss;
+    ss << postscript_font;
+
+    std::string line;
+    std::map<int, std::string> to_unicode;
+
+    while (std::getline(ss, line)) {
+        if (line.find("/Encoding") != std::string::npos) {
+            std::string encoding;
+            std::getline(ss, encoding);
+            // skip the first line (array def)
+            std::getline(ss, encoding);
+            while (encoding.find("def") == std::string::npos) {
+                std::string def, name, end;
+                int index;
+                std::istringstream encoding_ss(encoding);
+                encoding_ss >> def >> index >> name >> end;
+
+                if (name[0] == '/') {
+                    name = name.substr(1);
+                }
+
+                to_unicode[index] = name;
+                std::getline(ss, encoding);
+            }
+        }
+    }
+
+    if (m_state.current_font.has_value()) {
+        m_state.current_font.value()->set_to_unicode(to_unicode);
+    } else {
+        PDIF_LOG_WARN("Parsed PostScript Font Encoding, but no font is set");
+    }
 }
 
 void pdf_content_stream_filter::handleEOF() {

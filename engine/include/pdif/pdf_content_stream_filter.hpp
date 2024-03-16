@@ -80,6 +80,20 @@ private:
      */
     void flushStringBuffer();
 
+    /**
+     * @brief parse the cmap into the current font
+     * 
+     * @param cmap 
+     */
+    void parseCMap(const std::string& cmap);
+
+    /**
+     * @brief Get the Post Script Font Encoding for a postscript font
+     * 
+     * @param postscript_font 
+     */
+    void getPostScriptFontEncoding(const std::string& postscript_font);
+
 private:
 
     // single arg, or array arg
@@ -88,10 +102,16 @@ private:
     struct arg_visitor {
         std::string operator()(QPDFTokenizer::Token const& t);
         std::string operator()(std::vector<QPDFTokenizer::Token> const& t);
+        std::optional<pdif::rfont_elem> current_font;
     };
 
     struct state {
         bool in_array = false;
+
+        // current state of the stream
+        std::optional<pdif::rfont_elem> current_font;
+        std::optional<pdif::rtext_color_elem> current_text_color;
+        std::optional<pdif::rstroke_color_elem> current_stroke_color;
     };
 
     stream& m_stream;

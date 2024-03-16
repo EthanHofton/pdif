@@ -51,6 +51,7 @@ extern pdif::stream_meta extract_meta(std::shared_ptr<QPDF> pdf);
  * @param pdf the PDF to extract the content from
  * @param g the granularity to use
  * @param s the scope to use
+ * @param pageno the page number to extract from, -1 for all, 0 for first. Default is -1
  * @return std::vector<pdif::stream> the extracted content
  */
 extern std::vector<pdif::stream> extract_content(std::shared_ptr<QPDF> pdf, granularity g, scope s, int pageno = -1);
