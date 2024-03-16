@@ -42,6 +42,13 @@ inline std::ostream& operator<<(std::ostream& os, const edit_op_type& type) {
     return os;
 }
 
+/**
+ * @brief >> operator for edit_op_type
+ * 
+ * @param is the input stream to read from
+ * @param type the edit_op_type to read into
+ * @return std::istream&
+ */
 inline std::istream& operator>>(std::istream& is, edit_op_type& type) {
     std::string str;
     is >> str;
