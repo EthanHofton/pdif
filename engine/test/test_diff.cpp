@@ -434,6 +434,16 @@ TEST(PDIFDiff, TestApplyMetaEditScriptStreamCallbackErrorInCallback) {
     ASSERT_THROW({diff.apply_meta_edit_script(stream);}, pdif::pdif_error_in_callback);
 }
 
+TEST(PDIFDiff, TestCountEditOpTypes) {}
+TEST(PDIFDiff, TestCountMetaOpTypes) {}
+
+TEST(PDIFDiff, TestCountEditOpTypesEmpty) {}
+TEST(PDIFDiff, TestCountMetaOpTypesEmpty) {}
+
+TEST(PDIFDiff, TestReverseEditOps) {}
+TEST(PDIFDiff, TestReverseEditOpsEmpty) {}
+TEST(PDIFDiff, TestReverseEditOpsRange) {}
+
 int main(int argc, char **argv) {
     ::testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();
