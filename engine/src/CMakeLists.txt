@@ -13,15 +13,6 @@ option(UTIL_BUILD_TESTS "Build tests" OFF)
 FetchContent_MakeAvailable(util)
 message(STATUS "Fetched EthanHofton/util.git")
 
-# message(STATUS "Fetching nlohmann/json.git")
-# # INCLUDE NLOHMANN JSON
-# FetchContent_Declare(
-#   nlohmann_json
-#   GIT_REPOSITORY https://github.com/nlohmann/json.git
-# )
-# FetchContent_MakeAvailable(nlohmann_json)
-# message(STATUS "Fetched nlohmann/json.git")
-
 list(APPEND CMAKE_PREFIX_PATH /opt/homebrew/Cellar /opt/homebrew/lib)
 
 message(STATUS "Finding qpdf")
