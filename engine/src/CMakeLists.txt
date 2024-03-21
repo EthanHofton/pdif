@@ -28,7 +28,6 @@ find_package(OpenSSL REQUIRED)
 message(STATUS "Found OpenSSL: ${OPENSSL_LIBRARIES}")
 
 message(STATUS "Fetching utf8proc")
-# INCLUDE UTIL
 include(FetchContent)
 
 FetchContent_Declare(
