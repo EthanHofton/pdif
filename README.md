@@ -42,6 +42,7 @@ sudo apt-get install qpdf openssl
 The project auto imports the following dependencies (using `FetchContent`):
  
  - `EthanHofton/util` - A collection of utility functions and classes for C++. [GitHub](https://github.com/EthanHofton/util.git)
+ - `JuliaStrings/utf8proc` - A small Unicode normalization library [GitHub](https://github.com/JuliaStrings/utf8proc)
 
 ## Building
 

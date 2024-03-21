@@ -201,7 +201,7 @@ TEST(PDIFContentExtractor, Image) {
     ASSERT_EQ(s[3]->as<pdif::font_elem>()->font_size(), 9);
 
     ASSERT_EQ(s[4]->type(), pdif::stream_type::text);
-    ASSERT_EQ(s[4]->as<pdif::text_elem>()->text(), "There's a picture of a galaxy above.");
+    ASSERT_EQ(s[4]->as<pdif::text_elem>()->text(), "There’s a picture of a galaxy above.");
 
     ASSERT_EQ(s[5]->type(), pdif::stream_type::text);
     ASSERT_EQ(s[5]->as<pdif::text_elem>()->text(), "1");
@@ -359,7 +359,7 @@ TEST(PDIFContentExtractor, Backslash) {
     ASSERT_EQ(s[2]->as<pdif::font_elem>()->font_size(), 9);
 
     ASSERT_EQ(s[3]->type(), pdif::stream_type::text);
-    ASSERT_EQ(s[3]->as<pdif::text_elem>()->text(), "backslash");
+    ASSERT_EQ(s[3]->as<pdif::text_elem>()->text(), "\\");
 
     ASSERT_EQ(s[4]->type(), pdif::stream_type::font_set);
     ASSERT_EQ(s[4]->as<pdif::font_elem>()->font_name(), "CMR10");

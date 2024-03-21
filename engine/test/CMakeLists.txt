@@ -60,3 +60,7 @@ add_test(NAME gtest_lcs_stream_differ COMMAND test_lcs_stream_differ WORKING_DIR
 add_executable(test_pdf test_pdf.cpp)
 target_link_libraries(test_pdf PRIVATE GTest::GTest pdif_engine)
 add_test(NAME gtest_pdf COMMAND test_pdf WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
+
+add_executable(test_agl_map test_agl_map.cpp)
+target_link_libraries(test_agl_map PRIVATE GTest::GTest pdif_engine)
+add_test(NAME gtest_agl_map COMMAND test_agl_map WORKING_DIRECTORY ${CMAKE_BINARY_DIR})

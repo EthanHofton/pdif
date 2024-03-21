@@ -33,12 +33,6 @@ std::string pdf_content_stream_filter::arg_visitor::operator()(std::vector<QPDFT
                 val = token.getValue();
                 std::string decoded = "";
                 for (auto c : val) {
-                    // could do this better
-                    if (!std::isalpha(c) && (int)c > 20) {
-                        decoded.push_back(c);
-                        continue;
-                    }
-
                     int c_i = (int)c;
                     std::string unicode_hex = current_font.value()->to_unicode(c_i);
                     decoded.append(unicode_hex);
@@ -330,7 +324,45 @@ void pdf_content_stream_filter::parseCMap(const std::string& cmap) {
     bool shown_warning = false;
 
     while (std::getline(ss, line)) {
-        if (line.find("beginbfchar") != std::string::npos) {
+        if (line.find("beginbfrange") != std::string::npos) {
+            std::string bfrange;
+            std::getline(ss, bfrange);
+            while (bfrange.find("endbfrange") == std::string::npos) {
+                std::string begin;
+                std::string end;
+                std::string to;
+                std::stringstream bfrange_ss;
+                bfrange_ss << bfrange;
+                bfrange_ss >> begin >> end >> to;
+
+                if (begin[0] == '<') {
+                    begin = begin.substr(1, begin.size() - 2);
+                } else {
+                    if (!shown_warning) {
+                        PDIF_LOG_WARN("Unexpected CMap format - expected hex string, but got: {}", begin);
+                        shown_warning = true;
+                    }
+                }
+
+                if (end[0] == '<') {
+                    end = end.substr(1, end.size() - 2);
+                }
+
+                if (to[0] == '<') {
+                    to = to.substr(1, to.size() - 2);
+                }
+
+
+                int begin_i = std::stoi(begin, 0, 16);
+                int end_i = std::stoi(end, 0, 16);
+
+                for (int i = begin_i; i <= end_i; i++) {
+                    std::string to_inc = pdif::agl_map::normalizeUTF8(to, i - begin_i);
+                    to_unicode[i] = to_inc;
+                }
+                std::getline(ss, bfrange);
+            }
+        } else if (line.find("beginbfchar") != std::string::npos) {
             std::string bfchar;
             std::getline(ss, bfchar);
             while (bfchar.find("endbfchar") == std::string::npos) {
@@ -352,6 +384,8 @@ void pdf_content_stream_filter::parseCMap(const std::string& cmap) {
                 if (to[0] == '<') {
                     to = to.substr(1, to.size() - 2);
                 }
+
+                to = pdif::agl_map::normalizeUTF8(to);
 
                 int from_i = std::stoi(from, 0, 16);
 
@@ -390,6 +424,9 @@ void pdf_content_stream_filter::getPostScriptFontEncoding(const std::string& pos
                 if (name[0] == '/') {
                     name = name.substr(1);
                 }
+
+                // convert the glyph name to utf8 (unicode normalization)
+                name = pdif::agl_map::glyph_to_utf8(name);
 
                 to_unicode[index] = name;
                 std::getline(ss, encoding);
