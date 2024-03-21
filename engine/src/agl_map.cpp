@@ -4,27 +4,21 @@ namespace pdif {
 
 std::map<std::string, std::string> pdif::agl_map::m_agl_map;
 
-std::string agl_map::normalizeUTF8(std::string hexInput) {
-    // for (int i = 0; i < hexInput.size(); i+=4) {
-    //     int unicodeInt = std::stoi(hexInput.substr(i, 4), nullptr, 16);
-    //     char utf8char[4]; // UTF-8 character buffer
-    //     int utf8len = utf8proc_encode_char(static_cast<utf8proc_int32_t>(unicodeInt), (uint8_t*)utf8char);
-    //     utf8char[utf8len] = '\0'; // Null-terminate the UTF-8 string
-    //     // Normalize the UTF-8 string
-    //     utf8proc_uint8_t *normalizedUtf8 = utf8proc_NFKD((utf8proc_uint8_t*)utf8char);
-    //     // Convert the normalized UTF-8 string to a C++ string
-    //     std::string normalizedString((char*)normalizedUtf8);
-    //     hexInput.replace(i, 4, normalizedString);
-    // }
-    int unicodeInt = std::stoi(hexInput, nullptr, 16);
-    char utf8char[4]; // UTF-8 character buffer
-    int utf8len = utf8proc_encode_char(static_cast<utf8proc_int32_t>(unicodeInt), (uint8_t*)utf8char);
-    utf8char[utf8len] = '\0'; // Null-terminate the UTF-8 string
-    // Normalize the UTF-8 string
-    utf8proc_uint8_t *normalizedUtf8 = utf8proc_NFKD((utf8proc_uint8_t*)utf8char);
-    // Convert the normalized UTF-8 string to a C++ string
-    std::string normalizedString((char*)normalizedUtf8);
-    return normalizedString;
+std::string agl_map::normalizeUTF8(std::string hexInput, int add) {
+    std::string decoded;
+    for (int i = 0; (size_t)i < hexInput.size(); i+=4) {
+        int unicodeInt = std::stoi(hexInput.substr(i, 4), nullptr, 16);
+        unicodeInt += add;
+        char utf8char[4]; // UTF-8 character buffer
+        int utf8len = utf8proc_encode_char(static_cast<utf8proc_int32_t>(unicodeInt), (uint8_t*)utf8char);
+        utf8char[utf8len] = '\0'; // Null-terminate the UTF-8 string
+        // Normalize the UTF-8 string
+        utf8proc_uint8_t *normalizedUtf8 = utf8proc_NFKD((utf8proc_uint8_t*)utf8char);
+        // Convert the normalized UTF-8 string to a C++ string
+        std::string normalizedString((char*)normalizedUtf8);
+        decoded.append(normalizedString);
+    }
+    return decoded;
 }
 
 std::string agl_map::glyph_to_utf8(const std::string& glyph) {
@@ -64,7 +58,6 @@ std::string agl_map::glyph_to_utf8(const std::string& glyph) {
         file.close();
     }
 
-    PDIF_LOG_WARN("Glyph {} not found in AGL map", glyph);
     if (m_agl_map.find(glyph) != m_agl_map.end()) {
         return m_agl_map[glyph];
     }

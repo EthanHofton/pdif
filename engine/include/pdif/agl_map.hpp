@@ -27,9 +27,10 @@ public:
      * @brief do unicode normalization on a hex string input encoded in unicode
      * 
      * @param hexInput hex string, 2 bytes per character
+     * @param add add this value to the unicode codepoint
      * @return std::string the normalized utf8 string
      */
-    static std::string normalizeUTF8(std::string hexInput);
+    static std::string normalizeUTF8(std::string hexInput, int add = 0);
 
 private:
 
