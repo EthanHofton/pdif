@@ -33,12 +33,6 @@ std::string pdf_content_stream_filter::arg_visitor::operator()(std::vector<QPDFT
                 val = token.getValue();
                 std::string decoded = "";
                 for (auto c : val) {
-                    // could do this better
-                    if (!std::isalpha(c) && (int)c > 20) {
-                        decoded.push_back(c);
-                        continue;
-                    }
-
                     int c_i = (int)c;
                     std::string unicode_hex = current_font.value()->to_unicode(c_i);
                     decoded.append(unicode_hex);
@@ -316,6 +310,7 @@ std::string pdf_content_stream_filter::imageToHash(const unsigned char* data, si
 }
 
 void pdf_content_stream_filter::parseCMap(const std::string& cmap) {
+    std::cout << cmap << std::endl;
     std::stringstream ss;
     ss << cmap;
 
@@ -352,6 +347,9 @@ void pdf_content_stream_filter::parseCMap(const std::string& cmap) {
                 if (to[0] == '<') {
                     to = to.substr(1, to.size() - 2);
                 }
+
+                PDIF_LOG_INFO("From: {}, To: {}", from, to);
+                PDIF_LOG_INFO("From: {}, To: {}", from, pdif::agl_map::normalizeUTF8(to));
 
                 int from_i = std::stoi(from, 0, 16);
 
@@ -390,6 +388,9 @@ void pdf_content_stream_filter::getPostScriptFontEncoding(const std::string& pos
                 if (name[0] == '/') {
                     name = name.substr(1);
                 }
+
+                // convert the glyph name to utf8 (unicode normalization)
+                name = pdif::agl_map::glyph_to_utf8(name);
 
                 to_unicode[index] = name;
                 std::getline(ss, encoding);

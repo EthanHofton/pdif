@@ -27,8 +27,21 @@ find_package(OpenSSL REQUIRED)
 
 message(STATUS "Found OpenSSL: ${OPENSSL_LIBRARIES}")
 
+message(STATUS "Fetching utf8proc")
+# INCLUDE UTIL
+include(FetchContent)
+
+FetchContent_Declare(
+  utf8proc
+  GIT_REPOSITORY https://github.com/JuliaStrings/utf8proc.git
+)
+
+FetchContent_MakeAvailable(utf8proc)
+message(STATUS "Fetched utf8proc")
+
 # set sources
 set(PDIF_SOURCES
+    agl_map.cpp
     lcs_stream_differ.cpp
     pdf.cpp
     stream_meta.cpp
@@ -64,6 +77,7 @@ target_link_libraries(${LIBRARY_NAME} PUBLIC
     util
     qpdf::libqpdf
     OpenSSL::SSL
+    utf8proc
 )
 
 install(TARGETS ${LIBRARY_NAME}

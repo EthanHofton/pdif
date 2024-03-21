@@ -3,6 +3,7 @@
 
 #include <pdif/stream.hpp>
 #include <pdif/content_extractor.hpp>
+#include <pdif/agl_map.hpp>
 #include <qpdf/QPDF.hh>
 #include <qpdf/QPDFObjectHandle.hh>
 
