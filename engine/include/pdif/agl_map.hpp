@@ -5,6 +5,7 @@
 #include <pdif/pdif_engine_config.hpp>
 
 #include <map>
+#include <set>
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -39,7 +40,14 @@ private:
      * 
      */
     static std::map<std::string, std::string> m_agl_map;
+    static std::set<std::string> m_warnings;
 
+    /**
+     * @brief load the adobe glyph list map
+     * 
+     * @param file_path the file
+     */
+    static void load_agl_map(const std::string& file_path);
 };
 
 } // namespace pdif

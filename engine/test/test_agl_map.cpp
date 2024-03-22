@@ -55,6 +55,18 @@ TEST(PDIFAglMap, GlyphToUnicodeRightQuote) {
     EXPECT_EQ(unicode, "’");
 }
 
+// test agl-extention
+TEST(PDIFAglMap, GlyphToUnicodeNegationslash) {
+    std::string glyph = "negationslash";
+    std::string unicode = pdif::agl_map::glyph_to_utf8(glyph);
+    EXPECT_EQ(unicode, "̸");
+}
+
+// test invalid unicode normalization
+TEST(PDIFAglMap, GlyphToUnicodeInvalid) {
+    EXPECT_THROW(pdif::agl_map::normalizeUTF8("D802"), std::runtime_error);
+}
+
 int main(int argc, char **argv) {
     ::testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();
