@@ -32,6 +32,13 @@ public:
      */
     void handleEOF() override;
 
+    /**
+     * @brief Allow stream elements to be added even if the state has not changed
+     * 
+     * @param b 
+     */
+    void setStateSetNoChange(bool b) { m_allow_state_set_nochange = b; }
+
 private:
 
     // handlers
@@ -95,6 +102,13 @@ private:
      */
     void getPostScriptFontEncoding(const std::string& postscript_font);
 
+    /**
+     * @brief Set the State Elem object
+     * 
+     * @param elem 
+     */
+    void setStateElem(pdif::rstream_elem elem);
+
 private:
 
     // single arg, or array arg
@@ -123,6 +137,8 @@ private:
     state m_state;
 
     std::vector<arg_type> m_arg_stack;
+
+    bool m_allow_state_set_nochange = true;
 
     static constexpr double SPACE_THRESHOLD = -70;
 };

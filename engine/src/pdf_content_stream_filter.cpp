@@ -22,7 +22,13 @@ std::string pdf_content_stream_filter::arg_visitor::operator()(std::vector<QPDFT
                     std::string decoded = "";
                     for (size_t i = 1; i < val.size() - 1; i += 2) {
                         std::string hex = val.substr(i, 2);
-                        int hex_i = std::stoi(hex, 0, 16);
+                        int hex_i;
+                        try {
+                            hex_i = std::stoi(hex, 0, 16);
+                        } catch (std::invalid_argument const&) {
+                            PDIF_LOG_CRITICAL("Cannot convert hex string to integer: {}", hex);
+                            throw std::runtime_error("Cannot convert hex string to integer");
+                        }
                         std::string unicode_hex = current_font.value()->to_unicode(hex_i);
                         decoded.append(unicode_hex);
                     }
@@ -179,6 +185,56 @@ void pdf_content_stream_filter::flushStringBuffer() {
     }
 }
 
+void pdf_content_stream_filter::setStateElem(pdif::rstream_elem elem) {
+    switch (elem->type()) {
+        case stream_type::font_set:
+            if (!m_allow_state_set_nochange) {
+                if (m_state.current_font.has_value()) {
+                    if (!elem->compare(m_state.current_font.value())) {
+                        m_stream.push_back(elem);
+                    }
+                } else {
+                    m_stream.push_back(elem);
+                }
+            } else {
+                m_stream.push_back(elem);
+            }
+            m_state.current_font = elem->as<pdif::font_elem>();
+            break;
+        case stream_type::text_color_set:
+            if (!m_allow_state_set_nochange) {
+                if (m_state.current_text_color.has_value()) {
+                    if (!elem->compare(m_state.current_text_color.value())) {
+                        m_stream.push_back(elem);
+                    }
+                } else {
+                    m_stream.push_back(elem);
+                }
+            } else {
+                m_stream.push_back(elem);
+            }
+            m_state.current_text_color = elem->as<pdif::text_color_elem>();
+            break;
+        case stream_type::stroke_color_set:
+            if (!m_allow_state_set_nochange) {
+                if (m_state.current_stroke_color.has_value()) {
+                    if (!elem->compare(m_state.current_stroke_color.value())) {
+                        m_stream.push_back(elem);
+                    }
+                } else {
+                    m_stream.push_back(elem);
+                }
+            } else {
+                m_stream.push_back(elem);
+            }
+            m_state.current_stroke_color = elem->as<pdif::stroke_color_elem>();
+            break;
+        default:
+            PDIF_LOG_WARN("Trying to set non state element type as state element");
+            break;
+    }
+}
+
 void pdf_content_stream_filter::handleFontChange() {
     if (m_arg_stack.size() != 2) {
         throw std::runtime_error("Invalid font change - expected 2 args");
@@ -203,7 +259,8 @@ void pdf_content_stream_filter::handleFontChange() {
     }
 
     pdif::rstream_elem f = pdif::stream_elem::create<font_elem>(font_name, font_size);
-    m_state.current_font = f->as<font_elem>();
+    setStateElem(f);
+    
 
     // now that the state is set, we can extract the ToUnicode stream
     if (font_obj.hasKey("/ToUnicode")) {
@@ -223,8 +280,6 @@ void pdf_content_stream_filter::handleFontChange() {
             }
         }
     }
-
-    m_stream.push_back(f);
 }
 
 void pdf_content_stream_filter::handleTextColorSet() {
@@ -238,14 +293,12 @@ void pdf_content_stream_filter::handleTextColorSet() {
         int b = std::stof(std::visit(arg_visitor(), m_arg_stack[2]));
 
         pdif::rstream_elem elem = pdif::stream_elem::create<text_color_elem>(r, g, b);
-        m_state.current_text_color = elem->as<text_color_elem>();
-        m_stream.push_back(elem);
+        setStateElem(elem);
     } else if (m_arg_stack.size() == 1) {
         int g = std::stof(std::visit(arg_visitor(), m_arg_stack[0]));
 
         pdif::rstream_elem elem = pdif::stream_elem::create<text_color_elem>(g, g, g);
-        m_state.current_text_color = elem->as<text_color_elem>();
-        m_stream.push_back(elem);
+        setStateElem(elem);
     }
 }
 
@@ -260,14 +313,12 @@ void pdf_content_stream_filter::handleStrokeColorSet() {
         int b = std::stof(std::visit(arg_visitor(), m_arg_stack[2]));
 
         pdif::rstream_elem elem = pdif::stream_elem::create<stroke_color_elem>(r, g, b);
-        m_state.current_stroke_color = elem->as<stroke_color_elem>();
-        m_stream.push_back(elem);
+        setStateElem(elem);
     } else if (m_arg_stack.size() == 1) {
         int g = std::stof(std::visit(arg_visitor(), m_arg_stack[0]));
         
         pdif::rstream_elem elem = pdif::stream_elem::create<stroke_color_elem>(g, g, g);
-        m_state.current_stroke_color = elem->as<stroke_color_elem>();
-        m_stream.push_back(elem);
+        setStateElem(elem);
     }
 }
 
@@ -316,11 +367,6 @@ void pdf_content_stream_filter::parseCMap(const std::string& cmap) {
     std::string line;
     std::map<int, std::string> to_unicode;
 
-    // check the CMap type
-    std::getline(ss, line);
-    if (line != "%!PS-Adobe-3.0 Resource-CMap") {
-        PDIF_LOG_WARN("Expecting Adobe CMap, but got: {}. Unexpected results may follow", line);
-    }
     bool shown_warning = false;
 
     while (std::getline(ss, line)) {
@@ -333,7 +379,10 @@ void pdf_content_stream_filter::parseCMap(const std::string& cmap) {
                 std::string to;
                 std::stringstream bfrange_ss;
                 bfrange_ss << bfrange;
-                bfrange_ss >> begin >> end >> to;
+                bfrange_ss >> begin >> end;
+
+                std::string to_vals;
+                while (bfrange_ss >> to_vals) { to.append(to_vals); }
 
                 if (begin[0] == '<') {
                     begin = begin.substr(1, begin.size() - 2);
@@ -344,6 +393,8 @@ void pdf_content_stream_filter::parseCMap(const std::string& cmap) {
                     }
                 }
 
+                std::vector<std::string> to_values;
+
                 if (end[0] == '<') {
                     end = end.substr(1, end.size() - 2);
                 }
@@ -352,13 +403,44 @@ void pdf_content_stream_filter::parseCMap(const std::string& cmap) {
                     to = to.substr(1, to.size() - 2);
                 }
 
+                if (to[0] == '[') {
+                    std::string current;
+                    bool insideBrackets = false;
+                    for (char c : to) {
+                        if (c == '<') {
+                            insideBrackets = true;
+                            current.clear();
+                            continue;
+                        }
+
+                        if (c == '>') {
+                            insideBrackets = false;
+                            to_values.push_back(current);
+                            continue;
+                        }
+
+                        if (insideBrackets) {
+                            current.push_back(c);
+                        }
+                    }
+                }
 
                 int begin_i = std::stoi(begin, 0, 16);
                 int end_i = std::stoi(end, 0, 16);
 
                 for (int i = begin_i; i <= end_i; i++) {
-                    std::string to_inc = pdif::agl_map::normalizeUTF8(to, i - begin_i);
-                    to_unicode[i] = to_inc;
+                    if (to_values.empty()) {
+                        std::string to_inc = pdif::agl_map::normalizeUTF8(to, i - begin_i);
+                        to_unicode[i] = to_inc;
+                    } else {
+                        int to_i = i - begin_i;
+                        if (to_i < (int)to_values.size()) {
+                            std::string to_inc = pdif::agl_map::normalizeUTF8(to_values[to_i]);
+                            to_unicode[i] = to_inc;
+                        } else {
+                            PDIF_LOG_WARN("Invalid ToUnicode CMap - not enough values in array {}, {}", to_values.size(), to);
+                        }
+                    }
                 }
                 std::getline(ss, bfrange);
             }
@@ -387,7 +469,13 @@ void pdf_content_stream_filter::parseCMap(const std::string& cmap) {
 
                 to = pdif::agl_map::normalizeUTF8(to);
 
-                int from_i = std::stoi(from, 0, 16);
+                int from_i;
+                try {
+                    from_i = std::stoi(from, 0, 16);
+                } catch (std::invalid_argument const&) {
+                    PDIF_LOG_WARN("Cannot convert hex string to integer: {}", from);
+                    throw std::runtime_error("Cannot convert hex string to integer");
+                }
 
                 to_unicode[from_i] = to;
                 std::getline(ss, bfchar);
