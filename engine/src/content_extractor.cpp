@@ -29,7 +29,7 @@ extern pdif::stream_meta extract_meta(std::shared_ptr<QPDF> pdf) {
     return meta;
 }
 
-extern std::vector<pdif::stream> extract_content(std::shared_ptr<QPDF> pdf, granularity g, scope s, int pageno) {
+extern std::vector<pdif::stream> extract_content(std::shared_ptr<QPDF> pdf, granularity g, scope s, int pageno, bool allow_state_set_nochange) {
     using T_filter = pdf_content_stream_filter;
     std::vector<pdif::stream> streams;
 
@@ -51,11 +51,13 @@ extern std::vector<pdif::stream> extract_content(std::shared_ptr<QPDF> pdf, gran
         if (s == scope::page) {
             pdif::stream s = pdif::stream();
             T_filter tf(s, g, page.getObjectHandle());
+            tf.setStateSetNoChange(allow_state_set_nochange);
 
             page.filterContents(&tf);
             streams.push_back(s);
         } else if (s == scope::document) {
             T_filter tf(streams[0], g, page.getObjectHandle());
+            tf.setStateSetNoChange(allow_state_set_nochange);
 
             page.filterContents(&tf);
         }
