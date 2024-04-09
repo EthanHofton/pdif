@@ -113,14 +113,14 @@ pdif [COMMAND]
 
 Where `[COMMAND]` is one of the following:
 
- - `diff [diff_options] <pdf1> <pdf2>`: Compare two PDFs
- - `extract [extract__options] <file>`: Extract the metadata and content from a PDF
- - `help`: Display the help message
- - `version`: Display the version of the pdif-cli and the pdif-engine library
+ - `diff [diff_options] <pdf1> <pdf2>`: Compare two PDFs.
+ - `extract [extract__options] <file>`: Extract the metadata and content from a PDF.
+ - `help`: Display the help message.
+ - `version`: Display the version of the pdif-cli and the pdif-engine library.
 
 The `[diff_options]` are as follows: 
 
- - `-o, --output <file>`: The file to output the result to. If not specified, the result will be output to the console
+ - `-o, --output <file>`: The file to output the result to. If not specified, the result will be output to the console.
  - `-m, --meta`: Compare only the metadata in the output.
  - `-C, --content`: Compare only the content streams.
  - `-s, --scope <page|document>`: This is the scope of the extraction, either treat the PDF as one long single page or multiple pages.
@@ -129,11 +129,14 @@ The `[diff_options]` are as follows:
  - `-p, --page <number>`: The page number to diff. Negative for all, zero for metadata.
  - `-n, --no-color`: Do not use terminal escape code in the output.
  - `-c, --context <number>`: The number of context lines to include before and after for each diff chunk.
+ - `-i, --ignore-repeated`: ignore repeated state changes.
 
 The `[extract_options]` are as follows:
 
  - `-g, --granularity <letter|word|sentence>`: The granularity of the extracted document.
  - `-p, --page <number>`: The page number to diff. Negative for all, zero for metadata.
- - `-o, --output <file>`: The file to output the result to. If not specified, the result will be output to the console
+ - `-o, --output <file>`: The file to output the result to. If not specified, the result will be output to the console.
  - `-s, --spacing <value>`: The spacing between the elements in the output.
  - `-n, --no-color`: Do not use terminal escape code in the output.
+ - `-i, --ignore-repeated`: ignore repeated state changes.
+ - `-w, --word-count`: output only the word count of the PDF.
