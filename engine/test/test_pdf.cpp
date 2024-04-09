@@ -173,6 +173,69 @@ TEST(PDIFPDF, DumpContentConsoleColorsPageNoNegative) {
     ASSERT_EQ(pdf_ss.str(), ss.str());
 }
 
+TEST(PDIFPDF, ExtractIgnoreRepeated) {
+    pdif::PDF pdf("test_pdfs/font_change_red.pdf", pdif::granularity::sentence, pdif::scope::page, true, -1, false);
+    auto streams = pdf.get_streams();
+
+    auto check_color = [&](int index, int r, int g, int b) {
+        ASSERT_EQ(streams[0][index]->type(), pdif::stream_type::text_color_set);
+        ASSERT_EQ(streams[0][index]->as<pdif::text_color_elem>()->red(), r);
+        ASSERT_EQ(streams[0][index]->as<pdif::text_color_elem>()->green(), g);
+        ASSERT_EQ(streams[0][index]->as<pdif::text_color_elem>()->blue(), b);
+    };
+
+    auto check_stroke = [&](int index, int r, int g, int b) {
+        ASSERT_EQ(streams[0][index]->type(), pdif::stream_type::stroke_color_set);
+        ASSERT_EQ(streams[0][index]->as<pdif::stroke_color_elem>()->red(), r);
+        ASSERT_EQ(streams[0][index]->as<pdif::stroke_color_elem>()->green(), g);
+        ASSERT_EQ(streams[0][index]->as<pdif::stroke_color_elem>()->blue(), b);
+    };
+
+    ASSERT_EQ(streams.size(), 1);
+
+    pdif::stream s = streams[0];
+    ASSERT_EQ(s.size(), 15);
+
+    check_color(0, 0, 0, 0);
+    check_stroke(1, 0, 0, 0);
+
+    ASSERT_EQ(s[2]->type(), pdif::stream_type::font_set);
+    ASSERT_EQ(s[2]->as<pdif::font_elem>()->font_name(), "CMR10");
+    ASSERT_EQ(s[2]->as<pdif::font_elem>()->font_size(), 9);
+
+    ASSERT_EQ(s[3]->type(), pdif::stream_type::text);
+    ASSERT_EQ(s[3]->as<pdif::text_elem>()->text(), "This example shows how to use the");
+
+    check_color(4, 1, 0, 0);
+    check_stroke(5, 1, 0, 0);
+
+    ASSERT_EQ(s[6]->type(), pdif::stream_type::text);
+    ASSERT_EQ(s[6]->as<pdif::text_elem>()->text(), "xcolor");
+
+    check_color(7, 0, 0, 0);
+    check_stroke(8, 0, 0, 0);
+
+    ASSERT_EQ(s[9]->type(), pdif::stream_type::text);
+    ASSERT_EQ(s[9]->as<pdif::text_elem>()->text(), "package to change the color of L");
+
+    ASSERT_EQ(s[10]->type(), pdif::stream_type::font_set);
+    ASSERT_EQ(s[10]->as<pdif::font_elem>()->font_name(), "CMR7");
+    ASSERT_EQ(s[10]->as<pdif::font_elem>()->font_size(), 6);
+
+    ASSERT_EQ(s[11]->type(), pdif::stream_type::text);
+    ASSERT_EQ(s[11]->as<pdif::text_elem>()->text(), "A");
+
+    ASSERT_EQ(s[12]->type(), pdif::stream_type::font_set);
+    ASSERT_EQ(s[12]->as<pdif::font_elem>()->font_name(), "CMR10");
+    ASSERT_EQ(s[12]->as<pdif::font_elem>()->font_size(), 9);
+    
+    ASSERT_EQ(s[13]->type(), pdif::stream_type::text);
+    ASSERT_EQ(s[13]->as<pdif::text_elem>()->text(), "T E X page elements.");
+
+    ASSERT_EQ(s[14]->type(), pdif::stream_type::text);
+    ASSERT_EQ(s[14]->as<pdif::text_elem>()->text(), "1");
+}
+
 /**
  * @brief From Here on we will test the compare function
  * 

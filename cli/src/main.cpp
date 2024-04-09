@@ -22,11 +22,13 @@ struct args {
     bool meta_only = false;
     bool content_only = false;
     bool summary = false;
+    bool ingnore_repeated = true;
     pdif::scope scope = pdif::scope::page;
     pdif::granularity granularity = pdif::granularity::word;
     bool write_console_colors = true;
     int pageno = -1;
     int context_lines = 3;
+    bool word_count = false;
 };
 
 void print_usage()
@@ -47,6 +49,7 @@ void print_usage()
     printf("    -p, --page <number>: the page number to extract (negative for all, 0 for meta) \n");
     printf("    -n, --no-color: do not use console colors in the output\n");
     printf("    -c, --context <number>: the number of context lines to show\n");
+    printf("    -i, --ignore-repeated: ignore repeated state changes\n");
     printf("\n");
     printf("   extract_options:\n");
     printf("    -g, --granularity <letter|word|sentence>: the granularity of the extraction\n");
@@ -54,6 +57,8 @@ void print_usage()
     printf("    -o, --output <file>: the output file\n");
     printf("    -s, --spacing <value>: the spacing between the elements\n");
     printf("    -n, --no-color: do not use console colors in the output\n");
+    printf("    -i, --ignore-repeated: ignore repeated state changes\n");
+    printf("    -w, --word-count: show total number of words extracted\n");
 }
 
 args parse_arguments(int argc, char *argv[]) {
@@ -129,6 +134,10 @@ args parse_arguments(int argc, char *argv[]) {
                 }
             } else if (arg == "-n" || arg == "--no-color") {
                 a.write_console_colors = false;
+            } else if (arg == "-i" || arg == "--ignore-repeated") {
+                a.ingnore_repeated = false;
+            } else if (arg == "-w" || arg == "--word-count") {
+                a.word_count = true;
             } else {
                 std::cerr << "Error: Unknown option '" << arg << "'\n";
                 print_usage();
@@ -242,6 +251,8 @@ args parse_arguments(int argc, char *argv[]) {
             a.content_only = true;
         } else if (arg == "-S" || arg == "--summary") {
             a.summary = true;
+        } else if (arg == "-i" || arg == "--ignore-repeated") {
+            a.ingnore_repeated = false;
         } else {
             std::cerr << "Error: Unknown option '" << arg << "'\n";
             print_usage();
@@ -258,13 +269,44 @@ args parse_arguments(int argc, char *argv[]) {
     return a;
 }
 
+bool is_word(std::string word) {
+    for (int i = 0; i < (int)word.size(); i++) {
+        if (!isalnum(word[i])) {
+            return false;
+        }
+    }
+    return true;
+}
+
+int calc_word_count(pdif::PDF &pdf) {
+    int count = 0;
+    auto streams = pdf.get_streams();
+    for (auto &stream : streams) {
+        for (int i = 0; i < (int)stream.size(); i++) {
+            if (stream[i]->type() == pdif::stream_type::text) {
+                auto elem = stream[i]->as<pdif::text_elem>();
+                std::string text = elem->text();
+                std::stringstream ss(text);
+                std::string word;
+                while (ss >> word) {
+                    if (is_word(word)) {
+                        count++;
+                    }
+                }
+            }
+        }
+    }
+
+    return count;
+}
+
 int main(int argc, char** argv)
 {
     args a = parse_arguments(argc, argv);
 
     if (a.command == "diff") {
-        pdif::PDF file1(a.file1, a.granularity, a.scope, a.write_console_colors, a.pageno - 1);
-        pdif::PDF file2(a.file2, a.granularity, a.scope, a.write_console_colors, a.pageno - 1);
+        pdif::PDF file1(a.file1, a.granularity, a.scope, a.write_console_colors, a.pageno - 1, a.ingnore_repeated);
+        pdif::PDF file2(a.file2, a.granularity, a.scope, a.write_console_colors, a.pageno - 1, a.ingnore_repeated);
 
         pdif::diff diff = file1.compare<pdif::lcs_stream_differ>(file2);
         diff.set_allowed_context(a.context_lines);
@@ -301,7 +343,7 @@ int main(int argc, char** argv)
         }
 
     } else if (a.command == "extract") {
-        pdif::PDF file(a.file1, a.granularity, pdif::scope::page, a.write_console_colors, a.pageno - 1);
+        pdif::PDF file(a.file1, a.granularity, pdif::scope::page, a.write_console_colors, a.pageno - 1, a.ingnore_repeated);
 
         std::ofstream ofs;
         std::ostream *output;
@@ -313,11 +355,26 @@ int main(int argc, char** argv)
             output = &std::cout;
         }
 
+        if (a.word_count) {
+            if (a.write_console_colors) {
+                *output << util::CONSOLE_COLOR_CODE::TEXT_BOLD;
+            }
+            *output << "Total Word count: ";
+
+            if (a.write_console_colors) {
+                *output << util::CONSOLE_COLOR_CODE::TEXT_RESET;
+            }
+
+            *output << calc_word_count(file) << std::endl;
+            return 0;
+        }
+
         if (a.pageno == 0) {
             file.dump_meta(*output);
         } else {
             file.dump_content(*output, a.spacing);
         }
+
 
         if (a.output_file.has_value()) {
             ofs.close();

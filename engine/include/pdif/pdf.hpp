@@ -26,7 +26,7 @@ public:
      * @param write_console_colors flag to set whether to write console colors (default: true)
      * @param pageno the page number to extract STARTING FROM 0 (default: -1 for all)
      */
-    PDF(const std::string& path, granularity g = granularity::word, scope s = scope::page, bool write_console_colors = true, int pageno = -1);
+    PDF(const std::string& path, granularity g = granularity::word, scope s = scope::page, bool write_console_colors = true, int pageno = -1, bool allow_state_set_nochange = true);
 
     /**
      * @brief Get the granularity object

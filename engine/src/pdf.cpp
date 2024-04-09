@@ -2,13 +2,13 @@
 
 namespace pdif {
 
-PDF::PDF(const std::string& path, granularity g, scope s, bool write_console_colors, int pageno) : m_extractor_granularity(g), m_pdf_scope(s), m_write_console_colors(write_console_colors), m_pageno(pageno) {
+PDF::PDF(const std::string& path, granularity g, scope s, bool write_console_colors, int pageno, bool allow_state_set_nochange) : m_extractor_granularity(g), m_pdf_scope(s), m_write_console_colors(write_console_colors), m_pageno(pageno) {
     m_pdf = QPDF::create();
 
     m_pdf->processFile(path.c_str());
 
     m_meta = extract_meta(m_pdf);
-    m_streams = extract_content(m_pdf, m_extractor_granularity, m_pdf_scope, m_pageno);
+    m_streams = extract_content(m_pdf, m_extractor_granularity, m_pdf_scope, m_pageno, allow_state_set_nochange);
 }
 
 std::string PDF::cc(util::CONSOLE_COLOR_CODE code) const {
